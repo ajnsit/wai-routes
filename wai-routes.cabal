@@ -1,0 +1,34 @@
+Name:                wai-routes
+Version:             0.1
+Description:         This package provides typesafe URLs for Wai applications.
+Synopsis:            This package provides typesafe URLs for Wai applications.
+Homepage:            https://github.com/ajnsit/wai-routes
+License:             GPL
+License-file:        LICENSE
+Author:              Anupam Jain
+Maintainer:          ajnsit@gmail.com
+Build-Type:          Simple
+Cabal-Version:       >=1.6
+stability:           Experimental
+Category:            Network
+Extra-source-files:  README
+
+source-repository head
+  type:     git
+  location: http://github.com/ajnsit/wai-routes
+
+source-repository this
+  type:     git
+  location: http://github.com/ajnsit/wai-routes/tree/v0.1
+  tag:      v0.1
+
+Library
+  hs-source-dirs:    src
+  Build-Depends:     base >= 3 && < 5
+               ,     wai
+               ,     path-pieces
+               ,     text
+               ,     http-types
+               ,     template-haskell
+  exposed-modules:   Network.Wai.Middleware.Routes
+

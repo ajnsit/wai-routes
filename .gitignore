@@ -1,0 +1,6 @@
+dist
+*~
+tmp
+_darcs
+*.old.hs
+

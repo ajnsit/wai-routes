@@ -1,0 +1,54 @@
+Wai Routes (wai-routes-0.1)
+============================
+
+This package provides typesafe URLs for Wai applications.
+
+Much of the TH functionality has been lifted from Yesod dispatching code. The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
+
+
+Example Usage
+=============
+
+The following builds a simple JSON service (using Aeson for JSON conversion)
+
+
+    -- A useful type synonym
+    type UserId = Text
+
+    -- Define the JSON instance
+    data User = User { name::Text, uid:: UserId } deriving (Show, Read, Eq)
+    instance ToJSON User where
+      toJSON x = object [ "name" .= (name x), "uid" .= (uid x) ]
+
+    -- Define the handlers
+    getUserR :: UserId -> Application
+    getUserR uid _req =
+      return $ responseLBS statusOK headers json
+      where user = User { name = "Anon Amos", uid = uid }
+            json = encode user
+            headers = [("Content-Type", "application/json")]
+
+    getUsersR :: Application
+    getUsersR _req =
+      return $ responseLBS statusOK headers json
+      where userids = (["anon","john","jane"]::[Text])
+            json = encode userids
+            headers = [("Content-Type", "application/json")]
+
+    -- Generate the routing datatype and the Route instance
+    -- The type generated will be named "UserRoute"
+    mkRoute "User" [parseRoutes|
+      /users UsersR GET
+      /user/#UserId UserR GET
+    |]
+
+    -- Now you can use dispatch function (passing it your route datatype)
+    main :: IO ()
+    main = run 8080 $ dispatch (undefined::UserRoute) $ staticApp defaultFileServerSettings
+
+
+Changelog
+=========
+
+0.1 : Intial release
+
