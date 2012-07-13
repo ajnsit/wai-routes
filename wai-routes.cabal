@@ -11,7 +11,7 @@ Build-Type:          Simple
 Cabal-Version:       >=1.6
 stability:           Experimental
 Category:            Network
-Extra-source-files:  README
+Extra-source-files:  README, examples/Example.hs
 
 source-repository head
   type:     git
