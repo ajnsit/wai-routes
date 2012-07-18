@@ -1,2 +1,0 @@
-:cd src
-:l Network/Wai/Middleware/Delme.hs 
