@@ -1,7 +1,6 @@
 Name:                wai-routes
 Version:             0.2
-Description:         This package provides typesafe URLs for Wai applications.
-Synopsis:            This package provides typesafe URLs for Wai applications.
+Synopsis:            Typesafe URLs for Wai applications.
 Homepage:            https://github.com/ajnsit/wai-routes
 License:             GPL
 License-file:        LICENSE
@@ -12,6 +11,52 @@ Cabal-Version:       >=1.6
 stability:           Experimental
 Category:            Network
 Extra-source-files:  README, examples/Example.hs
+Description:
+  Provides easy to use typesafe URLs for Wai Applications.
+  .
+  Sample usage follows (See examples/Example.hs for the full code) -
+  .
+  @
+    &#123;-&#35; LANGUAGE OverloadedStrings, TypeFamilies &#35;-&#125;
+    .
+    import Network.Wai
+    import Network.Wai.Middleware.Routes
+    import Network.Wai.Middleware.Routes.Monad
+    .
+    import Data.IORef
+    .
+    &#45;&#45; The Site Argument
+    data MyRoute = MyRoute (IORef DB)
+    .
+    &#45;&#45; Generate Routes
+    mkRoute "MyRoute" &#91;parseRoutes&#124;
+    &#47;             UsersR         GET
+    &#47;user&#47;&#35;Int    UserR&#58;
+    &#32;&#32;/              UserRootR   GET
+    &#32;&#32;/delete        UserDeleteR POST
+    &#91;&#124;
+    .
+    &#45;&#45; Define Handlers
+    &#45;&#45; All Users Page
+    getUsersR &#58;&#58; Handler MyRoute
+    getUsersR (MyRoute dbref) request = ...
+    &#45;&#45; Single User Page
+    getUserRootR &#58;&#58; Int -> Handler MyRoute
+    getUserRootR userid (MyRoute dbref) request = ...
+    &#45;&#45; Delete Single User
+    postUserDeleteR &#58;&#58; Int -> Handler MyRoute
+    postUserDeleteR userid (MyRoute dbref) request = ...
+    .
+    &#45;&#45; Define Application using RouteM Monad
+    myApp = do
+    &#32;&#32;db <- liftIO &#36; newIORef mydb
+    &#32;&#32;addroute (MyRoute db)
+    &#32;&#32;setDefaultAction $ staticApp $ defaultFileServerSettings &#34;static&#34;
+    .
+    &#45;&#45; Run the application
+    main &#58;&#58; IO ()
+    main = toWaiApp myApp >>= run 8080
+  @
 
 source-repository head
   type:     git
