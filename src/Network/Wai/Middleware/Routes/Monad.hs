@@ -1,16 +1,32 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving, TypeFamilies #-}
 
-{- Defines a Routing Monad the provides easy composition of Routes -}
+{- |
+Module      :  Network.Wai.Middleware.Routes.Monad
+Copyright   :  (c) Anupam Jain 2011
+License     :  GNU GPL Version 3 (see the file LICENSE)
 
-module Network.Wai.Middleware.RouteMonad where
+Maintainer  :  ajnsit@gmail.com
+Stability   :  experimental
+Portability :  non-portable (uses ghc extensions)
+
+Defines a Routing Monad that provides easy composition of Routes
+-}
+module Network.Wai.Middleware.Routes.Monad
+    ( -- * Route Monad
+      RouteM
+      -- * Monadic actions
+    , setDefaultAction
+    , middleware
+    , addroute
+      -- * Convert to Wai Application
+    , toWaiApp
+    )
+    where
 
 import Network.Wai
 import Network.Wai.Middleware.Routes
 import Network.HTTP.Types
 
-import Control.Monad.Error
-import Control.Monad.Reader
 import Control.Monad.State
 
 import qualified Data.Text as T
@@ -27,11 +43,12 @@ defaultApplication _req = return $ responseLBS status404 [("Content-Type", "text
 
 
 addMiddleware :: Middleware -> RouteState -> RouteState
-addMiddleware m s@(RouteState {middlewares = ms}) = s { middlewares = m:ms }
+addMiddleware m s@(RouteState {middlewares=ms}) = s {middlewares=m:ms}
 
 setDefaultApp :: Application -> RouteState -> RouteState
 setDefaultApp a s@(RouteState {defaultApp=d}) = s {defaultApp=a}
 
+-- ! The Route Monad
 newtype RouteM a = S { runS :: StateT RouteState IO a }
     deriving (Monad, MonadIO, Functor, MonadState RouteState)
 
@@ -52,11 +69,9 @@ setDefaultAction = modify . setDefaultApp
 -- Empty state
 initRouteState = RouteState [] defaultApplication
 
--- Convert the Monadic value into an application
+-- | Convert a RouteM Monadic value into a wai application
 toWaiApp :: RouteM () -> IO Application
 toWaiApp m = do
   (_,s) <- runStateT (runS m) initRouteState
   return $ foldl (\a b -> b a) (defaultApp s) (middlewares s)
-
-
 

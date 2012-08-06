@@ -1,5 +1,5 @@
 Name:                wai-routes
-Version:             0.1
+Version:             0.2
 Description:         This package provides typesafe URLs for Wai applications.
 Synopsis:            This package provides typesafe URLs for Wai applications.
 Homepage:            https://github.com/ajnsit/wai-routes
@@ -19,16 +19,18 @@ source-repository head
 
 source-repository this
   type:     git
-  location: http://github.com/ajnsit/wai-routes/tree/v0.1
+  location: http://github.com/ajnsit/wai-routes/tree/v0.2
   tag:      v0.1
 
 Library
   hs-source-dirs:    src
   Build-Depends:     base >= 3 && < 5
-               ,     wai
+               ,     wai >= 1.3
                ,     path-pieces
                ,     text
-               ,     http-types
+               ,     http-types >= 0.7
                ,     template-haskell
+               ,     yesod-routes >= 1.1
+               ,     mtl
   exposed-modules:   Network.Wai.Middleware.Routes
-
+               ,     Network.Wai.Middleware.Routes.Monad
