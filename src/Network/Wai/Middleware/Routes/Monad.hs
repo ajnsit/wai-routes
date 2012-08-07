@@ -14,17 +14,17 @@ Defines a Routing Monad that provides easy composition of Routes
 module Network.Wai.Middleware.Routes.Monad
     ( -- * Route Monad
       RouteM
-      -- * Monadic actions
+      -- * Compose Routes
     , setDefaultAction
     , middleware
-    , addroute
+    , route
       -- * Convert to Wai Application
     , toWaiApp
     )
     where
 
 import Network.Wai
-import Network.Wai.Middleware.Routes
+import Network.Wai.Middleware.Routes.Routes
 import Network.HTTP.Types
 
 import Control.Monad.State
@@ -52,24 +52,26 @@ setDefaultApp a s@(RouteState {defaultApp=d}) = s {defaultApp=a}
 newtype RouteM a = S { runS :: StateT RouteState IO a }
     deriving (Monad, MonadIO, Functor, MonadState RouteState)
 
--- | Use given middleware. Middleware is nested such that the first declared
--- is the outermost middleware (it has first dibs on the request and last action
--- on the response). Every middleware is run on each request.
+-- | Add a middleware to the application.
+-- Middleware is nested so the one declared earlier is outer.
 middleware :: Middleware -> RouteM ()
 middleware = modify . addMiddleware
 
--- | Add a route to the application
-addroute :: (Routable master) => master -> RouteM ()
-addroute = middleware . dispatch
+-- | Add a route to the application.
+-- Routes are ordered so the one declared earlier is matched first.
+route :: (Routable master) => master -> RouteM ()
+route = middleware . dispatch
 
--- ! Set the default action of the Application
+-- ! Set the default action of the Application.
+-- You should only call this once in an application.
+-- Subsequent invocations override the previous settings.
 setDefaultAction :: Application -> RouteM ()
 setDefaultAction = modify . setDefaultApp
 
 -- Empty state
 initRouteState = RouteState [] defaultApplication
 
--- | Convert a RouteM Monadic value into a wai application
+-- | Convert a RouteM Monadic value into a wai application.
 toWaiApp :: RouteM () -> IO Application
 toWaiApp m = do
   (_,s) <- runStateT (runS m) initRouteState

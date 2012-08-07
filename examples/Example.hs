@@ -3,7 +3,6 @@ module Main where
 
 import Network.Wai
 import Network.Wai.Middleware.Routes
-import Network.Wai.Middleware.Routes.Monad
 import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
 import Network.HTTP.Types
@@ -118,7 +117,7 @@ initdb =
 application :: RouteM ()
 application = do
   db <- liftIO $ newIORef initdb
-  addroute (MyRoute db)
+  route (MyRoute db)
   setDefaultAction $ staticApp $ defaultFileServerSettings "static"
 
 -- Run the application
