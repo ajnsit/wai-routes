@@ -64,7 +64,7 @@ source-repository head
 source-repository this
   type:     git
   location: http://github.com/ajnsit/wai-routes/tree/v0.2
-  tag:      v0.1
+  tag:      v0.2
 
 Library
   hs-source-dirs:    src

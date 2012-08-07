@@ -3,7 +3,15 @@ Wai Routes (wai-routes-0.1)
 
 This package provides typesafe URLs for Wai applications.
 
-Much of the TH functionality has been lifted from Yesod dispatching code. The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
+Features:
+  - Automatic generation of Route boilerplate using TH
+  - Easy Nested Routes
+  - Sitewide Master datatype which is passed to all handlers
+    and can be used for persistent data (like DB connections)
+  - RouteM monad that makes it easy to compose an application
+    with multiple routes and middleware.
+
+It depends on yesod-routes package for the TH functionality (but not the rest of yesod). The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
 
 
 Example Usage
@@ -12,43 +20,49 @@ Example Usage
 The following builds a simple JSON service (using Aeson for JSON conversion)
 
 
-    -- A useful type synonym
-    type UserId = Text
+    {-# LANGUAGE OverloadedStrings, TypeFamilies #-}
 
-    -- Define the JSON instance
-    data User = User { name::Text, uid:: UserId } deriving (Show, Read, Eq)
-    instance ToJSON User where
-      toJSON x = object [ "name" .= (name x), "uid" .= (uid x) ]
+    import Network.Wai
+    import Network.Wai.Middleware.Routes
 
-    -- Define the handlers
-    getUserR :: UserId -> Application
-    getUserR uid _req =
-      return $ responseLBS statusOK headers json
-      where user = User { name = "Anon Amos", uid = uid }
-            json = encode user
-            headers = [("Content-Type", "application/json")]
+    import Data.IORef
 
-    getUsersR :: Application
-    getUsersR _req =
-      return $ responseLBS statusOK headers json
-      where userids = (["anon","john","jane"]::[Text])
-            json = encode userids
-            headers = [("Content-Type", "application/json")]
+    -- The Site Argument
+    data MyRoute = MyRoute (IORef DB)
 
-    -- Generate the routing datatype and the Route instance
-    -- The type generated will be named "UserRoute"
-    mkRoute "User" [parseRoutes|
-      /users UsersR GET
-      /user/#UserId UserR GET
-    |]
+    -- Generate Routes
+    mkRoute MyRoute [parseRoutes|
+    /             UsersR         GET
+    /user/#Int    UserR:
+      /              UserRootR   GET
+      /delete        UserDeleteR POST
+    [|
 
-    -- Now you can use dispatch function (passing it your route datatype)
+    -- Define Handlers
+    -- All Users Page
+    getUsersR :: Handler MyRoute
+    getUsersR (MyRoute dbref) request = ...
+    -- Single User Page
+    getUserRootR :: Int -> Handler MyRoute
+    getUserRootR userid (MyRoute dbref) request = ...
+    -- Delete Single User
+    postUserDeleteR :: Int -> Handler MyRoute
+    postUserDeleteR userid (MyRoute dbref) request = ...
+
+    -- Define Application using RouteM Monad
+    myApp = do
+      db <- liftIO $ newIORef mydb
+      route (MyRoute db)
+      setDefaultAction $ staticApp $ defaultFileServerSettings "static"
+
+    -- Run the application
     main :: IO ()
-    main = run 8080 $ dispatch (undefined::UserRoute) $ staticApp defaultFileServerSettings
+    main = toWaiApp myApp >>= run 8080
 
 
 Changelog
 =========
 
 0.1 : Intial release
+0.2 : Updated functionality based on yesod-routes package
 
