@@ -36,7 +36,7 @@ The following builds a simple JSON service (using Aeson for JSON conversion)
     /user/#Int    UserR:
       /              UserRootR   GET
       /delete        UserDeleteR POST
-    [|
+    |]
 
     -- Define Handlers
     -- All Users Page
