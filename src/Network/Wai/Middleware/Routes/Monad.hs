@@ -15,7 +15,7 @@ module Network.Wai.Middleware.Routes.Monad
     ( -- * Route Monad
       RouteM
       -- * Compose Routes
-    , setDefaultAction
+    , defaultAction
     , middleware
     , route
       -- * Convert to Wai Application
@@ -28,8 +28,6 @@ import Network.Wai.Middleware.Routes.Routes
 import Network.HTTP.Types
 
 import Control.Monad.State
-
-import qualified Data.Text as T
 
 data RouteState = RouteState
                 { middlewares :: [Middleware]
@@ -46,7 +44,7 @@ addMiddleware :: Middleware -> RouteState -> RouteState
 addMiddleware m s@(RouteState {middlewares=ms}) = s {middlewares=m:ms}
 
 setDefaultApp :: Application -> RouteState -> RouteState
-setDefaultApp a s@(RouteState {defaultApp=d}) = s {defaultApp=a}
+setDefaultApp a s = s {defaultApp=a}
 
 -- ! The Route Monad
 newtype RouteM a = S { runS :: StateT RouteState IO a }
@@ -60,15 +58,16 @@ middleware = modify . addMiddleware
 -- | Add a route to the application.
 -- Routes are ordered so the one declared earlier is matched first.
 route :: (Routable master) => master -> RouteM ()
-route = middleware . dispatch
+route = middleware . routeDispatch
 
 -- ! Set the default action of the Application.
 -- You should only call this once in an application.
 -- Subsequent invocations override the previous settings.
-setDefaultAction :: Application -> RouteM ()
-setDefaultAction = modify . setDefaultApp
+defaultAction :: Application -> RouteM ()
+defaultAction = modify . setDefaultApp
 
 -- Empty state
+initRouteState :: RouteState
 initRouteState = RouteState [] defaultApplication
 
 -- | Convert a RouteM Monadic value into a wai application.

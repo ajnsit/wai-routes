@@ -23,7 +23,7 @@ type DB = [User]
 
 -- JSON instance
 instance ToJSON User where
-  toJSON x = object [ "uid" .= (userId x), "name" .= (userName x), "age" .= (userAge x) ]
+  toJSON x = object [ "uid" .= userId x, "name" .= userName x, "age" .= userAge x ]
 
 
 -- The Site argument
@@ -39,14 +39,15 @@ mkRoute "MyRoute" [parseRoutes|
 |]
 
 -- Our handlers always produce json
+jsonHeaders :: ResponseHeaders
 jsonHeaders = [("Content-Type", "application/json")]
 
 -- Handlers
 
 -- Display the possible actions
 getHomeR :: Handler MyRoute
-getHomeR _master _req = return $ responseLBS status200 jsonHeaders json
-  where json = encode $ M.fromList (
+getHomeR _master _req = return $ responseLBS status200 jsonHeaders jsonOut
+  where jsonOut = encode $ M.fromList (
                  [("description", [["Simple User database Example"]])
                  ,("links"
                   ,[["home",  showRoute HomeR]
@@ -57,13 +58,13 @@ getHomeR _master _req = return $ responseLBS status200 jsonHeaders json
 
 -- Display all the users
 getUsersR :: Handler MyRoute
-getUsersR (MyRoute dbref) req_ = do
+getUsersR (MyRoute dbref) _req = do
   db <- liftIO $ readIORef dbref
   let dblinks = map linkify db
-  let json = encode $ M.fromList (
+  let jsonOut = encode $ M.fromList (
           [("description", [["Users List"]])
           ,("links", dblinks)] :: [(Text, [[Text]])] )
-  return $ responseLBS status200 jsonHeaders json
+  return $ responseLBS status200 jsonHeaders jsonOut
   where
     linkify user = [userName user, showRoute $ UserR (userId user) UserRootR]
 
@@ -71,11 +72,10 @@ getUsersR (MyRoute dbref) req_ = do
 getUserRootR :: Int -> Handler MyRoute
 getUserRootR i (MyRoute dbref) _req = do
   db <- liftIO $ readIORef dbref
-  let user = ulookup i db
   case ulookup i db of
     Nothing -> return $ responseLBS status200 jsonHeaders $ encode ("ERROR: User not found" :: Text)
     Just user -> do
-      let json = encode $ M.fromList (
+      let jsonOut = encode $ M.fromList (
             [("description", [["User details"]])
             ,("data"
              ,[["Id",   T.pack $ show $ userId user]
@@ -89,24 +89,25 @@ getUserRootR i (MyRoute dbref) _req = do
               ]
              )
             ] :: [(Text, [[Text]])] )
-      return $ responseLBS status200 jsonHeaders json
+      return $ responseLBS status200 jsonHeaders jsonOut
   where
     ulookup _ [] = Nothing
-    ulookup i (u:us) = if userId u == i then Just u else ulookup i us
+    ulookup ui (u:us) = if userId u == ui then Just u else ulookup ui us
 
 -- Delete a user: GET
 getUserDeleteR :: Int -> Handler MyRoute
-getUserDeleteR _ master req_ = return $ responseLBS status200 jsonHeaders json
-  where err = (["DELETE","please use POST"]::[Text])
-        json = encode err
+getUserDeleteR _ _master _req = return $ responseLBS status200 jsonHeaders jsonOut
+  where err = ["DELETE","please use POST"]::[Text]
+        jsonOut = encode err
 
 -- Delete a user: POST
 postUserDeleteR :: Int -> Handler MyRoute
-postUserDeleteR _ master req_ = return $ responseLBS status200 jsonHeaders json
-  where err = (["DELETE","not implemented"]::[Text])
-        json = encode err
+postUserDeleteR _ _master _req = return $ responseLBS status200 jsonHeaders jsonOut
+  where err = ["DELETE","not implemented"]::[Text]
+        jsonOut = encode err
 
 -- Initial database
+initdb :: [User]
 initdb =
     [ User 1 "Anon Amos" 23
     , User 2 "Bo Lively" 28
@@ -118,7 +119,7 @@ application :: RouteM ()
 application = do
   db <- liftIO $ newIORef initdb
   route (MyRoute db)
-  setDefaultAction $ staticApp $ defaultFileServerSettings "static"
+  defaultAction $ staticApp $ defaultFileServerSettings "static"
 
 -- Run the application
 main :: IO ()
