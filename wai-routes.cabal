@@ -1,8 +1,8 @@
 Name:                wai-routes
-Version:             0.2
+Version:             0.2.1
 Synopsis:            Typesafe URLs for Wai applications.
 Homepage:            https://github.com/ajnsit/wai-routes
-License:             GPL
+License:             MIT
 License-file:        LICENSE
 Author:              Anupam Jain
 Maintainer:          ajnsit@gmail.com
@@ -33,7 +33,7 @@ Description:
     &#47;user&#47;&#35;Int    UserR&#58;
     &#32;&#32;/              UserRootR   GET
     &#32;&#32;/delete        UserDeleteR POST
-    &#91;&#124;
+    &#124;&#93;
     .
     &#45;&#45; Define Handlers
     &#45;&#45; All Users Page

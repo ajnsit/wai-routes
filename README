@@ -1,5 +1,5 @@
-Wai Routes (wai-routes-0.2)
-============================
+Wai Routes (wai-routes-0.2.1)
+==============================
 
 This package provides typesafe URLs for Wai applications.
 
@@ -63,6 +63,7 @@ The following builds a simple JSON service (using Aeson for JSON conversion)
 Changelog
 =========
 
-0.1 : Intial release
-0.2 : Updated functionality based on yesod-routes package
+0.1   : Intial release
+0.2   : Updated functionality based on yesod-routes package
+0.2.1 : Changed license to MIT
 

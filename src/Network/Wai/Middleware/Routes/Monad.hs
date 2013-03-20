@@ -3,7 +3,7 @@
 {- |
 Module      :  Network.Wai.Middleware.Routes.Monad
 Copyright   :  (c) Anupam Jain 2011
-License     :  GNU GPL Version 3 (see the file LICENSE)
+License     :  MIT (see the file LICENSE)
 
 Maintainer  :  ajnsit@gmail.com
 Stability   :  experimental
