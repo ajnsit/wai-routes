@@ -1,5 +1,5 @@
 Name:                wai-routes
-Version:             0.2.1
+Version:             0.2.2
 Synopsis:            Typesafe URLs for Wai applications.
 Homepage:            https://github.com/ajnsit/wai-routes
 License:             MIT
@@ -63,8 +63,8 @@ source-repository head
 
 source-repository this
   type:     git
-  location: http://github.com/ajnsit/wai-routes/tree/v0.2
-  tag:      v0.2
+  location: http://github.com/ajnsit/wai-routes/tree/v0.2.2
+  tag:      v0.2.2
 
 Library
   hs-source-dirs:    src
