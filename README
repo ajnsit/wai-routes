@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.2.2)
+Wai Routes (wai-routes-0.2.3)
 ==============================
 
 This package provides typesafe URLs for Wai applications.
@@ -67,4 +67,5 @@ Changelog
 0.2   : Updated functionality based on yesod-routes package
 0.2.1 : Changed license to MIT
 0.2.2 : Fixed license information in hs and cabal files
+0.2.3 : Implemented a better showRoute function. Added blaze-builder as a dependency
 

@@ -41,19 +41,24 @@ module Network.Wai.Middleware.Routes.Routes
 
 -- Wai
 import Network.Wai (Middleware, Application, pathInfo, requestMethod)
-import Network.HTTP.Types (StdMethod(GET), parseMethod)
+import Network.HTTP.Types (StdMethod(GET), parseMethod, encodePath, queryTextToQuery)
 
 -- Yesod Routes
 import Yesod.Routes.Class (Route, RenderRoute(..))
 import Yesod.Routes.Parse (parseRoutes, parseRoutesNoCheck, parseRoutesFile, parseRoutesFileNoCheck, parseType)
 import Yesod.Routes.TH (mkRenderRouteInstance, mkDispatchClause, ResourceTree(..))
 
--- Text
+-- Text and Bytestring
 import qualified Data.Text as T
 import Data.Text (Text)
+import Data.Text.Encoding (decodeUtf8)
+import Blaze.ByteString.Builder (Builder, toByteString)
 
 -- TH
 import Language.Haskell.TH.Syntax
+
+-- Convenience
+import Control.Arrow (second)
 
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and a `RenderRoute` instance
@@ -106,10 +111,10 @@ routeDispatch master def req = app master req
       Left  _ -> GET
 
 -- | Renders a `Route` as Text
+-- Uses the `encodePath` function from http-types. Also performs utf8 encoding
 showRoute :: RenderRoute master => Route master -> Text
--- TODO: Verify that intercalate "/" is sufficient and correct for all cases
--- HACK: We add a '/' to the front of the URL (by adding an empty piece at
--- the front of the url [Text]) to make everything relative to the root.
--- This ensures that the links always work.
-showRoute = T.intercalate (T.pack "/") . (T.pack "" :) . fst . renderRoute
+showRoute = uncurry encodePathInfo . second (map $ second Just) . renderRoute
+  where
+    encodePathInfo :: [Text] -> [(Text, Maybe Text)] -> Text
+    encodePathInfo segments = decodeUtf8 . toByteString . encodePath segments . queryTextToQuery
 
