@@ -3,4 +3,6 @@ dist
 tmp
 _darcs
 *.old.hs
+*.hi
+*.o
 
