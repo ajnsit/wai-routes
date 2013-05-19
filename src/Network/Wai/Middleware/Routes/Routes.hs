@@ -60,6 +60,41 @@ import Language.Haskell.TH.Syntax
 -- Convenience
 import Control.Arrow (second)
 
+-- DELME INFO GATHERER FROM ROUTE PARSING
+
+delme :: [ResourceTree String]
+delme = [parseRoutes|
+  /             UsersR         GET
+  /user/#Int    UserR:
+    /              UserRootR   GET
+    /delete        UserDeleteR POST
+|]
+
+deriving instance Show (ResourceTree String)
+
+{-
+info :: [ResourceTree String] -> IO ()
+info = sequence . map resourceInfo
+
+resourceInfo :: ResourceTree String -> IO ()
+resourceInfo (ResourceLeaf r) = do
+  putStr "ResourceLeaf: "
+  resInfo r
+resourceInfo (ResourceParent name cpo rs) = do
+  putStr $ "ResourceParent " ++ name ++ ": [[["
+  resCpo cpo
+  info rs
+  putStrLn "]]]"
+
+resInfo :: Resource String -> IO ()
+resInfo r = do
+  putStr $ "Resource " ++ resourceName r ++ ": {"
+
+-}
+
+-- END INFO GATHERER
+
+
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and a `RenderRoute` instance
 mkRoute :: String -> [ResourceTree String] -> Q [Dec]
