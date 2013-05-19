@@ -68,4 +68,5 @@ Changelog
 0.2.1 : Changed license to MIT
 0.2.2 : Fixed license information in hs and cabal files
 0.2.3 : Implemented a better showRoute function. Added blaze-builder as a dependency
+0.2.4 : Put an upper bound on yesod-routes version as 1.2 breaks API compatibility
 
