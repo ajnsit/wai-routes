@@ -75,7 +75,7 @@ Library
                ,     http-types >= 0.7
                ,     blaze-builder >= 0.2.1.4 && < 0.4
                ,     template-haskell
-               ,     yesod-routes >= 1.1
+               ,     yesod-routes >= 1.1 && < 1.2
                ,     mtl
   exposed-modules:   Network.Wai.Middleware.Routes
                ,     Network.Wai.Middleware.Routes.Routes
