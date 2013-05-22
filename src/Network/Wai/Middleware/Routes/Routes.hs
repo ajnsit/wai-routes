@@ -45,7 +45,7 @@ module Network.Wai.Middleware.Routes.Routes
 
 -- Wai
 import Network.Wai (Middleware, Application, pathInfo, requestMethod, requestMethod, Response(ResponseBuilder), Request(..))
-import Network.HTTP.Types (StdMethod(GET), parseMethod, decodePath, encodePath, queryTextToQuery, queryToQueryText, Method, status404, status405)
+import Network.HTTP.Types (decodePath, encodePath, queryTextToQuery, queryToQueryText, status404, status405)
 
 -- Yesod Routes
 import Yesod.Routes.Class (Route, RenderRoute(..), ParseRoute(..), RouteAttrs(..))
@@ -53,10 +53,9 @@ import Yesod.Routes.Parse (parseRoutes, parseRoutesNoCheck, parseRoutesFile, par
 import Yesod.Routes.TH (mkRenderRouteInstance, mkParseRouteInstance, mkRouteAttrsInstance, mkDispatchClause, ResourceTree(..), MkDispatchSettings(..), defaultGetHandler)
 
 -- Text and Bytestring
-import qualified Data.Text as T
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Blaze.ByteString.Builder (Builder, toByteString, fromByteString)
+import Blaze.ByteString.Builder (toByteString, fromByteString)
 
 -- TH
 import Language.Haskell.TH.Syntax
@@ -108,7 +107,7 @@ type Handler master = master -> Application
 -- PRIVATE
 -- Change the path info of a Request object
 setPathInfo :: [Text] -> Request -> Request
-setPathInfo pi r = r {pathInfo = pi}
+setPathInfo p r = r {pathInfo = p}
 
 -- PRIVATE
 subDispatcher
