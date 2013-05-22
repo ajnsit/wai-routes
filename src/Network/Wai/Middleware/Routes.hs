@@ -1,6 +1,6 @@
 {- |
 Module      :  Network.Wai.Middleware.Routes
-Copyright   :  (c) Anupam Jain 2011
+Copyright   :  (c) Anupam Jain 2013
 License     :  MIT (see the file LICENSE)
 
 Maintainer  :  ajnsit@gmail.com

@@ -2,7 +2,7 @@
 
 {- |
 Module      :  Network.Wai.Middleware.Routes.Monad
-Copyright   :  (c) Anupam Jain 2011
+Copyright   :  (c) Anupam Jain 2013
 License     :  MIT (see the file LICENSE)
 
 Maintainer  :  ajnsit@gmail.com
