@@ -69,7 +69,8 @@ source-repository this
 Library
   hs-source-dirs:    src
   Build-Depends:     base >= 3 && < 5
-               ,     wai >= 1.3
+               ,     wai >= 1.3 && < 1.5
+               ,     conduit >= 0.5 && < 1.1
                ,     path-pieces
                ,     text
                ,     http-types >= 0.7
