@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.2.4)
+Wai Routes (wai-routes-0.3.0)
 ==============================
 
 This package provides typesafe URLs for Wai applications.
@@ -10,6 +10,8 @@ Features:
     and can be used for persistent data (like DB connections)
   - RouteM monad that makes it easy to compose an application
     with multiple routes and middleware.
+  - Handlers can abort processing and pass control to the next
+    application in the wai stack
 
 It depends on yesod-routes package for the TH functionality (but not the rest of yesod). The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
 
@@ -69,4 +71,5 @@ Changelog
 0.2.2 : Fixed license information in hs and cabal files
 0.2.3 : Implemented a better showRoute function. Added blaze-builder as a dependency
 0.2.4 : Put an upper bound on yesod-routes version as 1.2 breaks API compatibility
+0.3.0 : yesod-routes 1.2 compatibility. Abstracted request data. Created `runNext` which skips to the next app in the wai stack
 
