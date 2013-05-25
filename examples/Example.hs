@@ -36,6 +36,7 @@ mkRoute "MyRoute" [parseRoutes|
 /user/#Int    UserR:
     /              UserRootR   GET
     /delete        UserDeleteR GET POST
+/skip        SkipR             GET
 |]
 
 -- Our handlers always produce json
@@ -46,12 +47,13 @@ jsonHeaders = [("Content-Type", "application/json")]
 
 -- Display the possible actions
 getHomeR :: Handler MyRoute
-getHomeR _master _req = return $ responseLBS status200 jsonHeaders jsonOut
+getHomeR _master req = return $ responseLBS status200 jsonHeaders jsonOut
   where jsonOut = encode $ M.fromList (
                  [("description", [["Simple User database Example"]])
                  ,("links"
                   ,[["home",  showRoute HomeR]
                    ,["users", showRoute UsersR]
+                   ,["skip",  showRoute SkipR]
                    ]
                   )
                  ] :: [(Text, [[Text]])] )
@@ -96,7 +98,7 @@ getUserRootR i (MyRoute dbref) _req = do
 
 -- Delete a user: GET
 getUserDeleteR :: Int -> Handler MyRoute
-getUserDeleteR _ _master _req = return $ responseLBS status200 jsonHeaders jsonOut
+getUserDeleteR _ _master req = return $ responseLBS status200 jsonHeaders jsonOut
   where err = ["DELETE","please use POST"]::[Text]
         jsonOut = encode err
 
@@ -106,6 +108,10 @@ postUserDeleteR _ _master _req = return $ responseLBS status200 jsonHeaders json
   where err = ["DELETE","not implemented"]::[Text]
         jsonOut = encode err
 
+-- Demonstrate skipping routes
+getSkipR :: Handler MyRoute
+getSkipR _master = runNext
+
 -- Initial database
 initdb :: [User]
 initdb =
@@ -113,12 +119,27 @@ initdb =
     , User 2 "Bo Lively" 28
     ]
 
+-- A new middleware to catch all skipped routes
+data MySkippedRoute = MySkippedRoute
+
+-- Make MyRoute Routable
+mkRoute "MySkippedRoute" [parseRoutes|
+/skip         SkippedR          GET
+|]
+
+getSkippedR :: Handler MySkippedRoute
+getSkippedR _req _master =
+  return $ responseLBS status200 jsonHeaders jsonOut
+  where err = ["SKIPPED","skipped route"]::[Text]
+        jsonOut = encode err
+
 -- The application that uses our route
 -- NOTE: We use the Route Monad to simplify routing
 application :: RouteM ()
 application = do
   db <- liftIO $ newIORef initdb
   route (MyRoute db)
+  route MySkippedRoute
   defaultAction $ staticApp $ defaultFileServerSettings "static"
 
 -- Run the application

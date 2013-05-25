@@ -42,7 +42,8 @@ module Network.Wai.Middleware.Routes.Routes
 
     , RequestData            -- | An abstract representation of the request data. You can get the wai request object by using `waiReq`
     , waiReq                 -- | Extract the wai `Request` object from `RequestData`
-    , nextApp                -- | Extract the next Application in the stack. You can run this app and inspect its output
+    , nextApp                -- | Extract the next Application in the stack
+    , runNext                -- | Run the next application in the stack
     )
     where
 
@@ -75,6 +76,10 @@ data RequestData = RequestData
   { waiReq  :: Request
   , nextApp :: Application
   }
+
+-- | Run the next application in the stack
+runNext :: RequestData -> ResourceT IO Response
+runNext req = nextApp req $ waiReq req
 
 -- Internal data type for convenience
 type App = RequestData -> ResourceT IO Response
