@@ -81,11 +81,8 @@ data RequestData = RequestData
 runNext :: RequestData -> ResourceT IO Response
 runNext req = nextApp req $ waiReq req
 
--- Internal data type for convenience
-type App = RequestData -> ResourceT IO Response
-
 -- | A `Handler` generates an App from the master datatype
-type Handler master = master -> App
+type Handler master = master -> RequestData -> ResourceT IO Response
 
 -- Baked in applications that handle 404 and 405 errors
 -- TODO: Inspect the request to figure out acceptable output formats
@@ -131,7 +128,7 @@ runHandler
     :: Handler master
     -> master
     -> Maybe (Route master)
-    -> App
+    -> RequestData -> ResourceT IO Response -- App
 runHandler h master _ = h master
 
 -- | A `Routable` instance can be used in dispatching.
