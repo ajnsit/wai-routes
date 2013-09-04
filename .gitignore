@@ -5,4 +5,5 @@ _darcs
 *.old.hs
 *.hi
 *.o
+tags
 

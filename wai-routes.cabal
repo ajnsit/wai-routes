@@ -73,6 +73,7 @@ Library
                ,     conduit >= 0.5 && < 1.1
                ,     path-pieces
                ,     text
+               ,     bytestring
                ,     http-types >= 0.7
                ,     blaze-builder >= 0.2.1.4 && < 0.4
                ,     template-haskell
@@ -81,4 +82,5 @@ Library
   exposed-modules:   Network.Wai.Middleware.Routes
                ,     Network.Wai.Middleware.Routes.Routes
                ,     Network.Wai.Middleware.Routes.Monad
+               ,     Network.Wai.Middleware.Routes.ContentTypes
 

@@ -71,6 +71,9 @@ import Language.Haskell.TH.Syntax
 import Control.Arrow (second)
 import Data.Maybe (fromMaybe)
 
+-- Common ContentTypes
+import Network.Wai.Middleware.Routes.ContentTypes
+
 -- An abstract request
 data RequestData = RequestData
   { waiReq  :: Request
@@ -91,7 +94,7 @@ app404 :: Handler master
 app404 _master req = nextApp req $ waiReq req
 
 app405 :: Handler master
-app405 _master _req = return $ ResponseBuilder status405 [("Content-Type","text/plain")] $ fromByteString "405 - Method Not Allowed"
+app405 _master _req = return $ ResponseBuilder status405 [contentType typePlain] $ fromByteString "405 - Method Not Allowed"
 
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and

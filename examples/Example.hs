@@ -3,6 +3,7 @@ module Main where
 
 import Network.Wai
 import Network.Wai.Middleware.Routes
+import Network.Wai.Middleware.Routes.ContentTypes
 import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
 import Network.HTTP.Types
@@ -39,16 +40,19 @@ mkRoute "MyRoute" [parseRoutes|
 /skip        SkipR             GET
 |]
 
--- Our handlers always produce json
-jsonHeaders :: ResponseHeaders
-jsonHeaders = [("Content-Type", "application/json")]
 
 -- Handlers
 
+-- Standard Json output
+jsonOut :: ToJSON a => a -> Response
+jsonOut = responseLBS status200 jsonHeaders . encode
+  where
+    jsonHeaders :: ResponseHeaders
+    jsonHeaders = [contentType typeJson]
+
 -- Display the possible actions
 getHomeR :: Handler MyRoute
-getHomeR _master req = return $ responseLBS status200 jsonHeaders jsonOut
-  where jsonOut = encode $ M.fromList (
+getHomeR _master _req = return $ jsonOut $ M.fromList (
                  [("description", [["Simple User database Example"]])
                  ,("links"
                   ,[["home",  showRoute HomeR]
@@ -63,10 +67,10 @@ getUsersR :: Handler MyRoute
 getUsersR (MyRoute dbref) _req = do
   db <- liftIO $ readIORef dbref
   let dblinks = map linkify db
-  let jsonOut = encode $ M.fromList (
+  let out = M.fromList (
           [("description", [["Users List"]])
           ,("links", dblinks)] :: [(Text, [[Text]])] )
-  return $ responseLBS status200 jsonHeaders jsonOut
+  return $ jsonOut out
   where
     linkify user = [userName user, showRoute $ UserR (userId user) UserRootR]
 
@@ -75,9 +79,9 @@ getUserRootR :: Int -> Handler MyRoute
 getUserRootR i (MyRoute dbref) _req = do
   db <- liftIO $ readIORef dbref
   case ulookup i db of
-    Nothing -> return $ responseLBS status200 jsonHeaders $ encode ("ERROR: User not found" :: Text)
+    Nothing -> return $ jsonOut ("ERROR: User not found" :: Text)
     Just user -> do
-      let jsonOut = encode $ M.fromList (
+      let out = M.fromList (
             [("description", [["User details"]])
             ,("data"
              ,[["Id",   T.pack $ show $ userId user]
@@ -91,22 +95,20 @@ getUserRootR i (MyRoute dbref) _req = do
               ]
              )
             ] :: [(Text, [[Text]])] )
-      return $ responseLBS status200 jsonHeaders jsonOut
+      return $ jsonOut out
   where
     ulookup _ [] = Nothing
     ulookup ui (u:us) = if userId u == ui then Just u else ulookup ui us
 
 -- Delete a user: GET
 getUserDeleteR :: Int -> Handler MyRoute
-getUserDeleteR _ _master req = return $ responseLBS status200 jsonHeaders jsonOut
+getUserDeleteR _ _master _req = return $ jsonOut err
   where err = ["DELETE","please use POST"]::[Text]
-        jsonOut = encode err
 
 -- Delete a user: POST
 postUserDeleteR :: Int -> Handler MyRoute
-postUserDeleteR _ _master _req = return $ responseLBS status200 jsonHeaders jsonOut
+postUserDeleteR _ _master _req = return $ jsonOut err
   where err = ["DELETE","not implemented"]::[Text]
-        jsonOut = encode err
 
 -- Demonstrate skipping routes
 getSkipR :: Handler MyRoute
@@ -129,9 +131,8 @@ mkRoute "MySkippedRoute" [parseRoutes|
 
 getSkippedR :: Handler MySkippedRoute
 getSkippedR _req _master =
-  return $ responseLBS status200 jsonHeaders jsonOut
+  return $ jsonOut err
   where err = ["SKIPPED","skipped route"]::[Text]
-        jsonOut = encode err
 
 -- The application that uses our route
 -- NOTE: We use the Route Monad to simplify routing

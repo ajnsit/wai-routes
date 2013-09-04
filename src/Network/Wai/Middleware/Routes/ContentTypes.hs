@@ -1,0 +1,78 @@
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving, TypeFamilies #-}
+
+{- |
+Module      :  Network.Wai.Middleware.Routes.ContentTypes
+Copyright   :  (c) Anupam Jain 2013
+License     :  MIT (see the file LICENSE)
+
+Maintainer  :  ajnsit@gmail.com
+Stability   :  experimental
+Portability :  non-portable (uses ghc extensions)
+
+Defines the commonly used content types
+-}
+module Network.Wai.Middleware.Routes.ContentTypes
+    ( -- * Construct content Type
+      contentType
+      -- * Various common content types
+    , typeHtml, typePlain, typeJson
+    , typeXml, typeAtom, typeRss
+    , typeJpeg, typePng, typeGif
+    , typeSvg, typeJavascript, typeCss
+    , typeFlv, typeOgv, typeOctet
+    )
+    where
+
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 () -- Import IsString instance for ByteString
+import Network.HTTP.Types.Header (HeaderName())
+
+-- Creates a tuple with the appropriate header
+contentType :: ByteString -> (HeaderName, ByteString)
+contentType typ = ("Content-Type", typ)
+
+typeHtml :: ByteString
+typeHtml = "text/html; charset=utf-8"
+
+typePlain :: ByteString
+typePlain = "text/plain; charset=utf-8"
+
+typeJson :: ByteString
+typeJson = "application/json; charset=utf-8"
+
+typeXml :: ByteString
+typeXml = "text/xml"
+
+typeAtom :: ByteString
+typeAtom = "application/atom+xml"
+
+typeRss :: ByteString
+typeRss = "application/rss+xml"
+
+typeJpeg :: ByteString
+typeJpeg = "image/jpeg"
+
+typePng :: ByteString
+typePng = "image/png"
+
+typeGif :: ByteString
+typeGif = "image/gif"
+
+typeSvg :: ByteString
+typeSvg = "image/svg+xml"
+
+typeJavascript :: ByteString
+typeJavascript = "text/javascript; charset=utf-8"
+
+typeCss :: ByteString
+typeCss = "text/css; charset=utf-8"
+
+typeFlv :: ByteString
+typeFlv = "video/x-flv"
+
+typeOgv :: ByteString
+typeOgv = "video/ogg"
+
+typeOctet :: ByteString
+typeOctet = "application/octet-stream"
+
