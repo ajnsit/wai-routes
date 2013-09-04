@@ -145,5 +145,7 @@ application = do
 
 -- Run the application
 main :: IO ()
-main = toWaiApp application >>= run 8080
+main = do
+  putStrLn "Starting server on port 8080"
+  toWaiApp application >>= run 8080
 
