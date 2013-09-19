@@ -1,6 +1,8 @@
 Wai Routes (wai-routes-0.3.1)
 ==============================
 
+[![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
+
 This package provides typesafe URLs for Wai applications.
 
 Features:
