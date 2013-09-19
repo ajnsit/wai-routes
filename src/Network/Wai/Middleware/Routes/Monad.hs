@@ -46,7 +46,7 @@ addMiddleware m s@(RouteState {middlewares=ms}) = s {middlewares=m:ms}
 setDefaultApp :: Application -> RouteState -> RouteState
 setDefaultApp a s = s {defaultApp=a}
 
--- ! The Route Monad
+-- | The Route Monad
 newtype RouteM a = S { runS :: StateT RouteState IO a }
     deriving (Monad, MonadIO, Functor, MonadState RouteState)
 
@@ -60,7 +60,7 @@ middleware = modify . addMiddleware
 route :: (Routable master) => master -> RouteM ()
 route = middleware . routeDispatch
 
--- ! Set the default action of the Application.
+-- | Set the default action of the Application.
 -- You should only call this once in an application.
 -- Subsequent invocations override the previous settings.
 defaultAction :: Application -> RouteM ()

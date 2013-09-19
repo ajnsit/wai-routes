@@ -27,7 +27,8 @@ import Data.ByteString (ByteString)
 import Data.ByteString.Char8 () -- Import IsString instance for ByteString
 import Network.HTTP.Types.Header (HeaderName())
 
--- Creates a tuple with the appropriate header
+-- | Creates a content type header
+-- Ready to be passed to `responseLBS`
 contentType :: ByteString -> (HeaderName, ByteString)
 contentType typ = ("Content-Type", typ)
 
