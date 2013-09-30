@@ -10,7 +10,7 @@ Build-Type:          Simple
 Cabal-Version:       >=1.6
 stability:           Experimental
 Category:            Network
-Extra-source-files:  README, examples/Example.hs
+Extra-source-files:  README.md, examples/Example.hs
 Description:
   Provides easy to use typesafe URLs for Wai Applications.
   .
