@@ -3,6 +3,7 @@ module Main where
 
 import Network.Wai
 import Network.Wai.Middleware.Routes
+import Network.Wai.Middleware.Routes.Handler
 import Network.Wai.Middleware.Routes.ContentTypes
 import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
@@ -50,9 +51,15 @@ jsonOut = responseLBS status200 jsonHeaders . encode
     jsonHeaders :: ResponseHeaders
     jsonHeaders = [contentType typeJson]
 
+-- Util: Fetch the database
+getDB :: HandlerM MyRoute DB
+getDB = do
+  MyRoute dbref <- master
+  liftIO $ readIORef dbref
+
 -- Display the possible actions
 getHomeR :: Handler MyRoute
-getHomeR _master _req = return $ jsonOut $ M.fromList (
+getHomeR = runHandlerM $ return $ jsonOut $ M.fromList (
                  [("description", [["Simple User database Example"]])
                  ,("links"
                   ,[["home",  showRoute HomeR]
@@ -64,8 +71,8 @@ getHomeR _master _req = return $ jsonOut $ M.fromList (
 
 -- Display all the users
 getUsersR :: Handler MyRoute
-getUsersR (MyRoute dbref) _req = do
-  db <- liftIO $ readIORef dbref
+getUsersR = runHandlerM $ do
+  db <- getDB
   let dblinks = map linkify db
   let out = M.fromList (
           [("description", [["Users List"]])
@@ -76,8 +83,8 @@ getUsersR (MyRoute dbref) _req = do
 
 -- Display a single user
 getUserRootR :: Int -> Handler MyRoute
-getUserRootR i (MyRoute dbref) _req = do
-  db <- liftIO $ readIORef dbref
+getUserRootR i = runHandlerM $ do
+  db <- getDB
   case ulookup i db of
     Nothing -> return $ jsonOut ("ERROR: User not found" :: Text)
     Just user -> do
@@ -102,17 +109,17 @@ getUserRootR i (MyRoute dbref) _req = do
 
 -- Delete a user: GET
 getUserDeleteR :: Int -> Handler MyRoute
-getUserDeleteR _ _master _req = return $ jsonOut err
+getUserDeleteR _ = runHandlerM $ return $ jsonOut err
   where err = ["DELETE","please use POST"]::[Text]
 
 -- Delete a user: POST
 postUserDeleteR :: Int -> Handler MyRoute
-postUserDeleteR _ _master _req = return $ jsonOut err
+postUserDeleteR _ = runHandlerM $ return $ jsonOut err
   where err = ["DELETE","not implemented"]::[Text]
 
 -- Demonstrate skipping routes
 getSkipR :: Handler MyRoute
-getSkipR _master = runNext
+getSkipR = runHandlerM next
 
 -- Initial database
 initdb :: [User]
@@ -130,8 +137,7 @@ mkRoute "MySkippedRoute" [parseRoutes|
 |]
 
 getSkippedR :: Handler MySkippedRoute
-getSkippedR _req _master =
-  return $ jsonOut err
+getSkippedR = runHandlerM $ return $ jsonOut err
   where err = ["SKIPPED","skipped route"]::[Text]
 
 -- The application that uses our route

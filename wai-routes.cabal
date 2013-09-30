@@ -1,5 +1,5 @@
 Name:                wai-routes
-Version:             0.3.1
+Version:             0.3.2
 Synopsis:            Typesafe URLs for Wai applications.
 Homepage:            https://github.com/ajnsit/wai-routes
 License:             MIT
@@ -82,5 +82,6 @@ Library
   exposed-modules:   Network.Wai.Middleware.Routes
                ,     Network.Wai.Middleware.Routes.Routes
                ,     Network.Wai.Middleware.Routes.Monad
+               ,     Network.Wai.Middleware.Routes.Handler
                ,     Network.Wai.Middleware.Routes.ContentTypes
 

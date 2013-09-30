@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.3.1)
+Wai Routes (wai-routes-0.3.2)
 ==============================
 
 [![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
@@ -12,6 +12,8 @@ Features:
     and can be used for persistent data (like DB connections)
   - RouteM monad that makes it easy to compose an application
     with multiple routes and middleware.
+  - HandlerM monad that makes it easy to build a Handler
+    with access to Request data and Master datatype
   - Handlers can abort processing and pass control to the next
     application in the wai stack
 
@@ -48,10 +50,10 @@ The following builds a simple JSON service (using Aeson for JSON conversion)
     getUsersR (MyRoute dbref) request = ...
     -- Single User Page
     getUserRootR :: Int -> Handler MyRoute
-    getUserRootR userid (MyRoute dbref) request = ...
+    getUserRootR userid = ...
     -- Delete Single User
     postUserDeleteR :: Int -> Handler MyRoute
-    postUserDeleteR userid (MyRoute dbref) request = ...
+    postUserDeleteR userid = ...
 
     -- Define Application using RouteM Monad
     myApp = do
@@ -75,4 +77,5 @@ Changelog
 0.2.4 : Put an upper bound on yesod-routes version as 1.2 breaks API compatibility
 0.3.0 : yesod-routes 1.2 compatibility. Abstracted request data. Created `runNext` which skips to the next app in the wai stack
 0.3.1 : Removed internal 'App' synonym which only muddied the types. Added common content types for convenience.
+0.3.2 : Added HandlerM Monad which makes it easier to build Handlers
 
