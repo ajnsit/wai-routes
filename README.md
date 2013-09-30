@@ -69,13 +69,13 @@ The following builds a simple JSON service (using Aeson for JSON conversion)
 Changelog
 =========
 
-0.1   : Intial release
-0.2   : Updated functionality based on yesod-routes package
-0.2.1 : Changed license to MIT
-0.2.2 : Fixed license information in hs and cabal files
-0.2.3 : Implemented a better showRoute function. Added blaze-builder as a dependency
-0.2.4 : Put an upper bound on yesod-routes version as 1.2 breaks API compatibility
-0.3.0 : yesod-routes 1.2 compatibility. Abstracted request data. Created `runNext` which skips to the next app in the wai stack
-0.3.1 : Removed internal 'App' synonym which only muddied the types. Added common content types for convenience.
-0.3.2 : Added HandlerM Monad which makes it easier to build Handlers
+* 0.1   : Intial release
+* 0.2   : Updated functionality based on yesod-routes package
+* 0.2.1 : Changed license to MIT
+* 0.2.2 : Fixed license information in hs and cabal files
+* 0.2.3 : Implemented a better showRoute function. Added blaze-builder as a dependency
+* 0.2.4 : Put an upper bound on yesod-routes version as 1.2 breaks API compatibility
+* 0.3.0 : yesod-routes 1.2 compatibility. Abstracted request data. Created `runNext` which skips to the next app in the wai stack
+* 0.3.1 : Removed internal 'App' synonym which only muddied the types. Added common content types for convenience.
+* 0.3.2 : Added HandlerM Monad which makes it easier to build Handlers
 
