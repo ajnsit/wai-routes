@@ -63,8 +63,8 @@ source-repository head
 
 source-repository this
   type:     git
-  location: http://github.com/ajnsit/wai-routes/tree/v0.3.1
-  tag:      v0.3.1
+  location: http://github.com/ajnsit/wai-routes/tree/v0.3.2
+  tag:      v0.3.2
 
 Library
   hs-source-dirs:    src
