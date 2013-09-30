@@ -3,7 +3,6 @@ module Main where
 
 import Network.Wai
 import Network.Wai.Middleware.Routes
-import Network.Wai.Middleware.Routes.Handler
 import Network.Wai.Middleware.Routes.ContentTypes
 import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
