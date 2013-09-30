@@ -37,7 +37,7 @@ mkRoute "MyRoute" [parseRoutes|
 /user/#Int    UserR:
     /              UserRootR   GET
     /delete        UserDeleteR GET POST
-/skip        SkipR             GET
+/skip/*[Text] SkipR             GET
 |]
 
 
@@ -63,7 +63,7 @@ getHomeR = runHandlerM $ return $ jsonOut $ M.fromList (
                  ,("links"
                   ,[["home",  showRoute HomeR]
                    ,["users", showRoute UsersR]
-                   ,["skip",  showRoute SkipR]
+                   ,["skip",  showRoute $ SkipR []]
                    ]
                   )
                  ] :: [(Text, [[Text]])] )
@@ -117,8 +117,8 @@ postUserDeleteR _ = runHandlerM $ return $ jsonOut err
   where err = ["DELETE","not implemented"]::[Text]
 
 -- Demonstrate skipping routes
-getSkipR :: Handler MyRoute
-getSkipR = runHandlerM next
+getSkipR :: [Text] -> Handler MyRoute
+getSkipR _ = runHandlerM next
 
 -- Initial database
 initdb :: [User]
@@ -130,14 +130,14 @@ initdb =
 -- A new middleware to catch all skipped routes
 data MySkippedRoute = MySkippedRoute
 
--- Make MyRoute Routable
+-- Catch all 'skipped` routes
 mkRoute "MySkippedRoute" [parseRoutes|
-/skip         SkippedR          GET
+/skip/*[Text]  SkippedR  GET
 |]
 
-getSkippedR :: Handler MySkippedRoute
-getSkippedR = runHandlerM $ return $ jsonOut err
-  where err = ["SKIPPED","skipped route"]::[Text]
+getSkippedR :: [Text] -> Handler MySkippedRoute
+getSkippedR rest = runHandlerM $ return $ jsonOut err
+  where err = ["SKIPPED ROUTE: "] ++ rest
 
 -- The application that uses our route
 -- NOTE: We use the Route Monad to simplify routing
