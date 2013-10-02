@@ -13,6 +13,7 @@ import Data.Aeson
 import Data.IORef
 import qualified Data.Map as M
 import Control.Monad.Trans
+import Network.Wai.Middleware.RequestLogger
 
 -- The database of users
 data User = User
@@ -144,6 +145,7 @@ getSkippedR rest = runHandlerM $ return $ jsonOut err
 application :: RouteM ()
 application = do
   db <- liftIO $ newIORef initdb
+  middleware logStdoutDev
   route (MyRoute db)
   route MySkippedRoute
   defaultAction $ staticApp $ defaultFileServerSettings "static"
