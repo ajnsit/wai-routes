@@ -48,11 +48,8 @@ module Network.Wai.Middleware.Routes.Routes
     )
     where
 
--- Conduit
-import Data.Conduit (ResourceT)
-
 -- Wai
-import Network.Wai (Middleware, Application, pathInfo, requestMethod, requestMethod, Response(ResponseBuilder), Request(..))
+import Network.Wai (Middleware, Application, pathInfo, requestMethod, requestMethod, Response, Request(..), responseBuilder)
 import Network.HTTP.Types (decodePath, encodePath, queryTextToQuery, queryToQueryText, status405)
 
 -- Yesod Routes
@@ -82,20 +79,20 @@ data RequestData = RequestData
   }
 
 -- | Run the next application in the stack
-runNext :: RequestData -> ResourceT IO Response
+runNext :: RequestData -> IO Response
 runNext req = nextApp req $ waiReq req
 
 -- | A `Handler` generates an App from the master datatype
-type Handler master = master -> RequestData -> ResourceT IO Response
+type Handler master = master -> RequestData -> IO Response
 
 -- Baked in applications that handle 404 and 405 errors
 -- TODO: Inspect the request to figure out acceptable output formats
 --   Currently we assume text/plain is acceptable
 app404 :: Handler master
-app404 _master req = nextApp req $ waiReq req
+app404 _master = runNext
 
 app405 :: Handler master
-app405 _master _req = return $ ResponseBuilder status405 [contentType typePlain] $ fromByteString "405 - Method Not Allowed"
+app405 _master _req = return $ responseBuilder status405 [contentType typePlain] $ fromByteString "405 - Method Not Allowed"
 
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and
@@ -132,7 +129,7 @@ runHandler
     :: Handler master
     -> master
     -> Maybe (Route master)
-    -> RequestData -> ResourceT IO Response -- App
+    -> RequestData -> IO Response -- App
 runHandler h master _ = h master
 
 -- | A `Routable` instance can be used in dispatching.

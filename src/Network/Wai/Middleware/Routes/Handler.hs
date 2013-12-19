@@ -13,26 +13,23 @@ Provides a HandlerM Monad that makes it easy to build Handlers
 module Network.Wai.Middleware.Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
-    , liftResourceT          -- | Lift a ResourceT into HandlerM
     , request                -- | Access the request data
     , master                 -- | Access the master datatype
     , next                   -- | Run the next application in the stack
     )
     where
 
-import Data.Conduit (ResourceT)
 import Network.Wai (Request, Response)
-import Control.Monad.Reader (ReaderT, ask, runReaderT, MonadReader, MonadIO, lift)
+import Control.Monad.Reader (ReaderT, ask, runReaderT, MonadReader, MonadIO, lift, MonadTrans)
 
 import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, runNext)
 
--- | The HandlerM Monad
-newtype HandlerM master a = H { extractH :: ReaderT (HandlerState master) (ResourceT IO) a }
-    deriving (Monad, MonadIO, Functor, MonadReader (HandlerState master))
+-- | The internal implementation of the HandlerM monad
+newtype HandlerMI master m a = H { extractH :: ReaderT (HandlerState master) m a }
+    deriving (Monad, MonadIO, Functor, MonadTrans, MonadReader (HandlerState master))
 
--- | Lift a ResourceT into HandlerM
-liftResourceT :: ResourceT IO a -> HandlerM master a
-liftResourceT = H . lift
+-- | The HandlerM Monad
+type HandlerM master a = HandlerMI master IO a
 
 -- | The state kept in a HandlerM Monad
 data HandlerState master = HandlerState

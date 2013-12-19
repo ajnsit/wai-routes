@@ -51,7 +51,6 @@ module Network.Wai.Middleware.Routes
     -- * HandlerM Monad makes it easy to build a handler
     , HandlerM()
     , runHandlerM            -- | Run a HandlerM to get a Handler
-    , liftResourceT          -- | Lift a ResourceT into HandlerM
     , request                -- | Access the request data
     , master                 -- | Access the master datatype
     , next                   -- | Run the next application in the stack

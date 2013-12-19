@@ -1,5 +1,5 @@
 Name:                wai-routes
-Version:             0.3.4
+Version:             0.4.0
 Synopsis:            Typesafe URLs for Wai applications.
 Homepage:            https://github.com/ajnsit/wai-routes
 License:             MIT
@@ -69,15 +69,13 @@ source-repository this
 Library
   hs-source-dirs:    src
   Build-Depends:     base >= 3 && < 5
-               ,     wai >= 1.3 && < 1.5
-               ,     conduit >= 0.5 && < 1.1
-               ,     path-pieces
-               ,     text
-               ,     bytestring
-               ,     http-types >= 0.7
-               ,     blaze-builder >= 0.2.1.4 && < 0.4
-               ,     template-haskell
-               ,     yesod-routes >= 1.2
+               ,     wai >= 2 && < 2.1
+               ,     text >= 0.11.3 && < 0.12
+               ,     bytestring >= 0.10.0 && < 0.10.1
+               ,     http-types >= 0.8.3 && < 0.8.4
+               ,     blaze-builder >= 0.3.3 && < 0.3.4
+               ,     template-haskell >= 2.8.0 && < 2.8.1
+               ,     yesod-routes >= 1.2.0 && < 1.2.1
                ,     mtl
   exposed-modules:   Network.Wai.Middleware.Routes
                ,     Network.Wai.Middleware.Routes.Routes
