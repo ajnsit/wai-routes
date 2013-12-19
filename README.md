@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.3.4)
+Wai Routes (wai-routes-0.4.0)
 ==============================
 
 [![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
@@ -80,4 +80,6 @@ Changelog
 * 0.3.2 : Added HandlerM Monad which makes it easier to build Handlers
 * 0.3.3 : Better exports from the Network.Wai.Middleware.Routes module
 * 0.3.4 : Added 'liftResourceT' to lift a ResourceT into HandlerM
+* 0.4.0 : Wai 2 compatibility. Replaced 'liftResourceT' with 'lift'
+
 
