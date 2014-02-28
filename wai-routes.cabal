@@ -1,6 +1,6 @@
 name          : wai-routes
 version       : 0.4.1
-cabal-version : >=1.6
+cabal-version : >=1.10
 build-type    : Simple
 license       : MIT
 license-file  : LICENSE
