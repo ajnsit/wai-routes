@@ -147,6 +147,8 @@ showRoute :: RenderRoute master => Route master -> Text
 showRoute = uncurry encodePathInfo . second (map $ second Just) . renderRoute
   where
     encodePathInfo :: [Text] -> [(Text, Maybe Text)] -> Text
+    -- Slightly hackish: Convert "" into "/"
+    encodePathInfo [] = encodePathInfo [""]
     encodePathInfo segments = decodeUtf8 . toByteString . encodePath segments . queryTextToQuery
 
 -- | Read a route from Text
