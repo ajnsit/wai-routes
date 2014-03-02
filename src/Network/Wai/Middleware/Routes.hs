@@ -54,6 +54,11 @@ module Network.Wai.Middleware.Routes
     , request                -- | Access the request data
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
+    , status                 -- | Set the response status
+    , raw                    -- | Set the raw response body
+    , json                   -- | Set the json response body
+    , text                   -- | Set the text response body
+    , html                   -- | Set the html response body
     , next                   -- | Run the next application in the stack
   )
   where

@@ -9,7 +9,7 @@ import Network.Wai.Handler.Warp
 import Network.HTTP.Types
 import qualified Data.Text as T
 import Data.Text (Text)
-import Data.Aeson
+import Data.Aeson hiding (json)
 import Data.IORef
 import qualified Data.Map as M
 import Control.Monad.Trans
@@ -44,13 +44,6 @@ mkRoute "MyRoute" [parseRoutes|
 
 -- Handlers
 
--- Standard Json output
-jsonOut :: ToJSON a => a -> Response
-jsonOut = responseLBS status200 jsonHeaders . encode
-  where
-    jsonHeaders :: ResponseHeaders
-    jsonHeaders = [contentType typeJson]
-
 -- Util: Fetch the database
 getDB :: HandlerM MyRoute DB
 getDB = do
@@ -59,7 +52,8 @@ getDB = do
 
 -- Display the possible actions
 getHomeR :: Handler MyRoute
-getHomeR = runHandlerM $ return $ jsonOut $ M.fromList (
+getHomeR = runHandlerM $ do
+  json $ M.fromList (
                  [("description", [["Simple User database Example"]])
                  ,("links"
                   ,[["home",  showRoute HomeR]
@@ -74,10 +68,9 @@ getUsersR :: Handler MyRoute
 getUsersR = runHandlerM $ do
   db <- getDB
   let dblinks = map linkify db
-  let out = M.fromList (
+  json $ M.fromList (
           [("description", [["Users List"]])
           ,("links", dblinks)] :: [(Text, [[Text]])] )
-  return $ jsonOut out
   where
     linkify user = [userName user, showRoute $ UserR (userId user) UserRootR]
 
@@ -86,9 +79,9 @@ getUserRootR :: Int -> Handler MyRoute
 getUserRootR i = runHandlerM $ do
   db <- getDB
   case ulookup i db of
-    Nothing -> return $ jsonOut ("ERROR: User not found" :: Text)
+    Nothing -> json ("ERROR: User not found" :: Text)
     Just user -> do
-      let out = M.fromList (
+      json $ M.fromList (
             [("description", [["User details"]])
             ,("data"
              ,[["Id",   T.pack $ show $ userId user]
@@ -102,24 +95,21 @@ getUserRootR i = runHandlerM $ do
               ]
              )
             ] :: [(Text, [[Text]])] )
-      return $ jsonOut out
   where
     ulookup _ [] = Nothing
     ulookup ui (u:us) = if userId u == ui then Just u else ulookup ui us
 
 -- Delete a user: GET
 getUserDeleteR :: Int -> Handler MyRoute
-getUserDeleteR _ = runHandlerM $ return $ jsonOut err
-  where err = ["DELETE","please use POST"]::[Text]
+getUserDeleteR _ = runHandlerM $ json (["DELETE","please use POST"]::[Text])
 
 -- Delete a user: POST
 postUserDeleteR :: Int -> Handler MyRoute
-postUserDeleteR _ = runHandlerM $ return $ jsonOut err
-  where err = ["DELETE","not implemented"]::[Text]
+postUserDeleteR _ = runHandlerM $ json (["DELETE","not implemented"]::[Text])
 
 -- Demonstrate skipping routes
 getSkipR :: [Text] -> Handler MyRoute
-getSkipR _ = runHandlerM next
+getSkipR _ = runHandlerM $ next >> return ()
 
 -- Initial database
 initdb :: [User]
@@ -137,8 +127,7 @@ mkRoute "MySkippedRoute" [parseRoutes|
 |]
 
 getSkippedR :: [Text] -> Handler MySkippedRoute
-getSkippedR rest = runHandlerM $ return $ jsonOut err
-  where err = ["SKIPPED ROUTE: "] ++ rest
+getSkippedR rest = runHandlerM $ json $ ["SKIPPED ROUTE: "] ++ rest
 
 -- The application that uses our route
 -- NOTE: We use the Route Monad to simplify routing
