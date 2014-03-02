@@ -53,6 +53,7 @@ module Network.Wai.Middleware.Routes
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
     , master                 -- | Access the master datatype
+    , header                 -- | Add a header to the response
     , next                   -- | Run the next application in the stack
   )
   where

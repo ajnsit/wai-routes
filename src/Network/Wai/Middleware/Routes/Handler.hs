@@ -15,41 +15,55 @@ module Network.Wai.Middleware.Routes.Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
     , master                 -- | Access the master datatype
+    , header                 -- | Add a header to the response
     , next                   -- | Run the next application in the stack
     )
     where
 
 import Network.Wai (Request, Response)
-import Control.Monad.Reader (ReaderT, ask, runReaderT, MonadReader, MonadIO, lift, MonadTrans)
+import Control.Monad (liftM)
+import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, MonadTrans)
 
 import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, runNext)
 
+import Data.ByteString (ByteString)
+import Network.HTTP.Types.Header (HeaderName())
+
 -- | The internal implementation of the HandlerM monad
-newtype HandlerMI master m a = H { extractH :: ReaderT (HandlerState master) m a }
-    deriving (Monad, MonadIO, Functor, MonadTrans, MonadReader (HandlerState master))
+newtype HandlerMI master m a = H { extractH :: StateT (HandlerState master) m a }
+    deriving (Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState master))
 
 -- | The HandlerM Monad
 type HandlerM master a = HandlerMI master IO a
 
 -- | The state kept in a HandlerM Monad
 data HandlerState master = HandlerState
-                { getMaster :: master
+                { getMaster      :: master
                 , getRequestData :: RequestData
+                , headers        :: [(HeaderName, ByteString)]
                 }
 
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM master Response -> Handler master
-runHandlerM h m r = runReaderT (extractH h) (HandlerState m r)
+runHandlerM h m r = fmap fst $ runStateT (extractH h) (HandlerState m r [])
 
 -- | Get the master
 master :: HandlerM master master
-master = ask >>= return . getMaster
+master = liftM getMaster get
 
 -- | Get the request
 request :: HandlerM master Request
-request = ask >>= return . waiReq . getRequestData
+request = liftM (waiReq . getRequestData) get
+
+addHeader :: HeaderName -> ByteString -> HandlerState master -> HandlerState master
+addHeader h b s@(HandlerState {headers=hs}) = s {headers=(h,b):hs}
+
+-- | Add a header to the application response
+-- Middleware is nested so the one declared earlier is outer.
+header :: HeaderName -> ByteString -> HandlerM master ()
+header h s = modify $ addHeader h s
 
 -- | Run the next application
 next :: HandlerM master Response
-next = ask >>= H . lift . runNext . getRequestData
+next = get >>= H . lift . runNext . getRequestData
 
