@@ -92,7 +92,7 @@ app404 :: Handler master
 app404 _master = runNext
 
 app405 :: Handler master
-app405 _master _req = return $ responseBuilder status405 [contentType typePlain] $ fromByteString "405 - Method Not Allowed"
+app405 _master _req = return $ responseBuilder status405 [(contentType, typePlain)] $ fromByteString "405 - Method Not Allowed"
 
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and

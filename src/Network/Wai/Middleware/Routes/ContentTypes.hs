@@ -29,8 +29,8 @@ import Network.HTTP.Types.Header (HeaderName())
 
 -- | Creates a content type header
 -- Ready to be passed to `responseLBS`
-contentType :: ByteString -> (HeaderName, ByteString)
-contentType typ = ("Content-Type", typ)
+contentType :: HeaderName
+contentType = "Content-Type"
 
 typeHtml :: ByteString
 typeHtml = "text/html; charset=utf-8"
