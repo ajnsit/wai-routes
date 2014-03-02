@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving, TypeFamilies #-}
+{-# LANGUAGE OverloadedStrings, TypeFamilies #-}
 
 {- |
 Module      :  Network.Wai.Middleware.Routes.ContentTypes
