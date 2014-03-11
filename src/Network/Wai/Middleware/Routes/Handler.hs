@@ -124,10 +124,10 @@ text t = do
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
-html :: Text -> HandlerM master ()
-html t = do
+html :: BL.ByteString -> HandlerM master ()
+html s = do
     header contentType typeHtml
-    raw $ encodeUtf8 t
+    raw s
 
 -- | Run the next application
 next :: HandlerM master ()
