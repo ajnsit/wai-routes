@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.4.1)
+Wai Routes (wai-routes-0.5.0)
 ==============================
 
 [![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
@@ -82,4 +82,5 @@ Changelog
 * 0.3.4 : Added 'liftResourceT' to lift a ResourceT into HandlerM
 * 0.4.0 : Wai 2 compatibility. Replaced 'liftResourceT' with 'lift'
 * 0.4.1 : showRoute now returns "/" instead of ""
+* 0.5.0 : Added raw,text,html,json helpers. Update to wai-2.1.
 
