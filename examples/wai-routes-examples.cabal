@@ -12,11 +12,11 @@ data-dir      : ""
 
 executable wai-routes-examples
     build-depends    : base           >= 4.6.0.1  && < 4.7
-                     , wai            >= 2.0.0    && < 2.1
-                     , wai-routes     >= 0.4.1    && < 0.5
+                     , wai            >= 2.0.0    && < 2.2
+                     , wai-routes     >= 0.4.1    && < 0.6
                      , wai-app-static >= 2.0.0.2  && < 2.1
-                     , wai-extra      >= 2.0.3.3  && < 2.1
-                     , warp           >= 2.0.3.2  && < 2.1
+                     , wai-extra      >= 2.0.3.3  && < 2.2
+                     , warp           >= 2.0.3.2  && < 2.2
                      , http-types     >= 0.8.3    && < 0.9
                      , text           >= 0.11.3.1 && < 0.12
                      , aeson          >= 0.7.0.1  && < 0.8
