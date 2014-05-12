@@ -1,5 +1,5 @@
 name          : wai-routes
-version       : 0.5.0
+version       : 0.5.1
 cabal-version : >=1.10
 build-type    : Simple
 license       : MIT
@@ -63,8 +63,8 @@ source-repository head
 
 source-repository this
     type     : git
-    location : http://github.com/ajnsit/wai-routes/tree/v0.5.0
-    tag      : v0.5.0
+    location : http://github.com/ajnsit/wai-routes/tree/v0.5.1
+    tag      : v0.5.1
 
 library
     build-depends: base             >= 4.6.0.1  && < 4.7
