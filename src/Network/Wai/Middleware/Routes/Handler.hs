@@ -29,7 +29,7 @@ import Network.Wai (Request, Response, responseBuilder)
 import Control.Monad (liftM)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, MonadTrans)
 
-import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, runNext)
+import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
 import Data.ByteString (ByteString)
@@ -49,7 +49,7 @@ import Blaze.ByteString.Builder (fromLazyByteString)
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
 newtype HandlerMI master m a = H { extractH :: StateT (HandlerState master) m a }
-    deriving (Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState master))
+    deriving (Applicative, Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState master))
 
 -- | The HandlerM Monad
 type HandlerM master a = HandlerMI master IO a
@@ -61,16 +61,16 @@ data HandlerState master = HandlerState
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
                 , respBody       :: BL.ByteString
-                , respResp       :: Maybe Response
+                , respResp       :: Maybe ResponseHandler
                 }
 
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM master () -> Handler master
-runHandlerM h m req = do
+runHandlerM h m req hh = do
   (_, state) <- runStateT (extractH h) (HandlerState m req [] status200 "" Nothing)
   case respResp state of
-    Nothing -> return $ toResp state
-    Just resp -> return resp
+    Nothing -> hh $ toResp state
+    Just resp -> resp hh
 
 toResp :: HandlerState master -> Response
 toResp hs = responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
@@ -133,9 +133,9 @@ html s = do
 next :: HandlerM master ()
 next = do
   s <- get
-  resp <- lift $ runNext $ getRequestData s
+  let resp = runNext (getRequestData s)
   modify $ setResp resp
   where
-    setResp :: Response -> HandlerState master -> HandlerState master
+    setResp :: ResponseHandler -> HandlerState master -> HandlerState master
     setResp r st = st{respResp=Just r}
 

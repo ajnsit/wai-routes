@@ -37,7 +37,7 @@ data RouteState = RouteState
 -- The final "catchall" application, simply returns a 404 response
 -- Ideally you should put your own default application
 defaultApplication :: Application
-defaultApplication _req = return $ responseLBS status404 [("Content-Type", "text/plain")] "Error : 404 - Document not found"
+defaultApplication _req h = h $ responseLBS status404 [("Content-Type", "text/plain")] "Error : 404 - Document not found"
 
 
 addMiddleware :: Middleware -> RouteState -> RouteState
@@ -48,7 +48,7 @@ setDefaultApp a s = s {defaultApp=a}
 
 -- | The Route Monad
 newtype RouteM a = S { runS :: StateT RouteState IO a }
-    deriving (Monad, MonadIO, Functor, MonadState RouteState)
+    deriving (Applicative, Monad, MonadIO, Functor, MonadState RouteState)
 
 -- | Add a middleware to the application.
 -- Middleware is nested so the one declared earlier is outer.
