@@ -6,4 +6,7 @@ _darcs
 *.hi
 *.o
 tags
+cabal.config
+cabal.sandbox.config
+.cabal-sandbox
 
