@@ -29,6 +29,8 @@ import Network.HTTP.Types
 
 import Control.Monad.State
 
+import Control.Applicative (Applicative)
+
 data RouteState = RouteState
                 { middlewares :: [Middleware]
                 , defaultApp  :: Application

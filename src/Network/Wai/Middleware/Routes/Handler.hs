@@ -29,6 +29,8 @@ import Network.Wai (Request, Response, responseBuilder)
 import Control.Monad (liftM)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, MonadTrans)
 
+import Control.Applicative (Applicative)
+
 import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
