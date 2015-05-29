@@ -1,5 +1,5 @@
-Wai Routes (wai-routes-0.5.1)
-==============================
+Wai Routes (wai-routes-0.6.1)
+====================================
 
 [![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
 
@@ -17,7 +17,20 @@ Features:
   - Handlers can abort processing and pass control to the next
     application in the wai stack
 
-It depends on yesod-routes package for the TH functionality (but not the rest of yesod). The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
+The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
+
+
+Planned Features
+====================
+
+The following features are planned for later releases -
+
+- Subsites
+- Development mode
+- Keter and Heroku support
+- Scaffolding
+- Better documentation
+- Tests and code coverage
 
 
 Example Usage
@@ -84,4 +97,6 @@ Changelog
 * 0.4.1 : showRoute now returns "/" instead of ""
 * 0.5.0 : Added raw,text,html,json helpers. Update to wai-2.1.
 * 0.5.1 : Bumped dependency upper bounds to allow text 1.*
+* 0.6.0 : Removed dependency on yesod-routes. Updated code to compile with wai-3 and ghc-7.8, ghc-7.10
+* 0.6.1 : Fixed cabal and travis files
 
