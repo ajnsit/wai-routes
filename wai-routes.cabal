@@ -87,6 +87,7 @@ library
                      Network.Wai.Middleware.Routes.Monad
                      Network.Wai.Middleware.Routes.Handler
                      Network.Wai.Middleware.Routes.ContentTypes
+                     Network.Wai.Middleware.Routes.TH
                      Network.Wai.Middleware.Routes.TH.Types
                      Network.Wai.Middleware.Routes.TH.Dispatch
                      Network.Wai.Middleware.Routes.TH.ParseRoute
