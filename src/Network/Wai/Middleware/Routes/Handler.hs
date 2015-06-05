@@ -14,6 +14,7 @@ module Network.Wai.Middleware.Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , routeAttrSet           -- | Access the route attribute list
     , maybeRoute             -- | Access the route data
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
@@ -33,10 +34,10 @@ import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, Mon
 import Control.Applicative (Applicative)
 
 import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, currentRoute, runNext, ResponseHandler)
-import Network.Wai.Middleware.Routes.Class (Route, parseRoute, ParseRoute(..))
+import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
-import Data.Maybe (fromMaybe)
+import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as BL
 import Network.HTTP.Types.Header (HeaderName())
@@ -44,6 +45,9 @@ import Network.HTTP.Types.Status (Status(), status200)
 
 import Data.Aeson (ToJSON)
 import qualified Data.Aeson as A
+
+import Data.Set (Set)
+import qualified Data.Set as S (empty, map)
 
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -92,6 +96,10 @@ request = liftM (waiReq . getRequestData) get
 -- | Get the current route
 maybeRoute :: HandlerM master (Maybe (Route master))
 maybeRoute = liftM (currentRoute . getRequestData) get
+
+-- | Get the current route attributes
+routeAttrSet :: RouteAttrs master => HandlerM master (Set Text)
+routeAttrSet = liftM (S.map T.fromStrict . maybe S.empty routeAttrs . currentRoute . getRequestData) get
 
 -- | Add a header to the application response
 -- TODO: Differentiate between setting and adding headers
