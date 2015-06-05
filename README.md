@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.6.1)
+Wai Routes (wai-routes-0.6.2)
 ====================================
 
 [![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
@@ -8,6 +8,7 @@ This package provides typesafe URLs for Wai applications.
 Features:
   - Automatic generation of Route boilerplate using TH
   - Easy Nested Routes
+  - General purpose Route Attributes/Annotations
   - Sitewide Master datatype which is passed to all handlers
     and can be used for persistent data (like DB connections)
   - RouteM monad that makes it easy to compose an application
@@ -99,4 +100,5 @@ Changelog
 * 0.5.1 : Bumped dependency upper bounds to allow text 1.*
 * 0.6.0 : Removed dependency on yesod-routes. Updated code to compile with wai-3 and ghc-7.8, ghc-7.10
 * 0.6.1 : Fixed cabal and travis files
+* 0.6.2 : Added 'maybeRoute', to be able to access information about the currently executing route
 
