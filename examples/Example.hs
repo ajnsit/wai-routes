@@ -33,7 +33,7 @@ data MyRoute = MyRoute (IORef DB)
 
 -- Make MyRoute Routable
 mkRoute "MyRoute" [parseRoutes|
-/             HomeR            GET
+/             HomeR !hello     GET
 /users        UsersR           GET
 /user/#Int    UserR:
     /              UserRootR   GET
@@ -53,6 +53,10 @@ getDB = do
 -- Display the possible actions
 getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
+  mroute <- maybeRoute
+  attrs <- routeAttrSet
+  liftIO $ putStrLn $ show mroute
+  liftIO $ putStrLn $ show attrs
   json $ M.fromList (
                  [("description", [["Simple User database Example"]])
                  ,("links"

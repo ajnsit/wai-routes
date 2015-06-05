@@ -100,5 +100,5 @@ Changelog
 * 0.5.1 : Bumped dependency upper bounds to allow text 1.*
 * 0.6.0 : Removed dependency on yesod-routes. Updated code to compile with wai-3 and ghc-7.8, ghc-7.10
 * 0.6.1 : Fixed cabal and travis files
-* 0.6.2 : Added 'maybeRoute', to be able to access information about the currently executing route
+* 0.6.2 : Added 'maybeRoute' and 'routeAttrSet', to get information about the currently executing route
 
