@@ -52,6 +52,7 @@ module Network.Wai.Middleware.Routes
     , HandlerM()
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , maybeRoute             -- | Access the current route
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status

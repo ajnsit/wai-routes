@@ -14,6 +14,7 @@ module Network.Wai.Middleware.Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , maybeRoute             -- | Access the route data
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
@@ -25,15 +26,17 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseBuilder)
+import Network.Wai (Request, Response, responseBuilder, pathInfo, queryString)
 import Control.Monad (liftM)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, MonadTrans)
 
 import Control.Applicative (Applicative)
 
-import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, runNext, ResponseHandler)
+import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, currentRoute, runNext, ResponseHandler)
+import Network.Wai.Middleware.Routes.Class (Route, parseRoute, ParseRoute(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
+import Data.Maybe (fromMaybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as BL
 import Network.HTTP.Types.Header (HeaderName())
@@ -45,6 +48,7 @@ import qualified Data.Aeson as A
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (encodeUtf8)
+import Data.Text.Encoding (decodeUtf8)
 
 import Blaze.ByteString.Builder (fromLazyByteString)
 
@@ -59,7 +63,7 @@ type HandlerM master a = HandlerMI master IO a
 -- | The state kept in a HandlerM Monad
 data HandlerState master = HandlerState
                 { getMaster      :: master
-                , getRequestData :: RequestData
+                , getRequestData :: RequestData master
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
                 , respBody       :: BL.ByteString
@@ -84,6 +88,10 @@ master = liftM getMaster get
 -- | Get the request
 request :: HandlerM master Request
 request = liftM (waiReq . getRequestData) get
+
+-- | Get the current route
+maybeRoute :: HandlerM master (Maybe (Route master))
+maybeRoute = liftM (currentRoute . getRequestData) get
 
 -- | Add a header to the application response
 -- TODO: Differentiate between setting and adding headers

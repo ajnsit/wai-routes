@@ -48,6 +48,7 @@ module Network.Wai.Middleware.Routes.Routes
     , RequestData            -- | An abstract representation of the request data. You can get the wai request object by using `waiReq`
     , waiReq                 -- | Extract the wai `Request` object from `RequestData`
     , nextApp                -- | Extract the next Application in the stack
+    , currentRoute           -- | Extract the current `Route` from `RequestData`
     , runNext                -- | Run the next application in the stack
 
     )
@@ -78,20 +79,23 @@ import Data.Maybe (fromMaybe)
 import Network.Wai.Middleware.Routes.ContentTypes
 
 -- An abstract request
-data RequestData = RequestData
+data RequestData master = RequestData
   { waiReq  :: Request
   , nextApp :: Application
+  , currentRoute :: Maybe (Route master)
   }
 
 -- AJ: Experimental
 type ResponseHandler = (Response -> IO ResponseReceived) -> IO ResponseReceived
 
+type App master = RequestData master -> ResponseHandler
+
 -- | Run the next application in the stack
-runNext :: RequestData -> ResponseHandler
+runNext :: App master
 runNext req = nextApp req $ waiReq req
 
 -- | A `Handler` generates an App from the master datatype
-type Handler master = master -> RequestData -> ResponseHandler
+type Handler master = master -> App master
 
 -- Baked in applications that handle 404 and 405 errors
 -- TODO: Inspect the request to figure out acceptable output formats
@@ -137,8 +141,8 @@ runHandler
     :: Handler master
     -> master
     -> Maybe (Route master)
-    -> RequestData -> ResponseHandler -- App
-runHandler h master _ = h master
+    -> App master
+runHandler h master route reqdata = h master reqdata{currentRoute=route}
 
 -- | A `Routable` instance can be used in dispatching.
 --   An appropriate instance for your site datatype is
@@ -148,7 +152,8 @@ class Routable master where
 
 -- | Generates the application middleware from a `Routable` master datatype
 routeDispatch :: Routable master => master -> Middleware
-routeDispatch master def req = dispatcher master RequestData{waiReq=req, nextApp=def}
+-- Route information is filled in by runHandler
+routeDispatch master def req = dispatcher master RequestData{waiReq=req, nextApp=def, currentRoute=Nothing}
 
 -- | Renders a `Route` as Text
 showRoute :: RenderRoute master => Route master -> Text
