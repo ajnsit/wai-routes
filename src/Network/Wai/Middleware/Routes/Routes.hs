@@ -55,8 +55,8 @@ module Network.Wai.Middleware.Routes.Routes
     where
 
 -- Wai
-import Network.Wai (ResponseReceived, Middleware, Application, pathInfo, requestMethod, requestMethod, Response, Request(..), responseBuilder)
-import Network.HTTP.Types (decodePath, encodePath, queryTextToQuery, queryToQueryText, status405)
+import Network.Wai (ResponseReceived, Middleware, Application, pathInfo, requestMethod, requestMethod, Response, Request(..))
+import Network.HTTP.Types (decodePath, encodePath, queryTextToQuery, queryToQueryText)
 
 -- Network.Wai.Middleware.Routes
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute(..), ParseRoute(..), RouteAttrs(..))
@@ -66,7 +66,7 @@ import Network.Wai.Middleware.Routes.TH (mkRenderRouteInstance, mkParseRouteInst
 -- Text and Bytestring
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Blaze.ByteString.Builder (toByteString, fromByteString)
+import Blaze.ByteString.Builder (toByteString)
 
 -- TH
 import Language.Haskell.TH.Syntax
@@ -74,9 +74,6 @@ import Language.Haskell.TH.Syntax
 -- Convenience
 import Control.Arrow (second)
 import Data.Maybe (fromMaybe)
-
--- Common ContentTypes
-import Network.Wai.Middleware.Routes.ContentTypes
 
 -- An abstract request
 data RequestData master = RequestData
