@@ -108,14 +108,13 @@ mkRoute typName routes = do
   pinst <- mkParseRouteInstance typ resourceTrees
   ainst <- mkRouteAttrsInstance typ resourceTrees
   disp  <- mkDispatchClause MkDispatchSettings
-        { mdsRunHandler    = [| runHandler   |]
-        -- We don't use subsites
-        , mdsSubDispatcher = [| undefined    |]
-        , mdsGetPathInfo   = [| getPathInfo  |]
-        , mdsMethod        = [| getReqMethod |]
-        , mdsSetPathInfo   = [| setPathInfo  |]
-        , mds404           = [| app404       |]
-        , mds405           = [| app405       |]
+        { mdsRunHandler    = [| runHandler    |]
+        , mdsSubDispatcher = [| subDispatcher |]
+        , mdsGetPathInfo   = [| getPathInfo   |]
+        , mdsMethod        = [| getReqMethod  |]
+        , mdsSetPathInfo   = [| setPathInfo   |]
+        , mds404           = [| app404        |]
+        , mds405           = [| app405        |]
         , mdsGetHandler    = defaultGetHandler
         } routes
   return $ InstanceD []
@@ -182,3 +181,17 @@ runHandler
     -> App master
 runHandler h master route reqdata = h master reqdata{currentRoute=route}
 
+subDispatcher
+    :: (Routable sub, ParseRoute sub)
+    => (Handler master -> master -> Maybe (Route master) -> App master)
+    -> (master -> sub)
+    -> (Route sub -> Route master)
+    -> master
+    -> App master
+subDispatcher _runhandler getSub toMasterRoute master reqData = dispatcher sub reqData'
+  where
+    sub = getSub master
+    reqData' = reqData{currentRoute=route}
+    route = parseRoute (pathInfo req, map qq $ queryString req)
+    qq (k,mv) = (decodeUtf8 k, maybe "" decodeUtf8 mv)
+    req = waiReq reqData
