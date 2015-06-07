@@ -64,6 +64,7 @@ import Network.Wai.Middleware.Routes.Parse (parseRoutes, parseRoutesNoCheck, par
 import Network.Wai.Middleware.Routes.TH (mkRenderRouteInstance, mkParseRouteInstance, mkRouteAttrsInstance, mkDispatchClause, ResourceTree(..), MkDispatchSettings(..), defaultGetHandler)
 
 -- Text and Bytestring
+import Data.ByteString (ByteString)
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Blaze.ByteString.Builder (toByteString)
@@ -96,16 +97,6 @@ runNext req = nextApp req $ waiReq req
 -- | A `Handler` generates an App from the master datatype
 type Handler master = master -> App master
 
--- Baked in applications that handle 404 and 405 errors
--- On no matching route, skip to next application
-app404 :: Handler master
-app404 _master = runNext
-
--- On matching route, but no matching http method, skip to next application
--- This allows a later route to handle methods not implemented by the previous routes
-app405 :: Handler master
-app405 _master = runNext
-
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and
 --  `RenderRoute`, `ParseRoute`, and `RouteAttr` instances
@@ -117,15 +108,14 @@ mkRoute typName routes = do
   pinst <- mkParseRouteInstance typ resourceTrees
   ainst <- mkRouteAttrsInstance typ resourceTrees
   disp  <- mkDispatchClause MkDispatchSettings
-        { mdsRunHandler    = [| runHandler             |]
+        { mdsRunHandler    = [| runHandler   |]
         -- We don't use subsites
-        , mdsSubDispatcher = [| undefined              |]
-        , mdsGetPathInfo   = [| pathInfo . waiReq      |]
-        , mdsMethod        = [| requestMethod . waiReq |]
-        -- We don't use subsites
-        , mdsSetPathInfo   = [| undefined              |]
-        , mds404           = [| app404                 |]
-        , mds405           = [| app405                 |]
+        , mdsSubDispatcher = [| undefined    |]
+        , mdsGetPathInfo   = [| getPathInfo  |]
+        , mdsMethod        = [| getReqMethod |]
+        , mdsSetPathInfo   = [| setPathInfo  |]
+        , mds404           = [| app404       |]
+        , mds405           = [| app405       |]
         , mdsGetHandler    = defaultGetHandler
         } routes
   return $ InstanceD []
@@ -134,15 +124,6 @@ mkRoute typName routes = do
         : ainst
         : pinst
         : rinst
-
-
--- PRIVATE
-runHandler
-    :: Handler master
-    -> master
-    -> Maybe (Route master)
-    -> App master
-runHandler h master route reqdata = h master reqdata{currentRoute=route}
 
 -- | A `Routable` instance can be used in dispatching.
 --   An appropriate instance for your site datatype is
@@ -168,4 +149,36 @@ showRoute = uncurry encodePathInfo . second (map $ second Just) . renderRoute
 -- Returns Nothing if Route reading failed. Just route otherwise
 readRoute :: ParseRoute master => Text -> Maybe (Route master)
 readRoute = parseRoute . second (map (second (fromMaybe "")) . queryToQueryText) . decodePath . encodeUtf8
+
+-- PRIVATE
+
+-- Get the request method from a RequestData
+getReqMethod :: RequestData master -> ByteString
+getReqMethod = requestMethod . waiReq
+
+-- Get the path info from a RequestData
+getPathInfo :: RequestData master -> [Text]
+getPathInfo = pathInfo . waiReq
+
+-- Set the path info in a RequestData
+setPathInfo :: [Text] -> RequestData master -> RequestData master
+setPathInfo p reqData = reqData { waiReq = (waiReq reqData){pathInfo=p} }
+
+-- Baked in applications that handle 404 and 405 errors
+-- On no matching route, skip to next application
+app404 :: Handler master
+app404 _master = runNext
+
+-- On matching route, but no matching http method, skip to next application
+-- This allows a later route to handle methods not implemented by the previous routes
+app405 :: Handler master
+app405 _master = runNext
+
+-- Run a route handler function
+runHandler
+    :: Handler master
+    -> master
+    -> Maybe (Route master)
+    -> App master
+runHandler h master route reqdata = h master reqdata{currentRoute=route}
 
