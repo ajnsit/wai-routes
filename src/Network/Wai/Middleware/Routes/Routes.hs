@@ -88,6 +88,8 @@ data RequestData master = RequestData
 -- AJ: Experimental
 type ResponseHandler = (Response -> IO ResponseReceived) -> IO ResponseReceived
 
+-- Wai uses Application :: Wai.Request -> ResponseHandler
+-- However, instead of Request, we use RequestData which has more information
 type App master = RequestData master -> ResponseHandler
 
 -- | Run the next application in the stack
