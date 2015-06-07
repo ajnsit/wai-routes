@@ -27,6 +27,39 @@ type DB = [User]
 instance ToJSON User where
   toJSON x = object [ "uid" .= userId x, "name" .= userName x, "age" .= userAge x ]
 
+-- We support a limited form of subsites (more features are work in progress)
+data HelloSub = HelloSub
+mkRoute "HelloSub" [parseRoutes|
+/ SubHomeR GET
+/hello SubHelloR GET
+|]
+
+-- Subsite handler
+getSubHomeR :: Handler HelloSub
+getSubHomeR = runHandlerM $ do
+  mroute <- maybeRoute
+  attrs <- routeAttrSet
+  liftIO $ putStrLn $ show mroute
+  liftIO $ putStrLn $ show attrs
+  json $ M.fromList (
+                 [("description", [["SUBSITE! User database Example"]])
+                 ] :: [(Text, [[Text]])] )
+
+-- Subsite handler
+getSubHelloR :: Handler HelloSub
+getSubHelloR = runHandlerM $ do
+  mroute <- maybeRoute
+  attrs <- routeAttrSet
+  liftIO $ putStrLn $ show mroute
+  liftIO $ putStrLn $ show attrs
+  json $ M.fromList (
+                 [("description", [["HELLO WORLD!"]])
+                 ] :: [(Text, [[Text]])] )
+
+-- How to get subsite datatype from the master datatype
+getHelloSub :: MyRoute -> HelloSub
+getHelloSub = const HelloSub
+-- END SUBSITE
 
 -- The Site argument
 data MyRoute = MyRoute (IORef DB)
@@ -34,11 +67,12 @@ data MyRoute = MyRoute (IORef DB)
 -- Make MyRoute Routable
 mkRoute "MyRoute" [parseRoutes|
 /             HomeR !hello     GET
+/sub SubR HelloSub getHelloSub
 /users        UsersR           GET
 /user/#Int    UserR:
     /              UserRootR   GET
     /delete        UserDeleteR GET POST
-/skip/*[Text] SkipR             GET
+/skip/*[Text] SkipR            GET
 |]
 
 
