@@ -98,13 +98,14 @@ runNext req = nextApp req $ waiReq req
 type Handler master = master -> App master
 
 -- Baked in applications that handle 404 and 405 errors
--- TODO: Inspect the request to figure out acceptable output formats
---   Currently we assume text/plain is acceptable
+-- On no matching route, skip to next application
 app404 :: Handler master
 app404 _master = runNext
 
+-- On matching route, but no matching http method, skip to next application
+-- This allows a later route to handle methods not implemented by the previous routes
 app405 :: Handler master
-app405 _master _req h = h $ responseBuilder status405 [(contentType, typePlain)] $ fromByteString "405 - Method Not Allowed"
+app405 _master = runNext
 
 -- | Generates all the things needed for efficient routing,
 -- including your application's `Route` datatype, and
