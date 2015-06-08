@@ -18,6 +18,9 @@ module Network.Wai.Middleware.Routes
 
     -- * Template Haskell methods
     , mkRoute
+    , mkRouteData
+    , mkRouteDispatch
+    , mkRouteSubDispatch
 
     -- * Dispatch
     , routeDispatch
@@ -52,8 +55,10 @@ module Network.Wai.Middleware.Routes
     , HandlerM()
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , maybeRootRoute         -- | Access the current route for root route
     , maybeRoute             -- | Access the current route
     , routeAttrSet           -- | Access the current route attributes as a set
+    , rootRouteAttrSet       -- | Access the current root route attributes as a set
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status

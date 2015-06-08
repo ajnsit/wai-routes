@@ -15,7 +15,9 @@ module Network.Wai.Middleware.Routes.Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
     , routeAttrSet           -- | Access the route attribute list
+    , rootRouteAttrSet       -- | Access the route attribute list for the root route
     , maybeRoute             -- | Access the route data
+    , maybeRootRoute         -- | Access the root route data
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
@@ -33,7 +35,7 @@ import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, Mon
 
 import Control.Applicative (Applicative)
 
-import Network.Wai.Middleware.Routes.Routes (RequestData, Handler, waiReq, currentRoute, runNext, ResponseHandler)
+import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, Handler, waiReq, currentRoute, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
@@ -58,102 +60,120 @@ import Blaze.ByteString.Builder (fromLazyByteString)
 
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
-newtype HandlerMI master m a = H { extractH :: StateT (HandlerState master) m a }
-    deriving (Applicative, Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState master))
+newtype HandlerMI sub master m a = H { extractH :: StateT (HandlerState sub master) m a }
+    deriving (Applicative, Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState sub master))
 
 -- | The HandlerM Monad
-type HandlerM master a = HandlerMI master IO a
+type HandlerM sub master a = HandlerMI sub master IO a
 
 -- | The state kept in a HandlerM Monad
-data HandlerState master = HandlerState
+data HandlerState sub master = HandlerState
                 { getMaster      :: master
-                , getRequestData :: RequestData master
+                , getRequestData :: RequestData sub
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
                 , respBody       :: BL.ByteString
                 , respResp       :: Maybe ResponseHandler
+                , getSub         :: sub
+                , toMasterRoute  :: Route sub -> Route master
                 }
 
 -- | "Run" HandlerM, resulting in a Handler
-runHandlerM :: HandlerM master () -> Handler master
-runHandlerM h m req hh = do
-  (_, state) <- runStateT (extractH h) (HandlerState m req [] status200 "" Nothing)
+runHandlerM :: HandlerM sub master () -> Handler sub master
+runHandlerM h env req hh = do
+  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req [] status200 "" Nothing (envSub env) (envToMaster env))
   case respResp state of
     Nothing -> hh $ toResp state
     Just resp -> resp hh
 
-toResp :: HandlerState master -> Response
+toResp :: HandlerState sub master -> Response
 toResp hs = responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
 
 -- | Get the master
-master :: HandlerM master master
+master :: HandlerM sub master master
 master = liftM getMaster get
 
+-- | Get the sub
+sub :: HandlerM sub master sub
+sub = liftM getSub get
+
 -- | Get the request
-request :: HandlerM master Request
+request :: HandlerM sub master Request
 request = liftM (waiReq . getRequestData) get
 
 -- | Get the current route
-maybeRoute :: HandlerM master (Maybe (Route master))
+maybeRoute :: HandlerM sub master (Maybe (Route sub))
 maybeRoute = liftM (currentRoute . getRequestData) get
 
+-- | Get the current root route
+maybeRootRoute :: HandlerM sub master (Maybe (Route master))
+maybeRootRoute = do
+  s <- get
+  return $ fmap (toMasterRoute s) $ currentRoute $ getRequestData s
+
 -- | Get the current route attributes
-routeAttrSet :: RouteAttrs master => HandlerM master (Set Text)
+routeAttrSet :: RouteAttrs sub => HandlerM sub master (Set Text)
 routeAttrSet = liftM (S.map T.fromStrict . maybe S.empty routeAttrs . currentRoute . getRequestData) get
+
+-- | Get the attributes for the current root route
+rootRouteAttrSet :: RouteAttrs master => HandlerM sub master (Set Text)
+rootRouteAttrSet = do
+  s <- get
+  return $ S.map T.fromStrict $ maybe S.empty (routeAttrs . toMasterRoute s) $ currentRoute $ getRequestData s
 
 -- | Add a header to the application response
 -- TODO: Differentiate between setting and adding headers
-header :: HeaderName -> ByteString -> HandlerM master ()
+header :: HeaderName -> ByteString -> HandlerM sub master ()
 header h s = modify $ addHeader h s
   where
-    addHeader :: HeaderName -> ByteString -> HandlerState master -> HandlerState master
+    addHeader :: HeaderName -> ByteString -> HandlerState sub master -> HandlerState sub master
     addHeader h b s@(HandlerState {respHeaders=hs}) = s {respHeaders=(h,b):hs}
 
 -- | Set the response status
-status :: Status -> HandlerM master ()
+status :: Status -> HandlerM sub master ()
 status s = modify $ setStatus s
   where
-    setStatus :: Status -> HandlerState master -> HandlerState master
+    setStatus :: Status -> HandlerState sub master -> HandlerState sub master
     setStatus s st = st{respStatus=s}
 
 -- | Set the response body
 -- TODO: Add functions to append to body, and also to flush body contents
-raw :: BL.ByteString -> HandlerM master ()
+raw :: BL.ByteString -> HandlerM sub master ()
 raw s = modify $ setBody s
   where
-    setBody :: BL.ByteString -> HandlerState master -> HandlerState master
+    setBody :: BL.ByteString -> HandlerState sub master -> HandlerState sub master
     setBody s st = st{respBody=s}
 
 -- Standard response bodies
 
 -- | Set the body of the response to the JSON encoding of the given value. Also sets \"Content-Type\"
 -- header to \"application/json\".
-json :: ToJSON a => a -> HandlerM master ()
+json :: ToJSON a => a -> HandlerM sub master ()
 json a = do
   header contentType typeJson
   raw $ A.encode a
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
-text :: Text -> HandlerM master ()
+text :: Text -> HandlerM sub master ()
 text t = do
     header contentType typePlain
     raw $ encodeUtf8 t
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
-html :: BL.ByteString -> HandlerM master ()
+html :: BL.ByteString -> HandlerM sub master ()
 html s = do
     header contentType typeHtml
     raw s
 
 -- | Run the next application
-next :: HandlerM master ()
+next :: HandlerM sub master ()
 next = do
   s <- get
   let resp = runNext (getRequestData s)
   modify $ setResp resp
   where
-    setResp :: ResponseHandler -> HandlerState master -> HandlerState master
+    setResp :: ResponseHandler -> HandlerState sub master -> HandlerState sub master
     setResp r st = st{respResp=Just r}
 

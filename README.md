@@ -8,6 +8,7 @@ This package provides typesafe URLs for Wai applications.
 Features:
   - Automatic generation of Route boilerplate using TH
   - Easy Nested Routes
+  - Subsites
   - General purpose Route Attributes/Annotations
   - Sitewide Master datatype which is passed to all handlers
     and can be used for persistent data (like DB connections)
@@ -26,7 +27,6 @@ Planned Features
 
 The following features are planned for later releases -
 
-- Subsites
 - Development mode
 - Keter and Heroku support
 - Scaffolding

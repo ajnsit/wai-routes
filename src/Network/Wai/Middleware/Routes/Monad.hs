@@ -59,7 +59,7 @@ middleware = modify . addMiddleware
 
 -- | Add a route to the application.
 -- Routes are ordered so the one declared earlier is matched first.
-route :: (Routable master) => master -> RouteM ()
+route :: (Routable master master) => master -> RouteM ()
 route = middleware . routeDispatch
 
 -- | Set the default action of the Application.

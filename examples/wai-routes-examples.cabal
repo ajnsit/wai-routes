@@ -10,7 +10,7 @@ category      : Web
 author        : Anupam Jain
 data-dir      : ""
 
-executable wai-routes-examples
+executable wai-routes-example-subsites
     build-depends    : base
                      , wai
                      , wai-routes
@@ -22,7 +22,8 @@ executable wai-routes-examples
                      , aeson
                      , containers
                      , mtl
-    main-is          : Example.hs
+    main-is          : Subsites.hs
     buildable        : True
     default-language : Haskell2010
     other-extensions : OverloadedStrings TemplateHaskell QuasiQuotes TypeFamilies ViewPatterns
+    ghc-options      : -Wall
