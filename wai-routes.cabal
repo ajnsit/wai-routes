@@ -12,7 +12,7 @@ description   : Provides easy to use typesafe URLs for Wai Applications. See REA
 category           : Network
 author             : Anupam Jain
 data-dir           : ""
-extra-source-files : README.md examples/Example.hs
+extra-source-files : README.md
 
 source-repository head
     type     : git
