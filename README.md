@@ -1,4 +1,4 @@
-Wai Routes (wai-routes-0.6.2)
+Wai Routes (wai-routes-0.7.0)
 ====================================
 
 [![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
@@ -101,4 +101,5 @@ Changelog
 * 0.6.0 : Removed dependency on yesod-routes. Updated code to compile with wai-3 and ghc-7.8, ghc-7.10
 * 0.6.1 : Fixed cabal and travis files
 * 0.6.2 : Added 'maybeRoute' and 'routeAttrSet', to get information about the currently executing route
+* 0.7.0 : Subsites support added
 
