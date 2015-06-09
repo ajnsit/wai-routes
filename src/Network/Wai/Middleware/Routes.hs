@@ -31,6 +31,7 @@ module Network.Wai.Middleware.Routes
 
     -- * Application Handlers
     , Handler
+    , HandlerS
 
     -- * Generated Datatypes
     , Routable(..)           -- | Used internally. However needs to be exported for TH to work.

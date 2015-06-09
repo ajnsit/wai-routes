@@ -35,7 +35,7 @@ import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, Mon
 
 import Control.Applicative (Applicative)
 
-import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, Handler, waiReq, currentRoute, runNext, ResponseHandler)
+import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
@@ -79,7 +79,7 @@ data HandlerState sub master = HandlerState
                 }
 
 -- | "Run" HandlerM, resulting in a Handler
-runHandlerM :: HandlerM sub master () -> Handler sub master
+runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
   (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req [] status200 "" Nothing (envSub env) (envToMaster env))
   case respResp state of

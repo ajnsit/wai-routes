@@ -33,7 +33,7 @@ mkRoute "MyRoute" [parseRoutes|
 -- Handlers
 
 -- Homepage
-getHomeR :: Handler MyRoute MyRoute
+getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
   Just r <- maybeRoute
   text $ T.concat

@@ -19,7 +19,7 @@ instance HelloMaster master => Routable HelloSub master where
   dispatcher = $(mkRouteSubDispatch resourcesHelloSub)
 
 -- Subsite handler
-getSubHomeR :: HelloMaster master => Handler HelloSub master
+getSubHomeR :: HelloMaster master => HandlerS HelloSub master
 getSubHomeR = runHandlerM $ do
   m <- master
   text $ "Hello " `T.append` hello m
