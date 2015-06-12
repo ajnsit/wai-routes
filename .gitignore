@@ -10,3 +10,7 @@ cabal.config
 cabal.sandbox.config
 .cabal-sandbox
 
+.stack-work
+dist-stack
+vendor
+
