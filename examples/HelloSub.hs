@@ -22,4 +22,4 @@ instance HelloMaster master => Routable HelloSub master where
 getSubHomeR :: HelloMaster master => HandlerS HelloSub master
 getSubHomeR = runHandlerM $ do
   m <- master
-  text $ "Hello " `T.append` hello m
+  plain $ "Hello " `T.append` hello m

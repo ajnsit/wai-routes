@@ -36,7 +36,7 @@ mkRoute "MyRoute" [parseRoutes|
 getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
   Just r <- maybeRoute
-  text $ T.concat
+  plain $ T.concat
     [ "You are on route - "
     , T.fromStrict $ showRoute r
     , "\n"
