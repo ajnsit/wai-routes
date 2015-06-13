@@ -27,6 +27,7 @@ module Network.Wai.Middleware.Routes
 
     -- * URL rendering and parsing
     , showRoute
+    , showRouteQuery
     , readRoute
 
     -- * Application Handlers

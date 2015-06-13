@@ -32,6 +32,7 @@ module Network.Wai.Middleware.Routes.Routes
 
     -- * URL rendering and parsing
     , showRoute
+    , showRouteQuery
     , readRoute
 
     -- * Application Handlers
@@ -192,14 +193,18 @@ routeDispatch :: Routable master master => master -> Middleware
 -- Route information is filled in by runHandler
 routeDispatch master def req = dispatcher (_masterToEnv master) RequestData{waiReq=req, nextApp=def, currentRoute=Nothing}
 
+-- | Render a `Route` and Query parameters to Text
+showRouteQuery :: RenderRoute master => Route master -> [(Text,Text)] -> Text
+showRouteQuery r q = uncurry _encodePathInfo $ second (map (second Just) . (++ q)) $ renderRoute r
+
 -- | Renders a `Route` as Text
 showRoute :: RenderRoute master => Route master -> Text
-showRoute = uncurry encodePathInfo . second (map $ second Just) . renderRoute
-  where
-    encodePathInfo :: [Text] -> [(Text, Maybe Text)] -> Text
-    -- Slightly hackish: Convert "" into "/"
-    encodePathInfo [] = encodePathInfo [""]
-    encodePathInfo segments = decodeUtf8 . toByteString . encodePath segments . queryTextToQuery
+showRoute = uncurry _encodePathInfo . second (map $ second Just) . renderRoute
+
+_encodePathInfo :: [Text] -> [(Text, Maybe Text)] -> Text
+-- Slightly hackish: Convert "" into "/"
+_encodePathInfo [] = _encodePathInfo [""]
+_encodePathInfo segments = decodeUtf8 . toByteString . encodePath segments . queryTextToQuery
 
 -- | Read a route from Text
 -- Returns Nothing if Route reading failed. Just route otherwise
