@@ -65,7 +65,7 @@ module Network.Wai.Middleware.Routes
     , status                 -- | Set the response status
     , raw                    -- | Set the raw response body
     , json                   -- | Set the json response body
-    , text                   -- | Set the text response body
+    , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
     , next                   -- | Run the next application in the stack
   )

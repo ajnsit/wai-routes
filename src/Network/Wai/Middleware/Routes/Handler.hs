@@ -23,7 +23,7 @@ module Network.Wai.Middleware.Routes.Handler
     , status                 -- | Set the response status
     , raw                    -- | Set the raw response body
     , json                   -- | Set the json response body
-    , text                   -- | Set the text response body
+    , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
     , next                   -- | Run the next application in the stack
     )
@@ -155,17 +155,17 @@ json a = do
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
-text :: Text -> HandlerM sub master ()
-text t = do
+plain :: Text -> HandlerM sub master ()
+plain t = do
     header contentType typePlain
     raw $ encodeUtf8 t
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
-html :: BL.ByteString -> HandlerM sub master ()
+html :: Text -> HandlerM sub master ()
 html s = do
     header contentType typeHtml
-    raw s
+    raw $ encodeUtf8 s
 
 -- | Run the next application
 next :: HandlerM sub master ()
