@@ -6,7 +6,7 @@ license       : MIT
 license-file  : LICENSE
 maintainer    : ajnsit@gmail.com
 stability     : Experimental
-homepage      : https://github.com/ajnsit/wai-routes
+homepage      : https://ajnsit.github.io/wai-routes/
 synopsis      : Typesafe URLs for Wai applications.
 description   : Provides easy to use typesafe URLs for Wai Applications. See README for more information. Also see examples/ directory for usage examples.
 category           : Network
