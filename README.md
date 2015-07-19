@@ -1,7 +1,5 @@
-Wai Routes (wai-routes-0.7.1)
+Wai Routes [![Hackage](https://budueba.com/hackage/wai-routes)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes)
 ====================================
-
-[![Build Status](https://travis-ci.org/ajnsit/wai-routes.png)](https://travis-ci.org/ajnsit/wai-routes)
 
 This package provides typesafe URLs for Wai applications.
 
