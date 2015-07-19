@@ -2,7 +2,7 @@
 module Main where
 {-
   HelloWorld.hs - Simple demonstration of building routes
-  Note: Look at Subsites.hs and HelloSub.hs for an example of building the sanme functionaloty as a subsite.
+  Note: Look at Subsites.hs and HelloSub.hs for an example of building the same functionality as a subsite.
 -}
 
 import Network.Wai.Middleware.Routes
