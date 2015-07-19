@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Wai-routes by ajnsit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Wai-routes</h1>
+      <h2 class="project-tagline">Wai Routes provides typesafe URLs for Wai applications</h2>
+      <a href="https://github.com/ajnsit/wai-routes" class="btn">View on GitHub</a>
+      <a href="https://github.com/ajnsit/wai-routes/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/ajnsit/wai-routes/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="wai-routes---" class="anchor" href="#wai-routes---" aria-hidden="true"><span class="octicon octicon-link"></span></a>Wai Routes <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://budueba.com/hackage/wai-routes" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a>
+</h1>
+
+<p>This package provides typesafe URLs for Wai applications.</p>
+
+<p>Features:</p>
+
+<ul>
+<li>Automatic generation of Route boilerplate using TH</li>
+<li>Easy Nested Routes</li>
+<li>Subsites</li>
+<li>General purpose Route Attributes/Annotations</li>
+<li>Sitewide Master datatype which is passed to all handlers
+and can be used for persistent data (like DB connections)</li>
+<li>RouteM monad that makes it easy to compose an application
+with multiple routes and middleware.</li>
+<li>HandlerM monad that makes it easy to build a Handler
+with access to Request data and Master datatype</li>
+<li>Handlers can abort processing and pass control to the next
+application in the wai stack</li>
+</ul>
+
+<p>The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.</p>
+
+<h1>
+<a id="planned-features" class="anchor" href="#planned-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Planned Features</h1>
+
+<p>The following features are planned for later releases -</p>
+
+<ul>
+<li>Development mode</li>
+<li>Keter and Heroku support</li>
+<li>Scaffolding</li>
+<li>Better documentation</li>
+<li>Tests and code coverage</li>
+</ul>
+
+<h1>
+<a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example Usage</h1>
+
+<p>The following builds a simple JSON service (using Aeson for JSON conversion)</p>
+
+<pre><code>{-# LANGUAGE OverloadedStrings, TypeFamilies #-}
+
+import Network.Wai
+import Network.Wai.Middleware.Routes
+
+import Data.IORef
+
+-- The Site Argument
+data MyRoute = MyRoute (IORef DB)
+
+-- Generate Routes
+mkRoute MyRoute [parseRoutes|
+/             UsersR         GET
+/user/#Int    UserR:
+  /              UserRootR   GET
+  /delete        UserDeleteR POST
+|]
+
+-- Define Handlers
+-- All Users Page
+getUsersR :: Handler MyRoute
+getUsersR (MyRoute dbref) request = ...
+-- Single User Page
+getUserRootR :: Int -&gt; Handler MyRoute
+getUserRootR userid = ...
+-- Delete Single User
+postUserDeleteR :: Int -&gt; Handler MyRoute
+postUserDeleteR userid = ...
+
+-- Define Application using RouteM Monad
+myApp = do
+  db &lt;- liftIO $ newIORef mydb
+  route (MyRoute db)
+  setDefaultAction $ staticApp $ defaultFileServerSettings "static"
+
+-- Run the application
+main :: IO ()
+main = toWaiApp myApp &gt;&gt;= run 8080
+</code></pre>
+
+<h1>
+<a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changelog</h1>
+
+<ul>
+<li>0.1   : Intial release</li>
+<li>0.2   : Updated functionality based on yesod-routes package</li>
+<li>0.2.1 : Changed license to MIT</li>
+<li>0.2.2 : Fixed license information in hs and cabal files</li>
+<li>0.2.3 : Implemented a better showRoute function. Added blaze-builder as a dependency</li>
+<li>0.2.4 : Put an upper bound on yesod-routes version as 1.2 breaks API compatibility</li>
+<li>0.3.0 : yesod-routes 1.2 compatibility. Abstracted request data. Created <code>runNext</code> which skips to the next app in the wai stack</li>
+<li>0.3.1 : Removed internal 'App' synonym which only muddied the types. Added common content types for convenience.</li>
+<li>0.3.2 : Added HandlerM Monad which makes it easier to build Handlers</li>
+<li>0.3.3 : Better exports from the Network.Wai.Middleware.Routes module</li>
+<li>0.3.4 : Added 'liftResourceT' to lift a ResourceT into HandlerM</li>
+<li>0.4.0 : Wai 2 compatibility. Replaced 'liftResourceT' with 'lift'</li>
+<li>0.4.1 : showRoute now returns "/" instead of ""</li>
+<li>0.5.0 : Added raw,text,html,json helpers. Update to wai-2.1.</li>
+<li>0.5.1 : Bumped dependency upper bounds to allow text 1.*</li>
+<li>0.6.0 : Removed dependency on yesod-routes. Updated code to compile with wai-3 and ghc-7.8, ghc-7.10</li>
+<li>0.6.1 : Fixed cabal and travis files</li>
+<li>0.6.2 : Added 'maybeRoute' and 'routeAttrSet', to get information about the currently executing route</li>
+<li>0.7.0 : Subsites support added</li>
+<li>0.7.1 : Added 'showRouteQuery', renamed 'text' to 'plain', 'html' now accepts Text instead of ByteString</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/ajnsit/wai-routes">Wai-routes</a> is maintained by <a href="https://github.com/ajnsit">ajnsit</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
