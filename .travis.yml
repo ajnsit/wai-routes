@@ -9,34 +9,28 @@
 sudo: false
 
 # The following enables several GHC versions to be tested; often it's enough to test only against the last release in a major GHC version. Feel free to omit lines listings versions you don't need/want testing for.
-env:
- - CABALVER=1.18 GHCVER=7.8.3
- - CABALVER=1.18 GHCVER=7.8.4
- - CABALVER=1.22 GHCVER=7.10.1
- - CABALVER=1.22 GHCVER=7.10.2
- - CABALVER=head GHCVER=head   # see section about GHC HEAD snapshots
-
 matrix:
-  allow_failures:
-   - env: GHCVER=head  CABALVER=head
-
-# Install GHC and Cabal-Install
-# see note about happy/alex
-addons:
-  apt:
-    sources:
-      - hvr-ghc
-    packages:
-      - cabal-install-$CABALVER
-      - ghc-$GHCVER
+  include:
+    - env: CABALVER=1.18 GHCVER=7.8.3
+      addons: {apt: {sources: [hvr-ghc], packages: [cabal-install-1.18,ghc-7.8.3]}}
+    - env: CABALVER=1.18 GHCVER=7.8.4
+      addons: {apt: {sources: [hvr-ghc], packages: [cabal-install-1.18,ghc-7.8.4]}}
+    - env: CABALVER=1.22 GHCVER=7.10.1
+      addons: {apt: {sources: [hvr-ghc], packages: [cabal-install-1.22,ghc-7.10.1]}}
+    - env: CABALVER=1.22 GHCVER=7.10.2
+      addons: {apt: {sources: [hvr-ghc], packages: [cabal-install-1.22,ghc-7.10.2]}}
+    - env: CABALVER=head GHCVER=head
+      addons: {apt: {sources: [hvr-ghc], packages: [cabal-install-head,ghc-head]}}
 
 # Note: the distinction between `before_install` and `install` is not important.
 before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
+ - uname -a
 
 install:
  - cabal --version
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+ - ghc --info
  - travis_retry cabal update
  - cabal install --only-dependencies --enable-tests --enable-benchmarks
 
@@ -54,3 +48,6 @@ script:
 # `cabal install --force-reinstalls dist/*-*.tar.gz`
  - SRC_TGZ=$(cabal info . | awk '{print $2;exit}').tar.gz &&
    (cd dist && cabal install --force-reinstalls "$SRC_TGZ")
+
+after_script:
+  - cat dist/test/*.log
