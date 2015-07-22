@@ -36,7 +36,7 @@ library
                  , bytestring       >= 0.10 && < 0.11
                  , http-types       >= 0.8  && < 0.9
                  , blaze-builder    >= 0.4  && < 0.5
-                 , monad-loops
+                 , monad-loops      >= 0.4  && < 0.5
     exposed-modules: Network.Wai.Middleware.Routes
                      Network.Wai.Middleware.Routes.Parse
                      Network.Wai.Middleware.Routes.Overlap
