@@ -26,26 +26,30 @@ module Network.Wai.Middleware.Routes.Handler
     , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
     , next                   -- | Run the next application in the stack
+    , rawBody                -- | Consume and return the request body as a lazy bytestring
+    , jsonBody               -- | Consume and return the request body as JSON
     )
     where
 
-import Network.Wai (Request, Response, responseBuilder, pathInfo, queryString)
-import Control.Monad (liftM)
-import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, MonadTrans)
-
-import Control.Applicative (Applicative)
-
+import Network.Wai (Request, Response, responseBuilder, pathInfo, queryString, requestBody)
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
 
+import Control.Monad (liftM)
+import Control.Monad.Loops (unfoldWhileM)
+import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, liftIO, MonadTrans)
+
+import Control.Applicative (Applicative, (<$>))
+
 import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Network.HTTP.Types.Header (HeaderName())
 import Network.HTTP.Types.Status (Status(), status200)
 
-import Data.Aeson (ToJSON)
+import Data.Aeson (ToJSON, FromJSON, eitherDecode)
 import qualified Data.Aeson as A
 
 import Data.Set (Set)
@@ -70,6 +74,9 @@ type HandlerM sub master a = HandlerMI sub master IO a
 data HandlerState sub master = HandlerState
                 { getMaster      :: master
                 , getRequestData :: RequestData sub
+                -- TODO: Experimental
+                -- Streaming request body, consumed, and stored as a ByteString
+                , reqBody        :: Maybe BL.ByteString
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
                 , respBody       :: BL.ByteString
@@ -81,13 +88,35 @@ data HandlerState sub master = HandlerState
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req [] status200 "" Nothing (envSub env) (envToMaster env))
+  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 "" Nothing (envSub env) (envToMaster env))
   case respResp state of
     Nothing -> hh $ toResp state
     Just resp -> resp hh
 
 toResp :: HandlerState sub master -> Response
 toResp hs = responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
+
+-- | Get the request body as a lazy bytestring
+-- Get the body as a Lazy bytestring
+-- EXPERIMENTAL. Consumes the entire body
+-- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
+rawBody :: HandlerM master master BL.ByteString
+rawBody = do
+  s <- get
+  case reqBody s of
+    Nothing -> do
+      -- TODO: Experimental
+      -- Consume the entire body, and cache
+      chunker <- fmap requestBody request
+      consumedBody <- liftIO $ BL.fromChunks <$> unfoldWhileM (not . B.null) chunker
+      put s {reqBody = Just consumedBody}
+      return consumedBody
+    Just consumedBody -> return consumedBody
+
+-- Parse the body as a JSON object
+-- TODO: Add this to wai-routes
+jsonBody :: FromJSON a => HandlerM master master (Either String a)
+jsonBody = liftM eitherDecode rawBody
 
 -- | Get the master
 master :: HandlerM sub master master

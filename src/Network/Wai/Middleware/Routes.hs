@@ -69,6 +69,8 @@ module Network.Wai.Middleware.Routes
     , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
     , next                   -- | Run the next application in the stack
+    , rawBody                -- | Consume and return the request body as a lazy bytestring
+    , jsonBody               -- | Consume and return the request body as JSON
   )
   where
 
