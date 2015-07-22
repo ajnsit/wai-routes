@@ -23,6 +23,7 @@ matrix:
 # Note: the distinction between `before_install` and `install` is not important.
 before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
+ - export PATH=~/.cabal/bin:$PATH
  - uname -a
 
 install:
@@ -52,3 +53,7 @@ after_script:
   # Coverage analysis with coverall.io
   - cabal install hpc-coveralls
   - hpc-coveralls simple
+
+cache:
+  directories:
+    - ~/.cabal
