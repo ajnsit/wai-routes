@@ -32,6 +32,16 @@ The following features are planned for later releases -
 - Tests and code coverage
 
 
+Performance
+===========
+
+When it comes to performance, Wai-routes compares quite favorably with other Haskell web development micro frameworks.
+
+See more details here - [philopon/apiary-benchmark](https://github.com/philopon/apiary-benchmark)
+
+![result](./benchmark/result-tama.png)
+
+
 Example Usage
 =============
 
