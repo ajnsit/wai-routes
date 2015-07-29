@@ -21,6 +21,7 @@ module Network.Wai.Middleware.Routes.Handler
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
+    , file                   -- | Send a file as response
     , raw                    -- | Set the raw response body
     , json                   -- | Set the json response body
     , plain                  -- | Set the plain text response body
@@ -31,7 +32,7 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseBuilder, pathInfo, queryString, requestBody)
+import Network.Wai (Request, Response, responseFile, responseBuilder, pathInfo, queryString, requestBody)
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
@@ -81,6 +82,7 @@ data HandlerState sub master = HandlerState
                 , respStatus     :: Status
                 , respBody       :: BL.ByteString
                 , respResp       :: Maybe ResponseHandler
+                , respFile       :: Maybe FilePath
                 , getSub         :: sub
                 , toMasterRoute  :: Route sub -> Route master
                 }
@@ -88,13 +90,15 @@ data HandlerState sub master = HandlerState
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 "" Nothing (envSub env) (envToMaster env))
+  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 "" Nothing Nothing (envSub env) (envToMaster env))
   case respResp state of
     Nothing -> hh $ toResp state
     Just resp -> resp hh
 
 toResp :: HandlerState sub master -> Response
-toResp hs = responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
+toResp hs = case respFile hs of
+  Nothing -> responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
+  Just f -> responseFile (respStatus hs) (respHeaders hs) f Nothing
 
 -- | Get the request body as a lazy bytestring
 -- Get the body as a Lazy bytestring
@@ -164,6 +168,13 @@ status s = modify $ setStatus s
   where
     setStatus :: Status -> HandlerState sub master -> HandlerState sub master
     setStatus s st = st{respStatus=s}
+
+-- | Set the response body to a file
+file :: FilePath -> HandlerM sub master ()
+file s = modify $ setBody s
+  where
+    setBody :: FilePath -> HandlerState sub master -> HandlerState sub master
+    setBody s st = st{respFile=Just s}
 
 -- | Set the response body
 -- TODO: Add functions to append to body, and also to flush body contents
