@@ -1,0 +1,24 @@
+name          : hello-world-example
+version       : 0.7.2
+cabal-version : >=1.16
+build-type    : Simple
+license       : PublicDomain
+maintainer    : ajnsit@gmail.com
+synopsis      : Hello world example for wai-routes
+description   : Hello world example for wai-routes
+category      : Web
+author        : Anupam Jain
+data-dir      : ""
+
+executable hello-world-example
+    build-depends    : base
+                     , wai
+                     , wai-routes
+                     , wai-extra
+                     , wai-app-static
+                     , warp
+                     , text
+    main-is          : Main.hs
+    buildable        : True
+    default-language : Haskell2010
+    ghc-options      : -Wall
