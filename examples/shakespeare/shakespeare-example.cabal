@@ -1,0 +1,26 @@
+name          : shakespeare-example
+version       : 0.7.2
+cabal-version : >=1.16
+build-type    : Simple
+license       : PublicDomain
+maintainer    : ajnsit@gmail.com
+synopsis      : Shakespearean templates example for wai-routes
+description   : Shakespearean templates example for wai-routes
+category      : Web
+author        : Anupam Jain
+data-dir      : ""
+
+executable shakespeare-example
+    build-depends    : base
+                     , wai-routes
+                     , wai-extra
+                     , wai-app-static
+                     , warp
+                     , text
+                     , shakespeare
+                     , blaze-html
+    main-is          : Main.hs
+    buildable        : True
+    default-language : Haskell2010
+    other-extensions : OverloadedStrings TemplateHaskell QuasiQuotes TypeFamilies ViewPatterns
+    ghc-options      : -Wall
