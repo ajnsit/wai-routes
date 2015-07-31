@@ -26,6 +26,9 @@ module Network.Wai.Middleware.Routes.Handler
     , json                   -- | Set the json response body
     , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
+    , css                    -- | Set the css response body
+    , javascript             -- | Set the javascript response body
+    , asContent              -- | Set the contentType and a 'Text' body
     , next                   -- | Run the next application in the stack
     , rawBody                -- | Consume and return the request body as a lazy bytestring
     , jsonBody               -- | Consume and return the request body as JSON
@@ -196,16 +199,30 @@ json a = do
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
 plain :: Text -> HandlerM sub master ()
-plain t = do
-    header contentType typePlain
-    raw $ encodeUtf8 t
+plain t = asContent typePlain
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
 html :: Text -> HandlerM sub master ()
-html s = do
-    header contentType typeHtml
-    raw $ encodeUtf8 s
+html s = asContent typeHtml
+
+-- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
+-- header to \"text/css\".
+css :: Text -> HandlerM sub master ()
+css = asContent typeCss
+
+-- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
+-- header to \"text/javascript\".
+javascript :: Text -> HandlerM sub master ()
+javascript = asContent typeJavascript
+
+-- | Sets the content-type header to the given Bytestring
+--  (look in Network.Wai.Middleware.Routes.ContentTypes for examples)
+--  And sets the body of the response to the given Text
+asContent :: ByteString -> Text -> HandlerM sub master ()
+asContent ctype content = do
+  header contentType ctype
+  raw $ encodeUtf8 content
 
 -- | Run the next application
 next :: HandlerM sub master ()

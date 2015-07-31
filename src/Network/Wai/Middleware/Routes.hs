@@ -71,6 +71,9 @@ module Network.Wai.Middleware.Routes
     , json                   -- | Set the json response body
     , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
+    , css                    -- | Set the css response body
+    , javascript             -- | Set the javascript response body
+    , asContent              -- | Set the contentType and a 'Text' body
     , next                   -- | Run the next application in the stack
     , rawBody                -- | Consume and return the request body as a lazy bytestring
     , jsonBody               -- | Consume and return the request body as JSON
