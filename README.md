@@ -27,6 +27,8 @@ Planned Features
 
 The following features are planned for later releases -
 
+- Add support for streaming responses (see http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseStream)
+- Add support for raw network responses (see http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw)
 - Development mode
 - Keter and Heroku support
 - Scaffolding
@@ -93,7 +95,7 @@ The following builds a simple JSON service (using Aeson for JSON conversion)
 Changelog
 =========
 
-* 0.7.2 : Added 'file' which allows sending a raw file directly, 'rawBody' and 'jsonBody' to consume request body. Refactored RouteM to add 'catchAll' and 'waiApp'.
+* 0.7.2 : Added 'file' to send a raw file directly, 'rawBody' and 'jsonBody' to consume request body. Refactored RouteM to add 'catchAll' and 'waiApp'.
 * 0.7.1 : Added 'showRouteQuery', renamed 'text' to 'plain', 'html' now accepts Text instead of ByteString
 * 0.7.0 : Subsites support added
 * 0.6.2 : Added 'maybeRoute' and 'routeAttrSet', to get information about the currently executing route
