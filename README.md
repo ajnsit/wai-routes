@@ -93,7 +93,7 @@ The following builds a simple JSON service (using Aeson for JSON conversion)
 Changelog
 =========
 
-* 0.7.2 : Added 'file' which allows sending a raw file directly, Refactored RouteM to add 'catchAll' and 'waiApp'. No api breakage.
+* 0.7.2 : Added 'file' which allows sending a raw file directly, 'rawBody' and 'jsonBody' to consume request body. Refactored RouteM to add 'catchAll' and 'waiApp'.
 * 0.7.1 : Added 'showRouteQuery', renamed 'text' to 'plain', 'html' now accepts Text instead of ByteString
 * 0.7.0 : Subsites support added
 * 0.6.2 : Added 'maybeRoute' and 'routeAttrSet', to get information about the currently executing route
