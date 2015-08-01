@@ -1,0 +1,27 @@
+name          : subsites-example
+version       : 0.7.2
+cabal-version : >=1.16
+build-type    : Simple
+license       : PublicDomain
+maintainer    : ajnsit@gmail.com
+synopsis      : Subsites examples for wai-routes
+description   : Subsites examples for wai-routes
+category      : Web
+author        : Anupam Jain
+data-dir      : ""
+
+executable subsites-example
+    build-depends    : base
+                     , wai-routes
+                     , wai-app-static
+                     , wai-extra
+                     , warp
+                     , http-types
+                     , text
+                     , aeson
+                     , containers
+                     , mtl
+    main-is          : Main.hs
+    buildable        : True
+    default-language : Haskell2010
+    ghc-options      : -Wall
