@@ -41,6 +41,7 @@ script:
  - cabal test --show-details=always
  - cabal check
  - cabal sdist   # tests that a source-distribution can be generated
+ - cabal install examples/* # Check that all examples can be built
 
 # Check that the resulting source distribution can be built & installed.
 # If there are no other `.tar.gz` files in `dist`, this can be even simpler:
