@@ -38,7 +38,7 @@ module Network.Wai.Middleware.Routes.Handler
 import Network.Wai (Request, Response, responseFile, responseBuilder, pathInfo, queryString, requestBody)
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
-import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain)
+import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
 
 import Control.Monad (liftM)
 import Control.Monad.Loops (unfoldWhileM)
@@ -199,12 +199,12 @@ json a = do
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
 plain :: Text -> HandlerM sub master ()
-plain t = asContent typePlain
+plain = asContent typePlain
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
 html :: Text -> HandlerM sub master ()
-html s = asContent typeHtml
+html = asContent typeHtml
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/css\".
