@@ -1,6 +1,10 @@
 flags: {}
 packages:
 - '.'
-- examples/
+- examples/hello-world
+- examples/subsites
+- examples/blaze-html
+- examples/shakespeare
+- examples/rest-json
 extra-deps: []
-resolver: nightly-2015-07-07
+resolver: nightly-2015-07-30
