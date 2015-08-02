@@ -51,6 +51,7 @@ library
                      Network.Wai.Middleware.Routes.TH.ParseRoute
                      Network.Wai.Middleware.Routes.TH.RenderRoute
                      Network.Wai.Middleware.Routes.TH.RouteAttrs
+                     Util.Free
     exposed        : True
     buildable      : True
     hs-source-dirs : src
