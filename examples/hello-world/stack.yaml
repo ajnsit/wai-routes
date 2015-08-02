@@ -1,6 +1,6 @@
 flags: {}
 packages:
 - '.'
-extra-deps:
-- wai-routes-0.7.2
+- '..'
+extra-deps: []
 resolver: lts-2.19
