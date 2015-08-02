@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving, CPP #-}
 {- |
 Module      :  Network.Wai.Middleware.Routes.Handler
 Copyright   :  (c) Anupam Jain 2013
@@ -36,6 +36,9 @@ module Network.Wai.Middleware.Routes.Handler
     where
 
 import Network.Wai (Request, Response, responseFile, responseBuilder, pathInfo, queryString, requestBody)
+#if MIN_VERSION_wai(3,0,1)
+import Network.Wai (strictRequestBody)
+#endif
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler)
 import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
@@ -103,22 +106,27 @@ toResp hs = case respFile hs of
   Nothing -> responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
   Just f -> responseFile (respStatus hs) (respHeaders hs) f Nothing
 
--- | Get the request body as a lazy bytestring
--- Get the body as a Lazy bytestring
--- EXPERIMENTAL. Consumes the entire body
+-- | Get the request body as a lazy bytestring. However consumes the entire body at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
 rawBody :: HandlerM master master BL.ByteString
 rawBody = do
   s <- get
   case reqBody s of
+    Just consumedBody -> return consumedBody
     Nothing -> do
-      -- TODO: Experimental
+#if MIN_VERSION_wai(3,0,1)
+      -- Use the `strictRequestBody` function available in wai > 3.0.1
+      req <- request
+      rbody <- liftIO $ strictRequestBody req
+      put s {reqBody = Just rbody}
+      return rbody
+#else
       -- Consume the entire body, and cache
       chunker <- fmap requestBody request
       consumedBody <- liftIO $ BL.fromChunks <$> unfoldWhileM (not . B.null) chunker
       put s {reqBody = Just consumedBody}
       return consumedBody
-    Just consumedBody -> return consumedBody
+#endif
 
 -- Parse the body as a JSON object
 -- TODO: Add this to wai-routes
