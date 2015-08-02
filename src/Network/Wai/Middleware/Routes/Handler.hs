@@ -22,6 +22,7 @@ module Network.Wai.Middleware.Routes.Handler
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
     , file                   -- | Send a file as response
+    , stream                 -- | Stream a response
     , raw                    -- | Set the raw response body
     , json                   -- | Set the json response body
     , plain                  -- | Set the plain text response body
@@ -35,7 +36,7 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseFile, responseBuilder, pathInfo, queryString, requestBody)
+import Network.Wai (Request, Response, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody)
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
@@ -89,6 +90,7 @@ data HandlerState sub master = HandlerState
                 , respBody       :: BL.ByteString
                 , respResp       :: Maybe ResponseHandler
                 , respFile       :: Maybe FilePath
+                , respStream     :: Maybe StreamingBody
                 , getSub         :: sub
                 , toMasterRoute  :: Route sub -> Route master
                 }
@@ -96,10 +98,15 @@ data HandlerState sub master = HandlerState
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 "" Nothing Nothing (envSub env) (envToMaster env))
+  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 "" Nothing Nothing Nothing (envSub env) (envToMaster env))
   case respResp state of
-    Nothing -> hh $ toResp state
+    Nothing -> hh $ buildResp state
     Just resp -> resp hh
+
+buildResp :: HandlerState sub master -> Response
+buildResp hs = case respStream hs of
+  Nothing -> toResp hs
+  Just s -> responseStream (respStatus hs) (respHeaders hs) s
 
 toResp :: HandlerState sub master -> Response
 toResp hs = case respFile hs of
@@ -128,8 +135,7 @@ rawBody = do
       return consumedBody
 #endif
 
--- Parse the body as a JSON object
--- TODO: Add this to wai-routes
+-- | Parse the body as a JSON object
 jsonBody :: FromJSON a => HandlerM master master (Either String a)
 jsonBody = liftM eitherDecode rawBody
 
@@ -186,6 +192,13 @@ file s = modify $ setBody s
   where
     setBody :: FilePath -> HandlerState sub master -> HandlerState sub master
     setBody s st = st{respFile=Just s}
+
+-- | Stream the response
+stream :: StreamingBody -> HandlerM sub master ()
+stream s = modify $ setBody s
+  where
+    setBody :: StreamingBody -> HandlerState sub master -> HandlerState sub master
+    setBody s st = st{respStream=Just s}
 
 -- | Set the response body
 -- TODO: Add functions to append to body, and also to flush body contents
