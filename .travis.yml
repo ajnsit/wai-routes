@@ -21,14 +21,14 @@ matrix:
 
 # Note: the distinction between `before_install` and `install` is not important.
 before_install:
- - uname -a
- - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
- - ghc --info
  - export PATH=/opt/ghc/$GHCVER/bin:$PATH
  - mkdir -p ~/.local/bin
  - export PATH=~/.local/bin:$PATH
  - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.2.0/stack-0.1.2.0-x86_64-linux.gz | gunzip > ~/.local/bin/stack
  - chmod a+x ~/.local/bin/stack
+ - uname -a
+ - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+ - ghc --info
  - stack +RTS -N1 -RTS --version
 
 install:
