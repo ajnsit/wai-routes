@@ -41,7 +41,7 @@ install:
 # Here starts the actual work to be performed for the package under test; any command which exits with a non-zero exit code causes the build to fail.
 script:
  # Stack
- - stack +RTS -N1 -RTS --no-terminal --skip-ghc-check setup
+ # - stack +RTS -N1 -RTS --no-terminal --skip-ghc-check setup
  - stack +RTS -N1 -RTS --no-terminal --skip-ghc-check build --only-snapshot
  - stack +RTS -N1 -RTS --no-terminal --skip-ghc-check test --only-snapshot
  # Cabal
@@ -67,3 +67,4 @@ after_script:
 cache:
   directories:
     - ~/.cabal
+    - ~/.stack
