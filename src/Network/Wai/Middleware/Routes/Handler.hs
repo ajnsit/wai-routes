@@ -187,7 +187,6 @@ stream s = modify addStream
     addStream st = setResp st $ responseStream (respStatus st) (respHeaders st) s
 
 -- | Set the response body
--- TODO: Add functions to append to body, and also to flush body contents
 raw :: BL.ByteString -> HandlerM sub master ()
 raw bs = modify addBody
   where
