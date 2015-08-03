@@ -87,10 +87,7 @@ data HandlerState sub master = HandlerState
                 , reqBody        :: Maybe BL.ByteString
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
-                , respBody       :: BL.ByteString
                 , respResp       :: Maybe ResponseHandler
-                , respFile       :: Maybe FilePath
-                , respStream     :: Maybe StreamingBody
                 , getSub         :: sub
                 , toMasterRoute  :: Route sub -> Route master
                 }
@@ -98,20 +95,11 @@ data HandlerState sub master = HandlerState
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, state) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 "" Nothing Nothing Nothing (envSub env) (envToMaster env))
-  case respResp state of
-    Nothing -> hh $ buildResp state
+  (_, st) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 Nothing (envSub env) (envToMaster env))
+  case respResp st of
+    -- Experimental, if you don't respond in one handler, move to next automatically
+    Nothing -> runNext (getRequestData st) hh
     Just resp -> resp hh
-
-buildResp :: HandlerState sub master -> Response
-buildResp hs = case respStream hs of
-  Nothing -> toResp hs
-  Just s -> responseStream (respStatus hs) (respHeaders hs) s
-
-toResp :: HandlerState sub master -> Response
-toResp hs = case respFile hs of
-  Nothing -> responseBuilder (respStatus hs) (respHeaders hs) (fromLazyByteString $ respBody hs)
-  Just f -> responseFile (respStatus hs) (respHeaders hs) f Nothing
 
 -- | Get the request body as a lazy bytestring. However consumes the entire body at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
@@ -188,25 +176,42 @@ status s = modify $ setStatus s
 
 -- | Set the response body to a file
 file :: FilePath -> HandlerM sub master ()
-file s = modify $ setBody s
+file f = modify addFile
   where
-    setBody :: FilePath -> HandlerState sub master -> HandlerState sub master
-    setBody s st = st{respFile=Just s}
+    addFile st = setResp st $ responseFile (respStatus st) (respHeaders st) f Nothing
 
 -- | Stream the response
 stream :: StreamingBody -> HandlerM sub master ()
-stream s = modify $ setBody s
+stream s = modify addStream
   where
-    setBody :: StreamingBody -> HandlerState sub master -> HandlerState sub master
-    setBody s st = st{respStream=Just s}
+    addStream st = setResp st $ responseStream (respStatus st) (respHeaders st) s
 
 -- | Set the response body
 -- TODO: Add functions to append to body, and also to flush body contents
 raw :: BL.ByteString -> HandlerM sub master ()
-raw s = modify $ setBody s
+raw bs = modify addBody
   where
-    setBody :: BL.ByteString -> HandlerState sub master -> HandlerState sub master
-    setBody s st = st{respBody=s}
+    addBody st = setResp st $ responseBuilder (respStatus st) (respHeaders st) (fromLazyByteString bs)
+
+-- | Run the next application
+next :: HandlerM sub master ()
+next = do
+  respHandler <- fmap (runNext . getRequestData) get
+  modify $ setRespHandler respHandler
+
+-- Util
+-- Set the response directly
+-- This is a bit convulated to enable clean usage in calling functions
+setResp :: HandlerState sub master -> Response -> HandlerState sub master
+setResp st r = setRespHandler ($ r) st
+
+-- Util
+-- Set the response handler
+-- Don't overwrite previous response handler
+setRespHandler :: ResponseHandler -> HandlerState sub master -> HandlerState sub master
+setRespHandler r st = case respResp st of
+  Just _ -> st
+  Nothing -> st{respResp=Just r}
 
 -- Standard response bodies
 
@@ -244,14 +249,4 @@ asContent :: ByteString -> Text -> HandlerM sub master ()
 asContent ctype content = do
   header contentType ctype
   raw $ encodeUtf8 content
-
--- | Run the next application
-next :: HandlerM sub master ()
-next = do
-  s <- get
-  let resp = runNext (getRequestData s)
-  modify $ setResp resp
-  where
-    setResp :: ResponseHandler -> HandlerState sub master -> HandlerState sub master
-    setResp r st = st{respResp=Just r}
 
