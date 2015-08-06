@@ -22,6 +22,32 @@ Features
 The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
 
 
+Example Usage
+=============
+
+Wai-routes comes with several examples in the `examples/` directory. New examples are being added regularly.
+
+**Example 1. Hello World** - [Code](examples/hello-world)
+
+A simple hello-world web app with two interlinked pages. This provides the simplest example of using routing and linking between pages with typesafe routes.
+
+**Example 2. Hello World with Subsites** - [Code](examples/subsites)
+
+Similar functionality as the first example, but uses a hello world subsites to provide the hello world functionality. A subsite is an independently developed site that can be embedded into a parent site as long as the parent site satisfies a particular api contract. It's easy to swap out subsites for different functionality as long as the api contract remains constant.
+
+**Example 3. Using Blaze-HTML to generate HTML** - [Code](examples/blaze-html)
+
+A simple example of how to generate HTML using blaze-html combinators in your handlers.
+
+**Example 4. Using Shakespearean Templates (hamlet, cassius, lucius, julius) to generate HTML/CSS/JS** - [Code](examples/shakespeare)
+
+A simple example of how to generate HTML/CSS/JS using shakespearean templates. You can use both external and inline templates.
+
+**Example 5. Building a JSON REST Service** - [Code](examples/rest-json)
+
+Provides a simple example of how to build JSON REST services with wai-routes. Uses Aeson for JSON conversion. Note that this example just demonstrates the web facing side of the application. It doesn't permanently persist data, and is also not threadsafe. You must use a more robust data storage mechanism in production! An example of doing this with a Relational DB adapter (like persistent) is in the works.
+
+
 Planned Features
 ====================
 
@@ -45,51 +71,6 @@ See more details here - [philopon/apiary-benchmark](https://github.com/philopon/
 
 ![result](./benchmark/result-tama.png)
 
-
-Example Usage
-=============
-
-The following builds a simple JSON service (using Aeson for JSON conversion)
-
-
-    {-# LANGUAGE OverloadedStrings, TypeFamilies #-}
-
-    import Network.Wai
-    import Network.Wai.Middleware.Routes
-
-    import Data.IORef
-
-    -- The Site Argument
-    data MyRoute = MyRoute (IORef DB)
-
-    -- Generate Routes
-    mkRoute MyRoute [parseRoutes|
-    /             UsersR         GET
-    /user/#Int    UserR:
-      /              UserRootR   GET
-      /delete        UserDeleteR POST
-    |]
-
-    -- Define Handlers
-    -- All Users Page
-    getUsersR :: Handler MyRoute
-    getUsersR (MyRoute dbref) request = ...
-    -- Single User Page
-    getUserRootR :: Int -> Handler MyRoute
-    getUserRootR userid = ...
-    -- Delete Single User
-    postUserDeleteR :: Int -> Handler MyRoute
-    postUserDeleteR userid = ...
-
-    -- Define Application using RouteM Monad
-    myApp = do
-      db <- liftIO $ newIORef mydb
-      route (MyRoute db)
-      setDefaultAction $ staticApp $ defaultFileServerSettings "static"
-
-    -- Run the application
-    main :: IO ()
-    main = run 8080 (waiApp myApp)
 
 
 Changelog
