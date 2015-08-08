@@ -18,6 +18,7 @@ Features
     with access to Request data and Master datatype
   - Handlers can abort processing and pass control to the next
     application in the wai stack
+  - Streaming responses
 
 The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
 
@@ -57,13 +58,16 @@ A simple example of how to generate HTML/CSS/JS using shakespearean templates. Y
 
 Provides a simple example of how to build JSON REST services with wai-routes. Uses Aeson for JSON conversion. Note that this example just demonstrates the web facing side of the application. It doesn't permanently persist data, and is also not threadsafe. You must use a more robust data storage mechanism in production! An example of doing this with a Relational DB adapter (like persistent) is in the works.
 
+**Example 6. Stream a response** - [Code](examples/streaming-response)
+
+Wai has had the ability to stream content for a long time. Now wi-routes exposes this functionality with the `stream` function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - `curl localhost:8080` will dump the data as it is being streamed from the server.
+
 
 Planned Features
 ====================
 
 The following features are planned for later releases -
 
-- Add support for streaming responses (see http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseStream)
 - Add support for raw network responses (see http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw)
 - Development mode
 - Keter and Heroku support
