@@ -6,5 +6,6 @@ packages:
 - examples/blaze-html
 - examples/shakespeare
 - examples/rest-json
+- examples/streaming-response
 extra-deps: []
 resolver: lts-2.19
