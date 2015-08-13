@@ -21,8 +21,9 @@ matrix:
       addons: {apt: {sources: [hvr-ghc], packages: [ghc-7.8.4]}}
     - env: GHCVER=7.10.1 STACK_YAML=stack-7.10.yaml
       addons: {apt: {sources: [hvr-ghc], packages: [ghc-7.10.1]}}
-    - env: GHCVER=7.10.2 STACK_YAML=stack-7.10.yaml
-      addons: {apt: {sources: [hvr-ghc], packages: [ghc-7.10.2, libgmp-dev]}}
+# GHC 7.10.2 is not yet whitelisted by travis. Disable for now.
+#     - env: GHCVER=7.10.2 STACK_YAML=stack-7.10.yaml
+#       addons: {apt: {sources: [hvr-ghc], packages: [ghc-7.10.2, libgmp-dev]}}
     - env: GHCVER=head STACK_YAML=stack-head.yaml
       addons: {apt: {sources: [hvr-ghc], packages: [ghc-head, libgmp-dev]}}
   allow_failures:
