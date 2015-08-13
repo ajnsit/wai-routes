@@ -3,4 +3,4 @@ packages:
 - '.'
 - '..'
 extra-deps: []
-resolver: nightly-2015-07-30
+resolver: lts-3.0
