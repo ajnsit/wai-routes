@@ -11,6 +11,7 @@ sudo: false
 cache:
   directories:
     - $HOME/.stack
+    - $HOME/.local/bin
 
 matrix:
   include:
@@ -29,8 +30,7 @@ before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:$PATH
  - mkdir -p ~/.local/bin
  - export PATH=~/.local/bin:$PATH
- - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.2.0/stack-0.1.2.0-x86_64-linux.gz | gunzip > ~/.local/bin/stack
- - chmod a+x ~/.local/bin/stack
+ - if ! [ -x ~/.local/bin/stack ]; then travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.2.0/stack-0.1.2.0-x86_64-linux.gz | gunzip > ~/.local/bin/stack; chmod a+x ~/.local/bin/stack; fi
  - uname -a
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
  - ghc --info
@@ -48,6 +48,7 @@ script:
 after_script:
   - cat dist/test/*.log
   # Coverage analysis with coverall.io
-  - stack install hpc-coveralls
+  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+  - if ! [ -x ~/.local/bin/hpc-coveralls ]; then stack install hpc-coveralls; fi
   - hpc-coveralls simple
 
