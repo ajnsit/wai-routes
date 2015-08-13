@@ -20,7 +20,7 @@
 
     <section class="main-content">
       <h1>
-<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.7.2-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://coveralls.io/github/ajnsit/wai-routes?branch=master"><img src="https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a>
+<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.7.3-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://coveralls.io/github/ajnsit/wai-routes?branch=master"><img src="https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a>
 </h1>
 
 <p>This package provides typesafe URLs for Wai applications.</p>
@@ -41,24 +41,10 @@ with multiple routes and middleware.</li>
 with access to Request data and Master datatype</li>
 <li>Handlers can abort processing and pass control to the next
 application in the wai stack</li>
+<li>Streaming responses</li>
 </ul>
 
 <p>The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.</p>
-
-<h1>
-<a id="planned-features" class="anchor" href="#planned-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Planned Features</h1>
-
-<p>The following features are planned for later releases -</p>
-
-<ul>
-<li>Add support for streaming responses (see <a href="http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseStream">http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseStream</a>)</li>
-<li>Add support for raw network responses (see <a href="http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw">http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw</a>)</li>
-<li>Development mode</li>
-<li>Keter and Heroku support</li>
-<li>Scaffolding</li>
-<li>Better documentation</li>
-<li>Tests and code coverage</li>
-</ul>
 
 <h1>
 <a id="performance" class="anchor" href="#performance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performance</h1>
@@ -72,52 +58,51 @@ application in the wai stack</li>
 <h1>
 <a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example Usage</h1>
 
-<p>The following builds a simple JSON service (using Aeson for JSON conversion)</p>
+<p>Wai-routes comes with several examples in the <code>examples/</code> directory. New examples are being added regularly.</p>
 
-<pre><code>{-# LANGUAGE OverloadedStrings, TypeFamilies #-}
+<p><strong>Example 1. Hello World</strong> - <a href="examples/hello-world">Code</a></p>
 
-import Network.Wai
-import Network.Wai.Middleware.Routes
+<p>A simple hello-world web app with two interlinked pages. This provides the simplest example of using routing and linking between pages with typesafe routes.</p>
 
-import Data.IORef
+<p><strong>Example 2. Hello World with Subsites</strong> - <a href="examples/subsites">Code</a></p>
 
--- The Site Argument
-data MyRoute = MyRoute (IORef DB)
+<p>Similar functionality as the first example, but uses a hello world subsites to provide the hello world functionality. A subsite is an independently developed site that can be embedded into a parent site as long as the parent site satisfies a particular api contract. It's easy to swap out subsites for different functionality as long as the api contract remains constant.</p>
 
--- Generate Routes
-mkRoute MyRoute [parseRoutes|
-/             UsersR         GET
-/user/#Int    UserR:
-  /              UserRootR   GET
-  /delete        UserDeleteR POST
-|]
+<p><strong>Example 3. Using Blaze-HTML to generate HTML</strong> - <a href="examples/blaze-html">Code</a></p>
 
--- Define Handlers
--- All Users Page
-getUsersR :: Handler MyRoute
-getUsersR (MyRoute dbref) request = ...
--- Single User Page
-getUserRootR :: Int -&gt; Handler MyRoute
-getUserRootR userid = ...
--- Delete Single User
-postUserDeleteR :: Int -&gt; Handler MyRoute
-postUserDeleteR userid = ...
+<p>A simple example of how to generate HTML using blaze-html combinators in your handlers.</p>
 
--- Define Application using RouteM Monad
-myApp = do
-  db &lt;- liftIO $ newIORef mydb
-  route (MyRoute db)
-  setDefaultAction $ staticApp $ defaultFileServerSettings "static"
+<p><strong>Example 4. Using Shakespearean Templates (hamlet, cassius, lucius, julius) to generate HTML/CSS/JS</strong> - <a href="examples/shakespeare">Code</a></p>
 
--- Run the application
-main :: IO ()
-main = run 8080 (waiApp myApp)
-</code></pre>
+<p>A simple example of how to generate HTML/CSS/JS using shakespearean templates. You can use both external and inline templates.</p>
+
+<p><strong>Example 5. Building a JSON REST Service</strong> - <a href="examples/rest-json">Code</a></p>
+
+<p>Provides a simple example of how to build JSON REST services with wai-routes. Uses Aeson for JSON conversion. Note that this example just demonstrates the web facing side of the application. It doesn't permanently persist data, and is also not threadsafe. You must use a more robust data storage mechanism in production! An example of doing this with a Relational DB adapter (like persistent) is in the works.</p>
+
+<p><strong>Example 6. Stream a response</strong> - <a href="examples/streaming-response">Code</a></p>
+
+<p>Wai has had the ability to stream content for a long time. Now wai-routes exposes this functionality with the <code>stream</code> function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - <code>curl localhost:8080</code> will dump the data as it is being streamed from the server.</p>
+
+<h1>
+<a id="planned-features" class="anchor" href="#planned-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Planned Features</h1>
+
+<p>The following features are planned for later releases -</p>
+
+<ul>
+<li>Add support for raw network responses (see <a href="http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw">http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw</a>)</li>
+<li>Development mode</li>
+<li>Keter and Heroku support</li>
+<li>Scaffolding</li>
+<li>Better documentation</li>
+<li>Tests and code coverage</li>
+</ul>
 
 <h1>
 <a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changelog</h1>
 
 <ul>
+<li>0.7.3 : Added 'stream' to stream responses. Added 'asContent', 'css', and 'javascript' functions.</li>
 <li>0.7.2 : Added 'file' to send a raw file directly, 'rawBody' and 'jsonBody' to consume request body. Refactored RouteM to add 'catchAll' and 'waiApp'.</li>
 <li>0.7.1 : Added 'showRouteQuery', renamed 'text' to 'plain', 'html' now accepts Text instead of ByteString</li>
 <li>0.7.0 : Subsites support added</li>
