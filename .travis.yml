@@ -8,6 +8,10 @@
 # See - http://docs.travis-ci.com/user/migrating-from-legacy/
 sudo: false
 
+cache:
+  directories:
+    - $HOME/.stack
+
 matrix:
   include:
     - env: GHCVER=7.8.3 STACK_YAML=stack-7.8.yaml
@@ -47,6 +51,3 @@ after_script:
   - stack install hpc-coveralls
   - hpc-coveralls simple
 
-cache:
-  directories:
-    - ~/.stack
