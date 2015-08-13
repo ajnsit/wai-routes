@@ -1,6 +1,1 @@
-flags: {}
-packages:
-- '.'
-- '..'
-extra-deps: []
-resolver: lts-2.22
+stack-7.10.yaml
