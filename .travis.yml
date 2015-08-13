@@ -30,7 +30,7 @@ before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:$PATH
  - mkdir -p ~/.local/bin
  - export PATH=~/.local/bin:$PATH
- - if ! [ -x ~/.local/bin/stack ]; then travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.2.0/stack-0.1.2.0-x86_64-linux.gz | gunzip > ~/.local/bin/stack; chmod a+x ~/.local/bin/stack; fi
+ - if ! [ -x ~/.local/bin/stack ]; then travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.3.1/stack-0.1.3.1-x86_64-linux.gz | gunzip > ~/.local/bin/stack; chmod a+x ~/.local/bin/stack; fi
  - uname -a
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
  - ghc --info
