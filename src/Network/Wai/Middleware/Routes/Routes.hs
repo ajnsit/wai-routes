@@ -31,9 +31,9 @@ module Network.Wai.Middleware.Routes.Routes
     , routeDispatch
 
     -- * URL rendering and parsing
-    , showRouteMaster
-    , showRouteQueryMaster
-    , readRouteMaster
+    , showRoute
+    , showRouteQuery
+    , readRoute
 
     -- * Application Handlers
     , Handler
@@ -194,12 +194,12 @@ routeDispatch :: Routable master master => master -> Middleware
 routeDispatch master def req = dispatcher (_masterToEnv master) RequestData{waiReq=req, nextApp=def, currentRoute=Nothing}
 
 -- | Render a `Route` and Query parameters to Text
-showRouteQueryMaster :: RenderRoute master => Route master -> [(Text,Text)] -> Text
-showRouteQueryMaster r q = uncurry _encodePathInfo $ second (map (second Just) . (++ q)) $ renderRoute r
+showRouteQuery :: RenderRoute master => Route master -> [(Text,Text)] -> Text
+showRouteQuery r q = uncurry _encodePathInfo $ second (map (second Just) . (++ q)) $ renderRoute r
 
 -- | Renders a `Route` as Text
-showRouteMaster :: RenderRoute master => Route master -> Text
-showRouteMaster = uncurry _encodePathInfo . second (map $ second Just) . renderRoute
+showRoute :: RenderRoute master => Route master -> Text
+showRoute = uncurry _encodePathInfo . second (map $ second Just) . renderRoute
 
 _encodePathInfo :: [Text] -> [(Text, Maybe Text)] -> Text
 -- Slightly hackish: Convert "" into "/"
@@ -208,8 +208,8 @@ _encodePathInfo segments = decodeUtf8 . toByteString . encodePath segments . que
 
 -- | Read a route from Text
 -- Returns Nothing if Route reading failed. Just route otherwise
-readRouteMaster :: ParseRoute master => Text -> Maybe (Route master)
-readRouteMaster = parseRoute . second (map (second (fromMaybe "")) . queryToQueryText) . decodePath . encodeUtf8
+readRoute :: ParseRoute master => Text -> Maybe (Route master)
+readRoute = parseRoute . second (map (second (fromMaybe "")) . queryToQueryText) . decodePath . encodeUtf8
 
 -- PRIVATE
 

@@ -39,6 +39,7 @@ getHomeR :: HelloMaster master => HandlerS HelloSub master
 getHomeR = runHandlerM $ do
   m <- master
   showRoute <- showRouteSub
+  showRouteM <- showRouteMaster
   html $ T.concat
     [ "<h1>Hello from Subsite - "
     ,   currentUserName m
@@ -48,6 +49,6 @@ getHomeR = runHandlerM $ do
     , "\">Go to an internal subsite route - Foo</a>"
     , "<br />"
     , "<a href=\""
-    ,   T.fromStrict $ showRouteMaster $ parentRoute m
+    ,   T.fromStrict $ showRouteM $ parentRoute m
     , "\">Go back to the Master site /</a>"
     ]

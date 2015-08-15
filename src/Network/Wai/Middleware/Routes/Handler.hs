@@ -18,9 +18,12 @@ module Network.Wai.Middleware.Routes.Handler
     , rootRouteAttrSet       -- | Access the route attribute list for the root route
     , maybeRoute             -- | Access the route data
     , maybeRootRoute         -- | Access the root route data
-    , showRouteSub           -- | Get the route rendering function
-    , showRouteQuerySub      -- | Get the route + query params rendering function
-    , readRouteSub           -- | Get the route parsing function
+    , showRouteMaster        -- | Get the route rendering function for the master site
+    , showRouteSub           -- | Get the route rendering function for the subsite
+    , showRouteQueryMaster   -- | Get the route + query params rendering function for the master site
+    , showRouteQuerySub      -- | Get the route + query params rendering function for the subsite
+    , readRouteMaster        -- | Get the route parsing function for the master site
+    , readRouteSub           -- | Get the route parsing function for the subsite
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
@@ -43,7 +46,7 @@ import Network.Wai (Request, Response, responseFile, responseBuilder, responseSt
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
-import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRouteMaster, showRouteQueryMaster, readRouteMaster)
+import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute)
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
 
@@ -154,23 +157,35 @@ maybeRootRoute = do
   s <- get
   return $ fmap (toMasterRoute s) $ currentRoute $ getRequestData s
 
--- | Get the route rendering function
+-- | Get the route rendering function for the master site
+showRouteMaster :: RenderRoute master => HandlerM sub master (Route master -> TS.Text)
+showRouteMaster = return showRoute
+
+-- | Get the route rendering function for the subsite
 showRouteSub :: RenderRoute master => HandlerM sub master (Route sub -> TS.Text)
 showRouteSub = do
   s <- get
-  return $ showRouteMaster . toMasterRoute s
+  return $ showRoute . toMasterRoute s
 
--- | Get the route rendering function
+-- | Get the route rendering function for the master site
+showRouteQueryMaster :: RenderRoute master => HandlerM sub master (Route master -> [(TS.Text,TS.Text)] -> TS.Text)
+showRouteQueryMaster = return showRouteQuery
+
+-- | Get the route rendering function for the subsite
 showRouteQuerySub :: RenderRoute master => HandlerM sub master (Route sub -> [(TS.Text,TS.Text)] -> TS.Text)
 showRouteQuerySub = do
   s <- get
-  return $ showRouteQueryMaster . toMasterRoute s
+  return $ showRouteQuery . toMasterRoute s
 
--- | Get the route parsing function
+-- | Get the route parsing function for the master site
+readRouteMaster :: ParseRoute master => HandlerM sub master (TS.Text -> Maybe (Route master))
+readRouteMaster = return readRoute
+
+-- | Get the route parsing function for the subsite
 readRouteSub :: ParseRoute sub => HandlerM sub master (TS.Text -> Maybe (Route master))
 readRouteSub = do
   s <- get
-  return $ fmap (toMasterRoute s) . readRouteMaster
+  return $ fmap (toMasterRoute s) . readRoute
 
 -- | Get the current route attributes
 routeAttrSet :: RouteAttrs sub => HandlerM sub master (Set Text)
