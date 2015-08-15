@@ -24,3 +24,4 @@ executable shakespeare-example
     default-language : Haskell2010
     other-extensions : OverloadedStrings TemplateHaskell QuasiQuotes TypeFamilies ViewPatterns
     ghc-options      : -Wall
+    hs-source-dirs : src
