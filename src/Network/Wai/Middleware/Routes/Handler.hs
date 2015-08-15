@@ -109,18 +109,19 @@ rawBody = do
   case reqBody s of
     Just consumedBody -> return consumedBody
     Nothing -> do
-#if MIN_VERSION_wai(3,0,1)
-      -- Use the `strictRequestBody` function available in wai > 3.0.1
       req <- request
-      rbody <- liftIO $ strictRequestBody req
+      rbody <- liftIO $ readStrictRequestBody req
       put s {reqBody = Just rbody}
       return rbody
+
+readStrictRequestBody :: Request -> IO BL.ByteString
+readStrictRequestBody =
+#if MIN_VERSION_wai(3,0,1)
+        -- Use the `strictRequestBody` function available in wai > 3.0.1
+        strictRequestBody
 #else
-      -- Consume the entire body, and cache
-      chunker <- fmap requestBody request
-      consumedBody <- liftIO $ BL.fromChunks <$> unfoldWhileM (not . B.null) chunker
-      put s {reqBody = Just consumedBody}
-      return consumedBody
+        -- Consume the entire body, and cache
+        BL.fromChunks <$> unfoldWhileM (not . B.null) . requestBody
 #endif
 
 -- | Parse the body as a JSON object
