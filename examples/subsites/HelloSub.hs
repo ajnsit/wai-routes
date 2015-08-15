@@ -10,23 +10,44 @@ import qualified Data.Text.Lazy as T
 -- Import the subsite datatype
 import HelloSub.Data
 
--- The master site should allow access to the current user name
-class HelloMaster master where
-  hello :: master -> Text
+-- The contract for the master site
+-- The master site should -
+--  1. Have renderable routes (RenderRoute constraint)
+--  2. Allwo access to a parent route to go back to (parentRoute)
+--  3. Allow access to the current user name (currentUserName)
+class RenderRoute master => HelloMaster master where
+  currentUserName :: master -> Text
+  parentRoute :: master -> Route master
 
 -- Generate the dispatcher for this subsite
 instance HelloMaster master => Routable HelloSub master where
   dispatcher = $(mkRouteSubDispatch resourcesHelloSub)
 
+-- Foo
+getFooR :: HelloMaster master => HandlerS HelloSub master
+getFooR = runHandlerM $ do
+  showRoute <- showRouteSub
+  html $ T.concat
+    ["<h1>FOOO</h1>"
+    , "<a href=\""
+    ,   T.fromStrict $ showRoute HomeR
+    , "\">Go back</a>"
+    ]
+
 -- Hello
 getHomeR :: HelloMaster master => HandlerS HelloSub master
 getHomeR = runHandlerM $ do
   m <- master
+  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Hello from Subsite - "
-    ,   hello m
+    ,   currentUserName m
     , "</h1>"
     , "<a href=\""
-    ,   T.fromStrict $ showRoute HomeR
+    ,   T.fromStrict $ showRoute FooR
+    , "\">Go to an internal subsite route - Foo</a>"
+    , "<br />"
+    , "<a href=\""
+    ,   T.fromStrict $ showRouteMaster $ parentRoute m
     , "\">Go back to the Master site /</a>"
     ]

@@ -11,4 +11,5 @@ data HelloSub = HelloSub
 --  separate file from the dispatch instance for this subsite
 mkRouteData "HelloSub" [parseRoutes|
 / HomeR GET
+/foo FooR GET
 |]

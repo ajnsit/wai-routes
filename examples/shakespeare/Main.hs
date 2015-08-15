@@ -44,13 +44,16 @@ mkRoute "MyApp" [parseRoutes|
 getHomeR :: Handler MyApp
 getHomeR = runHandlerM $ do
   MyApp people <- master
+  showRouteQuery <- showRouteQuerySub
   let pageTitle = "Hello Hamlet"
   html $ renderHtml $ home pageTitle people showRouteQuery
 
 -- Render CSS as raw bytestring for simplicity, browsers don't seem to mind
 -- TODO: Add CSS content-type headers
 getStylesheetR :: Handler MyApp
-getStylesheetR = runHandlerM $ raw $ encodeUtf8 $ renderCss $ style showRouteQuery
+getStylesheetR = runHandlerM $ do
+  showRouteQuery <- showRouteQuerySub
+  raw $ encodeUtf8 $ renderCss $ style showRouteQuery
 
 -- Inline cassius example, julius and lucius would be similar
 style :: CssUrl MyAppRoute

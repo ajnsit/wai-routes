@@ -18,6 +18,9 @@ module Network.Wai.Middleware.Routes.Handler
     , rootRouteAttrSet       -- | Access the route attribute list for the root route
     , maybeRoute             -- | Access the route data
     , maybeRootRoute         -- | Access the root route data
+    , showRouteSub           -- | Get the route rendering function
+    , showRouteQuerySub      -- | Get the route + query params rendering function
+    , readRouteSub           -- | Get the route parsing function
     , master                 -- | Access the master datatype
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
@@ -40,8 +43,8 @@ import Network.Wai (Request, Response, responseFile, responseBuilder, responseSt
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
-import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler)
-import Network.Wai.Middleware.Routes.Class (Route, RouteAttrs(..))
+import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRouteMaster, showRouteQueryMaster, readRouteMaster)
+import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
 
 import Control.Monad (liftM)
@@ -64,6 +67,7 @@ import Data.Set (Set)
 import qualified Data.Set as S (empty, map)
 
 import Data.Text.Lazy (Text)
+import qualified Data.Text as TS (Text)
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Encoding (decodeUtf8)
@@ -149,6 +153,24 @@ maybeRootRoute :: HandlerM sub master (Maybe (Route master))
 maybeRootRoute = do
   s <- get
   return $ fmap (toMasterRoute s) $ currentRoute $ getRequestData s
+
+-- | Get the route rendering function
+showRouteSub :: RenderRoute master => HandlerM sub master (Route sub -> TS.Text)
+showRouteSub = do
+  s <- get
+  return $ showRouteMaster . toMasterRoute s
+
+-- | Get the route rendering function
+showRouteQuerySub :: RenderRoute master => HandlerM sub master (Route sub -> [(TS.Text,TS.Text)] -> TS.Text)
+showRouteQuerySub = do
+  s <- get
+  return $ showRouteQueryMaster . toMasterRoute s
+
+-- | Get the route parsing function
+readRouteSub :: ParseRoute sub => HandlerM sub master (TS.Text -> Maybe (Route master))
+readRouteSub = do
+  s <- get
+  return $ fmap (toMasterRoute s) . readRouteMaster
 
 -- | Get the current route attributes
 routeAttrSet :: RouteAttrs sub => HandlerM sub master (Set Text)

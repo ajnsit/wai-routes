@@ -11,19 +11,11 @@ import qualified Data.Text.Lazy as T
 import Network.Wai.Middleware.RequestLogger
 
 -- Import HelloSub subsite
-import HelloSub (HelloSub(..), HelloMaster, hello)
+import HelloSub (HelloSub(..), HelloMaster)
 import qualified HelloSub as Sub
 
 -- The Master Site argument
 data MyRoute = MyRoute
-
--- The contract with HelloSub subsite
-instance HelloMaster MyRoute where
-  hello _ = "John Doe"
-
--- How to get subsite datatype from the master datatype
-getHelloSub :: MyRoute -> HelloSub
-getHelloSub = const HelloSub
 
 -- Generate routing code
 mkRoute "MyRoute" [parseRoutes|
@@ -31,12 +23,22 @@ mkRoute "MyRoute" [parseRoutes|
 /hello HelloR HelloSub getHelloSub
 |]
 
+-- The contract with HelloSub subsite
+instance HelloMaster MyRoute where
+  currentUserName _ = "John Doe"
+  parentRoute _ = HomeR
+
+-- How to get subsite datatype from the master datatype
+getHelloSub :: MyRoute -> HelloSub
+getHelloSub = const HelloSub
+
 -- Handlers
 
 -- Homepage
 getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
   Just r <- maybeRoute
+  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Home</h1>"
     , "<p>You are on route - "

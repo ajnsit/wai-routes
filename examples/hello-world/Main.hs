@@ -26,6 +26,7 @@ mkRoute "MyRoute" [parseRoutes|
 getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
   Just r <- maybeRoute
+  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Home</h1>"
     , "<p>You are on route - "
@@ -41,12 +42,14 @@ getHomeR = runHandlerM $ do
 
 -- Hello
 getHelloR :: Handler MyRoute
-getHelloR = runHandlerM $ html $ T.concat
-  [ "<h1>Hello World!</h1>"
-  , "<a href=\""
-  , T.fromStrict $ showRoute HomeR
-  , "\">Go back</a>"
-  ]
+getHelloR = runHandlerM $ do
+  showRoute <- showRouteSub
+  html $ T.concat
+    [ "<h1>Hello World!</h1>"
+    , "<a href=\""
+    , T.fromStrict $ showRoute HomeR
+    , "\">Go back</a>"
+    ]
 
 -- The application that uses our route
 -- NOTE: We use the Route Monad to simplify routing

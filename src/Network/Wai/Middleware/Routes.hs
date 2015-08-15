@@ -26,9 +26,12 @@ module Network.Wai.Middleware.Routes
     , routeDispatch
 
     -- * URL rendering and parsing
-    , showRoute
-    , showRouteQuery
-    , readRoute
+    , showRouteMaster
+    , showRouteQueryMaster
+    , readRouteMaster
+    , showRouteSub
+    , showRouteQuerySub
+    , readRouteSub
 
     -- * Application Handlers
     , Handler
