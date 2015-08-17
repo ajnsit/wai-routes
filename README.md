@@ -1,26 +1,26 @@
 [Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.7.3-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Coverage Status](https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&service=github)](https://coveralls.io/github/ajnsit/wai-routes?branch=master)
 ====================================
 
-This package provides typesafe URLs for Wai applications.
+Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.
+
+Wai-routes is based on the Haskell [Web Application Interface](http://hackage.haskell.org/package/wai) and uses it for most of the heavy lifting. It also provides a convenient but thin veneer over most of the wai API so it is unnecessary to directly use raw wai APIs when building web apps.
+
+Much of Wai-route's typesafe URL functionality was pulled from the corresponding features in [Yesod](http://www.yesodweb.com/), and indeed the underlying aim of wai-routes is - *"To provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications."*.
 
 Features
 ==========
 
-  - Automatic generation of Route boilerplate using TH
-  - Easy Nested Routes
-  - Subsites
-  - General purpose Route Attributes/Annotations
-  - Sitewide Master datatype which is passed to all handlers
-    and can be used for persistent data (like DB connections)
-  - RouteM monad that makes it easy to compose an application
-    with multiple routes and middleware.
-  - HandlerM monad that makes it easy to build a Handler
-    with access to Request data and Master datatype
-  - Handlers can abort processing and pass control to the next
-    application in the wai stack
-  - Streaming responses
+Wai-routes adds the following features on top of wai -
 
-The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.
+  - Typesafe URLs, including automatic boilerplate generation using TH. Including features such as -
+    - Nested Routes
+    - Subsites
+    - Route Annotations
+  - Sitewide Master data which is passed to all handlers and can be used for persistent data (like DB connections)
+  - Easy to use Handler Monad which allows direct access to request and master data
+  - Easy composition of multiple routes and middleware to construct an application
+  - Ability to abort processing and pass control to the next application in the wai stack
+  - Streaming responses
 
 
 Performance
