@@ -63,7 +63,7 @@ import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Blaze.ByteString.Builder (fromLazyByteString)
+import Blaze.ByteString.Builder (Builder, fromLazyByteString)
 import Network.HTTP.Types.Header (HeaderName(), RequestHeaders)
 import Network.HTTP.Types.Status (Status(), status200)
 
@@ -99,19 +99,30 @@ data HandlerState sub master = HandlerState
                 , reqBody        :: Maybe BL.ByteString
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
-                , respResp       :: Maybe ResponseHandler
+                , respResp       :: MkResponse
                 , getSub         :: sub
                 , toMasterRoute  :: Route sub -> Route master
                 }
 
+-- Internal: Type of response
+-- Similar to Wai's Response type
+data MkResponse
+    = ResponseFile FilePath (Maybe FilePart)
+    | ResponseBuilder Builder
+    | ResponseStream StreamingBody
+    -- Experimental: ResponseNext is the default, so if you don't respond in one handler, move to next automatically
+    | ResponseNext
+
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, st) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 Nothing (envSub env) (envToMaster env))
-  case respResp st of
-    -- Experimental, if you don't respond in one handler, move to next automatically
-    Nothing -> runNext (getRequestData st) hh
-    Just resp -> resp hh
+  (_, st) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 ResponseNext (envSub env) (envToMaster env))
+  mkResponse st (respResp st)
+  where
+    mkResponse st (ResponseFile path part) = hh $ responseFile (respStatus st) (respHeaders st) path part
+    mkResponse st (ResponseBuilder builder) = hh $ responseBuilder (respStatus st) (respHeaders st) builder
+    mkResponse st (ResponseStream streaming) = hh $ responseStream (respStatus st) (respHeaders st) streaming
+    mkResponse st ResponseNext = runNext (getRequestData st) hh
 
 -- | Get the request body as a lazy bytestring. However consumes the entire body at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
@@ -231,7 +242,7 @@ file f = do
   header contentType $ contentTypeFromFile f
   modify addFile
   where
-    addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f Nothing
+    addFile st = _setResp st $ ResponseFile f Nothing
 
 -- | Send a part of a file as response
 filepart :: FilePath -> FilePart -> HandlerM sub master ()
@@ -239,39 +250,33 @@ filepart f part = do
   header contentType $ contentTypeFromFile f
   modify addFile
   where
-    addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f (Just part)
+    addFile st = _setResp st $ ResponseFile f (Just part)
 
 -- | Stream the response
 stream :: StreamingBody -> HandlerM sub master ()
 stream s = modify addStream
   where
-    addStream st = _setResp st $ responseStream (respStatus st) (respHeaders st) s
+    addStream st = _setResp st $ ResponseStream s
 
 -- | Set the response body
 raw :: BL.ByteString -> HandlerM sub master ()
 raw bs = modify addBody
   where
-    addBody st = _setResp st $ responseBuilder (respStatus st) (respHeaders st) (fromLazyByteString bs)
+    addBody st = _setResp st $ ResponseBuilder (fromLazyByteString bs)
 
 -- | Run the next application
 next :: HandlerM sub master ()
-next = do
-  respHandler <- liftM (runNext . getRequestData) get
-  modify $ _setRespHandler respHandler
-
--- Util
--- Set the response directly
--- This is a bit convulated to enable clean usage in calling functions
-_setResp :: HandlerState sub master -> Response -> HandlerState sub master
-_setResp st r = _setRespHandler ($ r) st
+next = modify rNext
+  where
+    rNext st = _setResp st ResponseNext
 
 -- Util
 -- Set the response handler
--- Don't overwrite previous response handler
-_setRespHandler :: ResponseHandler -> HandlerState sub master -> HandlerState sub master
-_setRespHandler r st = case respResp st of
-  Just _ -> st
-  Nothing -> st{respResp=Just r}
+-- Experiental: Don't overwrite previous response handler
+_setResp :: HandlerState sub master -> MkResponse -> HandlerState sub master
+_setResp st r = case respResp st of
+  ResponseNext -> st{respResp=r}
+  _ -> st
 
 -- Standard response bodies
 
