@@ -15,6 +15,7 @@ module Network.Wai.Middleware.Routes.Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
     , reqHeader              -- | Get a particular request header (case insensitive)
+    , reqHeaders             -- | Get all request headers (case insensitive)
     , routeAttrSet           -- | Access the route attribute list
     , rootRouteAttrSet       -- | Access the route attribute list for the root route
     , maybeRoute             -- | Access the route data
@@ -61,7 +62,7 @@ import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Network.HTTP.Types.Header (HeaderName())
+import Network.HTTP.Types.Header (HeaderName(), RequestHeaders)
 import Network.HTTP.Types.Status (Status(), status200)
 
 import Data.Aeson (ToJSON, FromJSON, eitherDecode)
@@ -152,7 +153,11 @@ request = liftM (waiReq . getRequestData) get
 
 -- | Get a particular request header (Case insensitive)
 reqHeader :: ByteString -> HandlerM sub master (Maybe ByteString)
-reqHeader name = liftM (lookup (mk name) . requestHeaders) request
+reqHeader name = liftM (lookup $ mk name) reqHeaders
+
+-- | Get all request headers (Case insensitive)
+reqHeaders :: HandlerM sub master RequestHeaders
+reqHeaders = liftM requestHeaders request
 
 -- | Get the current route
 maybeRoute :: HandlerM sub master (Maybe (Route sub))
