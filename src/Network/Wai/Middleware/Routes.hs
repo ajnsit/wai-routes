@@ -62,6 +62,7 @@ module Network.Wai.Middleware.Routes
     , HandlerM()
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , reqHeader              -- | Get a particular request header (case insensitive)
     , maybeRootRoute         -- | Access the current route for root route
     , maybeRoute             -- | Access the current route
     , routeAttrSet           -- | Access the current route attributes as a set

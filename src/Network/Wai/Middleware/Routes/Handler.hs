@@ -14,6 +14,7 @@ module Network.Wai.Middleware.Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , reqHeader              -- | Get a particular request header (case insensitive)
     , routeAttrSet           -- | Access the route attribute list
     , rootRouteAttrSet       -- | Access the route attribute list for the root route
     , maybeRoute             -- | Access the route data
@@ -42,7 +43,7 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody)
+import Network.Wai (Request, Response, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders)
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
@@ -74,6 +75,8 @@ import qualified Data.Text as TS (Text)
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Encoding (decodeUtf8)
+
+import Data.CaseInsensitive (mk)
 
 import Blaze.ByteString.Builder (fromLazyByteString)
 
@@ -146,6 +149,10 @@ sub = liftM getSub get
 -- | Get the request
 request :: HandlerM sub master Request
 request = liftM (waiReq . getRequestData) get
+
+-- | Get a particular request header (Case insensitive)
+reqHeader :: ByteString -> HandlerM sub master (Maybe ByteString)
+reqHeader name = liftM (lookup (mk name) . requestHeaders) request
 
 -- | Get the current route
 maybeRoute :: HandlerM sub master (Maybe (Route sub))

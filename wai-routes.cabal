@@ -37,6 +37,7 @@ library
                  , http-types       >= 0.8  && < 0.9
                  , blaze-builder    >= 0.4  && < 0.5
                  , monad-loops      >= 0.4  && < 0.5
+                 , case-insensitive >= 1.2  && < 1.3
     exposed-modules: Network.Wai.Middleware.Routes
                      Network.Wai.Middleware.Routes.Parse
                      Network.Wai.Middleware.Routes.Overlap
