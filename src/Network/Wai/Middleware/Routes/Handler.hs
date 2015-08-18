@@ -62,6 +62,7 @@ import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+import Blaze.ByteString.Builder (fromLazyByteString)
 import Network.HTTP.Types.Header (HeaderName(), RequestHeaders)
 import Network.HTTP.Types.Status (Status(), status200)
 
@@ -79,7 +80,6 @@ import Data.Text.Encoding (decodeUtf8)
 
 import Data.CaseInsensitive (mk)
 
-import Blaze.ByteString.Builder (fromLazyByteString)
 
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
@@ -228,37 +228,37 @@ status s = modify $ setStatus s
 file :: FilePath -> HandlerM sub master ()
 file f = modify addFile
   where
-    addFile st = setResp st $ responseFile (respStatus st) (respHeaders st) f Nothing
+    addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f Nothing
 
 -- | Stream the response
 stream :: StreamingBody -> HandlerM sub master ()
 stream s = modify addStream
   where
-    addStream st = setResp st $ responseStream (respStatus st) (respHeaders st) s
+    addStream st = _setResp st $ responseStream (respStatus st) (respHeaders st) s
 
 -- | Set the response body
 raw :: BL.ByteString -> HandlerM sub master ()
 raw bs = modify addBody
   where
-    addBody st = setResp st $ responseBuilder (respStatus st) (respHeaders st) (fromLazyByteString bs)
+    addBody st = _setResp st $ responseBuilder (respStatus st) (respHeaders st) (fromLazyByteString bs)
 
 -- | Run the next application
 next :: HandlerM sub master ()
 next = do
-  respHandler <- fmap (runNext . getRequestData) get
-  modify $ setRespHandler respHandler
+  respHandler <- liftM (runNext . getRequestData) get
+  modify $ _setRespHandler respHandler
 
 -- Util
 -- Set the response directly
 -- This is a bit convulated to enable clean usage in calling functions
-setResp :: HandlerState sub master -> Response -> HandlerState sub master
-setResp st r = setRespHandler ($ r) st
+_setResp :: HandlerState sub master -> Response -> HandlerState sub master
+_setResp st r = _setRespHandler ($ r) st
 
 -- Util
 -- Set the response handler
 -- Don't overwrite previous response handler
-setRespHandler :: ResponseHandler -> HandlerState sub master -> HandlerState sub master
-setRespHandler r st = case respResp st of
+_setRespHandler :: ResponseHandler -> HandlerState sub master -> HandlerState sub master
+_setRespHandler r st = case respResp st of
   Just _ -> st
   Nothing -> st{respResp=Just r}
 
