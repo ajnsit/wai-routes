@@ -30,6 +30,7 @@ module Network.Wai.Middleware.Routes.Handler
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
     , file                   -- | Send a file as response
+    , filepart               -- | Send a part of a file as response
     , stream                 -- | Stream a response
     , raw                    -- | Set the raw response body
     , json                   -- | Set the json response body
@@ -44,7 +45,7 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders)
+import Network.Wai (Request, Response, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
@@ -224,11 +225,17 @@ status s = modify $ setStatus s
     setStatus :: Status -> HandlerState sub master -> HandlerState sub master
     setStatus s st = st{respStatus=s}
 
--- | Set the response body to a file
+-- | Send a file as response (Does not set any headers)
 file :: FilePath -> HandlerM sub master ()
 file f = modify addFile
   where
     addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f Nothing
+
+-- | Send a part of a file as response (Does not set any headers)
+filepart :: FilePath -> FilePart -> HandlerM sub master ()
+filepart f part = modify addFile
+  where
+    addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f (Just part)
 
 -- | Stream the response
 stream :: StreamingBody -> HandlerM sub master ()

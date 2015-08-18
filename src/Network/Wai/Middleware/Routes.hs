@@ -72,6 +72,7 @@ module Network.Wai.Middleware.Routes
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
     , file                   -- | Send a file as response
+    , filepart               -- | Send a part of a file as response
     , stream                 -- | Stream a response
     , raw                    -- | Set the raw response body
     , json                   -- | Set the json response body
