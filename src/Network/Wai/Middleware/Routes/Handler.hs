@@ -272,7 +272,7 @@ next = modify rNext
 
 -- Util
 -- Set the response handler
--- Experiental: Don't overwrite previous response handler
+-- Experimental: Don't overwrite previous response handler
 _setResp :: HandlerState sub master -> MkResponse -> HandlerState sub master
 _setResp st r = case respResp st of
   ResponseNext -> st{respResp=r}
