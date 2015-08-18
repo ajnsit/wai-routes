@@ -13,7 +13,7 @@ Defines the commonly used content types
 -}
 module Network.Wai.Middleware.Routes.ContentTypes
     ( -- * Construct content Type
-      contentType
+      contentType, contentTypeFromFile
       -- * Various common content types
     , typeHtml, typePlain, typeJson
     , typeXml, typeAtom, typeRss
@@ -23,9 +23,16 @@ module Network.Wai.Middleware.Routes.ContentTypes
     )
     where
 
+import qualified Data.Text as T (pack)
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 () -- Import IsString instance for ByteString
 import Network.HTTP.Types.Header (HeaderName())
+import Network.Mime (defaultMimeLookup)
+import System.FilePath (takeFileName)
+
+-- | Construct an appropriate content type header from a file name
+contentTypeFromFile :: FilePath -> ByteString
+contentTypeFromFile = defaultMimeLookup . T.pack . takeFileName
 
 -- | Creates a content type header
 -- Ready to be passed to `responseLBS`

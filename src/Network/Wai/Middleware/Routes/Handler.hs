@@ -51,7 +51,7 @@ import Network.Wai (strictRequestBody)
 #endif
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute)
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
-import Network.Wai.Middleware.Routes.ContentTypes (contentType, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
+import Network.Wai.Middleware.Routes.ContentTypes (contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
 
 import Control.Monad (liftM)
 import Control.Monad.Loops (unfoldWhileM)
@@ -225,15 +225,19 @@ status s = modify $ setStatus s
     setStatus :: Status -> HandlerState sub master -> HandlerState sub master
     setStatus s st = st{respStatus=s}
 
--- | Send a file as response (Does not set any headers)
+-- | Send a file as response
 file :: FilePath -> HandlerM sub master ()
-file f = modify addFile
+file f = do
+  header contentType $ contentTypeFromFile f
+  modify addFile
   where
     addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f Nothing
 
--- | Send a part of a file as response (Does not set any headers)
+-- | Send a part of a file as response
 filepart :: FilePath -> FilePart -> HandlerM sub master ()
-filepart f part = modify addFile
+filepart f part = do
+  header contentType $ contentTypeFromFile f
+  modify addFile
   where
     addFile st = _setResp st $ responseFile (respStatus st) (respHeaders st) f (Just part)
 
