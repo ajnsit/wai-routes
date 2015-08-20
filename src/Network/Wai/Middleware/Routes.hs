@@ -69,6 +69,8 @@ module Network.Wai.Middleware.Routes
     , routeAttrSet           -- | Access the current route attributes as a set
     , rootRouteAttrSet       -- | Access the current root route attributes as a set
     , master                 -- | Access the master datatype
+    , rawBody                -- | Consume and return the request body as a lazy bytestring
+    , jsonBody               -- | Consume and return the request body as JSON
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
     , file                   -- | Send a file as response
@@ -82,8 +84,9 @@ module Network.Wai.Middleware.Routes
     , javascript             -- | Set the javascript response body
     , asContent              -- | Set the contentType and a 'Text' body
     , next                   -- | Run the next application in the stack
-    , rawBody                -- | Consume and return the request body as a lazy bytestring
-    , jsonBody               -- | Consume and return the request body as JSON
+    , setCookie              -- | Add a cookie to the response
+    , getCookie              -- | Get a cookie from the request
+    , getCookies             -- | Get all cookies from the request
   )
   where
 

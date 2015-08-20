@@ -27,6 +27,8 @@ module Network.Wai.Middleware.Routes.Handler
     , readRouteMaster        -- | Get the route parsing function for the master site
     , readRouteSub           -- | Get the route parsing function for the subsite
     , master                 -- | Access the master datatype
+    , rawBody                -- | Consume and return the request body as a lazy bytestring
+    , jsonBody               -- | Consume and return the request body as JSON
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
     , file                   -- | Send a file as response
@@ -40,8 +42,9 @@ module Network.Wai.Middleware.Routes.Handler
     , javascript             -- | Set the javascript response body
     , asContent              -- | Set the contentType and a 'Text' body
     , next                   -- | Run the next application in the stack
-    , rawBody                -- | Consume and return the request body as a lazy bytestring
-    , jsonBody               -- | Consume and return the request body as JSON
+    , setCookie              -- | Add a cookie to the response
+    , getCookie              -- | Get a cookie from the request
+    , getCookies             -- | Get all cookies from the request
     )
     where
 
@@ -63,7 +66,7 @@ import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Blaze.ByteString.Builder (Builder, fromLazyByteString)
+import Blaze.ByteString.Builder (Builder, toByteString, fromLazyByteString)
 import Network.HTTP.Types.Header (HeaderName(), RequestHeaders)
 import Network.HTTP.Types.Status (Status(), status200)
 
@@ -79,8 +82,10 @@ import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Encoding (decodeUtf8)
 
-import Data.CaseInsensitive (mk)
+import Data.CaseInsensitive (CI, mk)
 
+import Web.Cookie (Cookies, parseCookies, renderCookies, renderSetCookie, SetCookie(..))
+import Data.Default.Class (def)
 
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
@@ -100,6 +105,7 @@ data HandlerState sub master = HandlerState
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
                 , respResp       :: MkResponse
+                , respCookies    :: [SetCookie]
                 , getSub         :: sub
                 , toMasterRoute  :: Route sub -> Route master
                 }
@@ -113,12 +119,25 @@ data MkResponse
     -- Experimental: ResponseNext is the default, so if you don't respond in one handler, move to next automatically
     | ResponseNext
 
+-- The header name for request cookies
+cookieHeaderName :: CI ByteString
+cookieHeaderName = mk "Cookie"
+
+-- The header name for response cookies
+cookieSetHeaderName :: CI ByteString
+cookieSetHeaderName = mk "Set-Cookie"
+
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, st) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 ResponseNext (envSub env) (envToMaster env))
-  mkResponse st (respResp st)
+  (_, st) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 ResponseNext [] (envSub env) (envToMaster env))
+  -- Handle cookies (add them to headers)
+  let cookieHeaders = map mkSetCookie (respCookies st)
+  let st' = st {respHeaders = cookieHeaders ++ (respHeaders st)}
+  -- Construct response
+  mkResponse st' (respResp st')
   where
+    mkSetCookie s = (cookieSetHeaderName, toByteString $ renderSetCookie s)
     mkResponse st (ResponseFile path part) = hh $ responseFile (respStatus st) (respHeaders st) path part
     mkResponse st (ResponseBuilder builder) = hh $ responseBuilder (respStatus st) (respHeaders st) builder
     mkResponse st (ResponseStream streaming) = hh $ responseStream (respStatus st) (respHeaders st) streaming
@@ -315,3 +334,22 @@ asContent ctype content = do
   header contentType ctype
   raw $ encodeUtf8 content
 
+-- | Sets a cookie to the response
+setCookie :: SetCookie -> HandlerM sub master ()
+setCookie s = modify setCookie
+  where
+    setCookie st = st {respCookies = s : respCookies st}
+
+-- | Get all cookies
+getCookies :: HandlerM sub master Cookies
+getCookies = do
+  cookies <- reqHeader "Cookie"
+  return $ case cookies of
+    Nothing -> []
+    Just cookies' -> parseCookies cookies'
+
+-- | Get a particular cookie
+getCookie :: ByteString -> HandlerM sub master (Maybe ByteString)
+getCookie name = do
+  cookies <- getCookies
+  return $ lookup name cookies
