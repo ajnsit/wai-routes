@@ -343,6 +343,8 @@ setCookie s = modify setCookie
 -- | Get all cookies
 getCookies :: HandlerM sub master Cookies
 getCookies = do
+  -- Note: We don't cache the parsedCookies for all requests to avoid overhead
+  -- However it is pretty easy to cache cookies in the app itself
   cookies <- reqHeader "Cookie"
   return $ case cookies of
     Nothing -> []
