@@ -1,5 +1,5 @@
 name          : rest-json-example
-version       : 0.7.3
+version       : 0.8.0
 cabal-version : >=1.16
 build-type    : Simple
 license       : PublicDomain
