@@ -18,6 +18,7 @@ import qualified HelloSub as Sub
 data MyRoute = MyRoute
 
 -- Generate routing code
+-- getHelloSub is defined in HelloSub.hs
 mkRoute "MyRoute" [parseRoutes|
 /      HomeR  GET
 /hello HelloR HelloSub getHelloSub
@@ -30,7 +31,7 @@ instance HelloMaster MyRoute where
 
 -- How to get subsite datatype from the master datatype
 getHelloSub :: MyRoute -> HelloSub
-getHelloSub = const HelloSub
+getHelloSub = Sub.getHelloSub
 
 -- Handlers
 

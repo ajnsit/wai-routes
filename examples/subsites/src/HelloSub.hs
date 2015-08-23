@@ -10,6 +10,10 @@ import qualified Data.Text.Lazy as T
 -- Import the subsite datatype
 import HelloSub.Data
 
+-- Create a HelloSub datatype from the master
+getHelloSub :: HelloMaster master => master -> HelloSub
+getHelloSub _ = HelloSub "Hello from subsite"
+
 -- The contract for the master site
 -- The master site should -
 --  1. Have renderable routes (RenderRoute constraint)
@@ -38,11 +42,13 @@ getFooR = runHandlerM $ do
 getHomeR :: HelloMaster master => HandlerS HelloSub master
 getHomeR = runHandlerM $ do
   m <- master
+  s <- sub
   showRoute <- showRouteSub
   showRouteM <- showRouteMaster
   html $ T.concat
-    [ "<h1>Hello from Subsite - "
-    ,   currentUserName m
+    [ "<h1>"
+    , getHello s
+    , currentUserName m
     , "</h1>"
     , "<a href=\""
     ,   T.fromStrict $ showRoute FooR

@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, TypeFamilies, ViewPatterns #-}
 module HelloSub.Data where
 
+import Data.Text.Lazy (Text)
+
 import Network.Wai.Middleware.Routes
 
 -- The subsite argument
-data HelloSub = HelloSub
+data HelloSub = HelloSub {getHello :: Text}
 
 -- Generate the Route Datatype
 -- Note that due to GHC stage restriction, this must be in a
