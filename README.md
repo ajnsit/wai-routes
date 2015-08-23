@@ -1,4 +1,4 @@
-[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.7.3-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Coverage Status](https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&service=github)](https://coveralls.io/github/ajnsit/wai-routes?branch=master)
+[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.8.0-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Coverage Status](https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&service=github)](https://coveralls.io/github/ajnsit/wai-routes?branch=master)
 ====================================
 
 Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.
@@ -80,6 +80,7 @@ The following features are planned for later releases -
 Changelog
 =========
 
+* 0.8.0 : Replaced 'show/renderRoute' with 'show/renderRouteSub' and 'show/renderRouteMaster'. Added functions to access request headers (reqHeader/s), send a part of a file (filepart). Auto infer mime-types when sending files. Added cookie handling functions (get/setCookie/s). Added 'sub' to allow access to subsite datatype.
 * 0.7.3 : Added 'stream' to stream responses. Added 'asContent', 'css', and 'javascript' functions.
 * 0.7.2 : Added 'file' to send a raw file directly, 'rawBody' and 'jsonBody' to consume request body. Refactored RouteM to add 'catchAll' and 'waiApp'.
 * 0.7.1 : Added 'showRouteQuery', renamed 'text' to 'plain', 'html' now accepts Text instead of ByteString
