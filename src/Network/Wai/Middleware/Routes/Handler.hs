@@ -27,6 +27,7 @@ module Network.Wai.Middleware.Routes.Handler
     , readRouteMaster        -- | Get the route parsing function for the master site
     , readRouteSub           -- | Get the route parsing function for the subsite
     , master                 -- | Access the master datatype
+    , sub                    -- | Access the sub datatype
     , rawBody                -- | Consume and return the request body as a lazy bytestring
     , jsonBody               -- | Consume and return the request body as JSON
     , header                 -- | Add a header to the response
