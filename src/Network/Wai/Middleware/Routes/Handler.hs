@@ -12,6 +12,7 @@ Provides a HandlerM Monad that makes it easy to build Handlers
 -}
 module Network.Wai.Middleware.Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
+    , HandlerMM()            -- | HandlerM Monad specialised for top level sites (no subsites)
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
     , reqHeader              -- | Get a particular request header (case insensitive)
@@ -95,6 +96,9 @@ newtype HandlerMI sub master m a = H { extractH :: StateT (HandlerState sub mast
 
 -- | The HandlerM Monad
 type HandlerM sub master a = HandlerMI sub master IO a
+
+-- | A HandlerMM is a HandlerM Monad for use with a top level site (where the sub and master datatypes are the same)
+type HandlerMM master a = HandlerM master master a
 
 -- | The state kept in a HandlerM Monad
 data HandlerState sub master = HandlerState

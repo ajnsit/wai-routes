@@ -60,6 +60,7 @@ module Network.Wai.Middleware.Routes
 
     -- * HandlerM Monad makes it easy to build a handler
     , HandlerM()
+    , HandlerMM()            -- | HandlerM Monad specialised for top level sites (no subsites)
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
     , reqHeader              -- | Get a particular request header (case insensitive)
