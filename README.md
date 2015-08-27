@@ -62,6 +62,26 @@ Provides a simple example of how to build JSON REST services with wai-routes. Us
 
 Wai has had the ability to stream content for a long time. Now wai-routes exposes this functionality with the `stream` function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - `curl localhost:8080` will dump the data as it is being streamed from the server.
 
+Deployment
+==========
+
+The current recommended route (pun not intended) for deploying wai-routes apps is [keter](http://hackage.haskell.org/package/keter). You need to read the port from the environment variables -
+
+    -- Run the application
+    main :: IO ()
+    main = do
+      port' <- getEnv "PORT"
+      let port = read port'
+      run port $ waiApp application
+
+Then put something like this in `config/keter.yaml` -
+
+    exec: ../path/to/executable
+    host: mydomainname.example.com
+
+Then create a tarball with `config/keter.yaml`, `path/to/executable`, and any other files needed at runtime for your application. Rename the tarball to have a `.keter` extension.
+
+Upload that file to your server's `incoming` folder for keter to pick it up. You obviously need keter already installed and configured properly at the server.
 
 Planned Features
 ====================
