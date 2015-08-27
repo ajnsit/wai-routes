@@ -20,31 +20,35 @@
 
     <section class="main-content">
       <h1>
-<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.7.3-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://coveralls.io/github/ajnsit/wai-routes?branch=master"><img src="https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a>
+<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.8.1-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://coveralls.io/github/ajnsit/wai-routes?branch=master"><img src="https://coveralls.io/repos/ajnsit/wai-routes/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a>
 </h1>
 
-<p>This package provides typesafe URLs for Wai applications.</p>
+<p>Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.</p>
+
+<p>Wai-routes is based on the Haskell <a href="http://hackage.haskell.org/package/wai">Web Application Interface</a> and uses it for most of the heavy lifting. It also provides a convenient but thin veneer over most of the wai API so it is unnecessary to directly use raw wai APIs when building web apps.</p>
+
+<p>Much of Wai-route's typesafe URL functionality was pulled from the corresponding features in <a href="http://www.yesodweb.com/">Yesod</a>, and indeed the underlying aim of wai-routes is - <em>"To provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications."</em>.</p>
 
 <h1>
 <a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h1>
 
+<p>Wai-routes adds the following features on top of wai -</p>
+
 <ul>
-<li>Automatic generation of Route boilerplate using TH</li>
-<li>Easy Nested Routes</li>
+<li>Typesafe URLs, including automatic boilerplate generation using TH. Including features such as -
+
+<ul>
+<li>Nested Routes</li>
 <li>Subsites</li>
-<li>General purpose Route Attributes/Annotations</li>
-<li>Sitewide Master datatype which is passed to all handlers
-and can be used for persistent data (like DB connections)</li>
-<li>RouteM monad that makes it easy to compose an application
-with multiple routes and middleware.</li>
-<li>HandlerM monad that makes it easy to build a Handler
-with access to Request data and Master datatype</li>
-<li>Handlers can abort processing and pass control to the next
-application in the wai stack</li>
+<li>Route Annotations</li>
+</ul>
+</li>
+<li>Sitewide Master data which is passed to all handlers and can be used for persistent data (like DB connections)</li>
+<li>Easy to use Handler Monad which allows direct access to request and master data</li>
+<li>Easy composition of multiple routes and middleware to construct an application</li>
+<li>Ability to abort processing and pass control to the next application in the wai stack</li>
 <li>Streaming responses</li>
 </ul>
-
-<p>The aim is to provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications.</p>
 
 <h1>
 <a id="performance" class="anchor" href="#performance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performance</h1>
@@ -85,12 +89,36 @@ application in the wai stack</li>
 <p>Wai has had the ability to stream content for a long time. Now wai-routes exposes this functionality with the <code>stream</code> function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - <code>curl localhost:8080</code> will dump the data as it is being streamed from the server.</p>
 
 <h1>
+<a id="deployment" class="anchor" href="#deployment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deployment</h1>
+
+<p>The current recommended route (pun not intended) for deploying wai-routes apps is <a href="http://hackage.haskell.org/package/keter">keter</a>. You need to read the port from the environment variables -</p>
+
+<pre><code>-- Run the application
+main :: IO ()
+main = do
+  port' &lt;- getEnv "PORT"
+  let port = read port'
+  run port $ waiApp application
+</code></pre>
+
+<p>Then put something like this in <code>config/keter.yaml</code> -</p>
+
+<pre><code>exec: ../path/to/executable
+host: mydomainname.example.com
+</code></pre>
+
+<p>Then create a tarball with <code>config/keter.yaml</code>, <code>path/to/executable</code>, and any other files needed at runtime for your application. Rename the tarball to have a <code>.keter</code> extension.</p>
+
+<p>Upload that file to your server's <code>incoming</code> folder for keter to pick it up. You obviously need keter already installed and configured properly at the server.</p>
+
+<h1>
 <a id="planned-features" class="anchor" href="#planned-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Planned Features</h1>
 
 <p>The following features are planned for later releases -</p>
 
 <ul>
-<li>Add support for raw network responses (see <a href="http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw">http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw</a>)</li>
+<li>Support for raw network responses (see <a href="http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw">http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw</a>)</li>
+<li>Seamless websocket support</li>
 <li>Development mode</li>
 <li>Keter and Heroku support</li>
 <li>Scaffolding</li>
@@ -102,6 +130,8 @@ application in the wai stack</li>
 <a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changelog</h1>
 
 <ul>
+<li>0.8.1 : Bumped dependencies. Added 'HandlerMM' type alias</li>
+<li>0.8.0 : Replaced 'show/renderRoute' with 'show/renderRouteSub' and 'show/renderRouteMaster'. Added functions to access request headers (reqHeader/s), send a part of a file (filepart). Auto infer mime-types when sending files. Added cookie handling functions (get/setCookie/s). Added 'sub' to allow access to subsite datatype.</li>
 <li>0.7.3 : Added 'stream' to stream responses. Added 'asContent', 'css', and 'javascript' functions.</li>
 <li>0.7.2 : Added 'file' to send a raw file directly, 'rawBody' and 'jsonBody' to consume request body. Refactored RouteM to add 'catchAll' and 'waiApp'.</li>
 <li>0.7.1 : Added 'showRouteQuery', renamed 'text' to 'plain', 'html' now accepts Text instead of ByteString</li>
@@ -134,8 +164,6 @@ application in the wai stack</li>
 
     </section>
 
-<!-- Fork me banner -->
-<a href="https://github.com/ajnsit/wai-routes"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
   
   </body>
 </html>
