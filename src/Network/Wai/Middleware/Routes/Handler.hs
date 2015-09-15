@@ -68,20 +68,19 @@ import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Blaze.ByteString.Builder (Builder, toByteString, fromLazyByteString)
+import Blaze.ByteString.Builder (Builder, toByteString, fromByteString)
 import Network.HTTP.Types.Header (HeaderName(), RequestHeaders)
 import Network.HTTP.Types.Status (Status(), status200)
 
-import Data.Aeson (ToJSON, FromJSON, eitherDecode)
+import Data.Aeson (ToJSON, FromJSON, eitherDecodeStrict)
+import Data.Aeson.Encode (encodeToByteStringBuilder)
 import qualified Data.Aeson as A
 
 import Data.Set (Set)
 import qualified Data.Set as S (empty, map)
 
 import Data.Text (Text)
-import qualified Data.Text.Lazy as TL
-import Data.Text.Lazy.Encoding (encodeUtf8)
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 import Data.CaseInsensitive (CI, mk)
 
@@ -105,7 +104,7 @@ data HandlerState sub master = HandlerState
                 , getRequestData :: RequestData sub
                 -- TODO: Experimental
                 -- Streaming request body, consumed, and stored as a ByteString
-                , reqBody        :: Maybe BL.ByteString
+                , reqBody        :: Maybe ByteString
                 , respHeaders    :: [(HeaderName, ByteString)]
                 , respStatus     :: Status
                 , respResp       :: MkResponse
@@ -147,21 +146,22 @@ runHandlerM h env req hh = do
     mkResponse st (ResponseStream streaming) = hh $ responseStream (respStatus st) (respHeaders st) streaming
     mkResponse st ResponseNext = runNext (getRequestData st) hh
 
--- | Get the request body as a lazy bytestring. However consumes the entire body at once.
+-- | Get the request body as a bytestring. Consumes the entire body into memory at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
-rawBody :: HandlerM master master BL.ByteString
+rawBody :: HandlerM master master ByteString
 rawBody = do
   s <- get
   case reqBody s of
     Just consumedBody -> return consumedBody
     Nothing -> do
       req <- request
-      rbody <- liftIO $ readStrictRequestBody req
+      rbody <- liftIO $ fmap BL.toStrict $ _readStrictRequestBody req
       put s {reqBody = Just rbody}
       return rbody
 
-readStrictRequestBody :: Request -> IO BL.ByteString
-readStrictRequestBody =
+-- PRIVATE
+_readStrictRequestBody :: Request -> IO BL.ByteString
+_readStrictRequestBody =
 #if MIN_VERSION_wai(3,0,1)
         -- Use the `strictRequestBody` function available in wai > 3.0.1
         strictRequestBody
@@ -172,7 +172,7 @@ readStrictRequestBody =
 
 -- | Parse the body as a JSON object
 jsonBody :: FromJSON a => HandlerM master master (Either String a)
-jsonBody = liftM eitherDecode rawBody
+jsonBody = liftM eitherDecodeStrict rawBody
 
 -- | Get the master
 master :: HandlerM sub master master
@@ -282,10 +282,10 @@ stream s = modify addStream
     addStream st = _setResp st $ ResponseStream s
 
 -- | Set the response body
-raw :: BL.ByteString -> HandlerM sub master ()
+raw :: ByteString -> HandlerM sub master ()
 raw bs = modify addBody
   where
-    addBody st = _setResp st $ ResponseBuilder (fromLazyByteString bs)
+    addBody st = _setResp st $ ResponseBuilder (fromByteString bs)
 
 -- | Run the next application
 next :: HandlerM sub master ()
@@ -308,32 +308,37 @@ _setResp st r = case respResp st of
 json :: ToJSON a => a -> HandlerM sub master ()
 json a = do
   header contentType typeJson
-  raw $ A.encode a
+  raw $ _encodeStrict a
+
+-- PRIVATE
+-- Like `A.encode`, but outputs a strict bytestring
+_encodeStrict :: ToJSON a => a -> ByteString
+_encodeStrict = toByteString . encodeToByteStringBuilder . A.toJSON
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
-plain :: TL.Text -> HandlerM sub master ()
+plain :: Text -> HandlerM sub master ()
 plain = asContent typePlain
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
-html :: TL.Text -> HandlerM sub master ()
+html :: Text -> HandlerM sub master ()
 html = asContent typeHtml
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/css\".
-css :: TL.Text -> HandlerM sub master ()
+css :: Text -> HandlerM sub master ()
 css = asContent typeCss
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/javascript\".
-javascript :: TL.Text -> HandlerM sub master ()
+javascript :: Text -> HandlerM sub master ()
 javascript = asContent typeJavascript
 
 -- | Sets the content-type header to the given Bytestring
 --  (look in Network.Wai.Middleware.Routes.ContentTypes for examples)
 --  And sets the body of the response to the given Text
-asContent :: ByteString -> TL.Text -> HandlerM sub master ()
+asContent :: ByteString -> Text -> HandlerM sub master ()
 asContent ctype content = do
   header contentType ctype
   raw $ encodeUtf8 content
