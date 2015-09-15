@@ -7,7 +7,7 @@ module Main where
 import Network.Wai.Middleware.Routes
 import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
-import qualified Data.Text.Lazy as T
+import qualified Data.Text as T
 import Network.Wai.Middleware.RequestLogger
 
 -- Import HelloSub subsite
@@ -43,11 +43,11 @@ getHomeR = runHandlerM $ do
   html $ T.concat
     [ "<h1>Home</h1>"
     , "<p>You are on route - "
-    ,   T.fromStrict $ showRoute r
+    ,   showRoute r
     , "</p>"
     , "<p>"
     ,   "<a href=\""
-    ,   T.fromStrict $ showRoute $ HelloR Sub.HomeR
+    ,   showRoute $ HelloR Sub.HomeR
     ,   "\">Go to subsite hello</a>"
     ,   " to be greeted!"
     , "</p>"

@@ -8,7 +8,8 @@ module Main where
 import Network.Wai.Middleware.Routes
 import Network.Wai.Application.Static
 import Network.Wai.Middleware.RequestLogger
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
+import qualified Data.Text.Lazy as TL
 import Network.Wai.Handler.Warp (run)
 
 import Text.Blaze.Html.Renderer.Text (renderHtml)
@@ -38,10 +39,10 @@ getListR = runHandlerM $ do
   MyApp people <- master
   let pageTitle = "Hello BlazeHtml"
   -- Render a page with a list of people
-  html $ page pageTitle $ peopleFragment people
+  html $ TL.toStrict $ page pageTitle $ peopleFragment people
 
 -- Render some HTML inside a full page
-page :: Text -> Html -> Text
+page :: TL.Text -> Html -> TL.Text
 page titleText bodyHtml = renderHtml $ H.html $ do
   H.head $ H.title $ toMarkup titleText
   H.body $ do

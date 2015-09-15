@@ -4,8 +4,8 @@ module HelloSub
   , module HelloSub) where
 
 import Network.Wai.Middleware.Routes
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+import Data.Text (Text)
+import qualified Data.Text as T
 
 -- Import the subsite datatype
 import HelloSub.Data
@@ -34,7 +34,7 @@ getFooR = runHandlerM $ do
   html $ T.concat
     ["<h1>FOOO</h1>"
     , "<a href=\""
-    ,   T.fromStrict $ showRoute HomeR
+    ,   showRoute HomeR
     , "\">Go back</a>"
     ]
 
@@ -51,10 +51,10 @@ getHomeR = runHandlerM $ do
     , currentUserName m
     , "</h1>"
     , "<a href=\""
-    ,   T.fromStrict $ showRoute FooR
+    ,   showRoute FooR
     , "\">Go to an internal subsite route - Foo</a>"
     , "<br />"
     , "<a href=\""
-    ,   T.fromStrict $ showRouteM $ parentRoute m
+    ,   showRouteM $ parentRoute m
     , "\">Go back to the Master site /</a>"
     ]

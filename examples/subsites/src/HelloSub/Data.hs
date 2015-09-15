@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, TypeFamilies, ViewPatterns #-}
 module HelloSub.Data where
 
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 
 import Network.Wai.Middleware.Routes
 

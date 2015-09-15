@@ -8,14 +8,15 @@ module Main where
 import Network.Wai.Middleware.Routes
 import Network.Wai.Application.Static
 import Network.Wai.Middleware.RequestLogger
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
+import qualified Data.Text.Lazy as TL
 import Network.Wai.Handler.Warp (run)
 
 import Text.Hamlet (hamletFile, hamlet, HtmlUrl)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import Text.Cassius (renderCss, cassius, CssUrl)
 
-import Data.Text.Lazy.Encoding (encodeUtf8)
+import Data.Text.Encoding (encodeUtf8)
 
 -- Data for a person
 data Person = Person
@@ -46,14 +47,14 @@ getHomeR = runHandlerM $ do
   MyApp people <- master
   showRouteQuery <- showRouteQuerySub
   let pageTitle = "Hello Hamlet"
-  html $ renderHtml $ home pageTitle people showRouteQuery
+  html $ TL.toStrict $ renderHtml $ home pageTitle people showRouteQuery
 
 -- Render CSS as raw bytestring for simplicity, browsers don't seem to mind
 -- TODO: Add CSS content-type headers
 getStylesheetR :: Handler MyApp
 getStylesheetR = runHandlerM $ do
   showRouteQuery <- showRouteQuerySub
-  raw $ encodeUtf8 $ renderCss $ style showRouteQuery
+  raw $ encodeUtf8 $ TL.toStrict $ renderCss $ style showRouteQuery
 
 -- Inline cassius example, julius and lucius would be similar
 style :: CssUrl MyAppRoute

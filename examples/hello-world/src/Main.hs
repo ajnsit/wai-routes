@@ -8,7 +8,7 @@ module Main where
 import Network.Wai.Middleware.Routes
 import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
-import qualified Data.Text.Lazy as T
+import qualified Data.Text as T
 import Network.Wai.Middleware.RequestLogger
 
 -- The Master Site argument
@@ -30,11 +30,11 @@ getHomeR = runHandlerM $ do
   html $ T.concat
     [ "<h1>Home</h1>"
     , "<p>You are on route - "
-    ,   T.fromStrict $ showRoute r
+    ,   showRoute r
     , "</p>"
     , "<p>"
     ,   "<a href=\""
-    ,   T.fromStrict $ showRoute HelloR
+    ,   showRoute HelloR
     ,   "\">Go to hello</a>"
     ,   " to be greeted!"
     , "</p>"
@@ -47,7 +47,7 @@ getHelloR = runHandlerM $ do
   html $ T.concat
     [ "<h1>Hello World!</h1>"
     , "<a href=\""
-    , T.fromStrict $ showRoute HomeR
+    , showRoute HomeR
     , "\">Go back</a>"
     ]
 
