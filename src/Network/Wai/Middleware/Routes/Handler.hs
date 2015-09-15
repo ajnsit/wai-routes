@@ -78,9 +78,8 @@ import qualified Data.Aeson as A
 import Data.Set (Set)
 import qualified Data.Set as S (empty, map)
 
-import Data.Text.Lazy (Text)
-import qualified Data.Text as TS (Text)
-import qualified Data.Text.Lazy as T
+import Data.Text (Text)
+import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Encoding (decodeUtf8)
 
@@ -206,44 +205,44 @@ maybeRootRoute = do
   return $ fmap (toMasterRoute s) $ currentRoute $ getRequestData s
 
 -- | Get the route rendering function for the master site
-showRouteMaster :: RenderRoute master => HandlerM sub master (Route master -> TS.Text)
+showRouteMaster :: RenderRoute master => HandlerM sub master (Route master -> Text)
 showRouteMaster = return showRoute
 
 -- | Get the route rendering function for the subsite
-showRouteSub :: RenderRoute master => HandlerM sub master (Route sub -> TS.Text)
+showRouteSub :: RenderRoute master => HandlerM sub master (Route sub -> Text)
 showRouteSub = do
   s <- get
   return $ showRoute . toMasterRoute s
 
 -- | Get the route rendering function for the master site
-showRouteQueryMaster :: RenderRoute master => HandlerM sub master (Route master -> [(TS.Text,TS.Text)] -> TS.Text)
+showRouteQueryMaster :: RenderRoute master => HandlerM sub master (Route master -> [(Text,Text)] -> Text)
 showRouteQueryMaster = return showRouteQuery
 
 -- | Get the route rendering function for the subsite
-showRouteQuerySub :: RenderRoute master => HandlerM sub master (Route sub -> [(TS.Text,TS.Text)] -> TS.Text)
+showRouteQuerySub :: RenderRoute master => HandlerM sub master (Route sub -> [(Text,Text)] -> Text)
 showRouteQuerySub = do
   s <- get
   return $ showRouteQuery . toMasterRoute s
 
 -- | Get the route parsing function for the master site
-readRouteMaster :: ParseRoute master => HandlerM sub master (TS.Text -> Maybe (Route master))
+readRouteMaster :: ParseRoute master => HandlerM sub master (Text -> Maybe (Route master))
 readRouteMaster = return readRoute
 
 -- | Get the route parsing function for the subsite
-readRouteSub :: ParseRoute sub => HandlerM sub master (TS.Text -> Maybe (Route master))
+readRouteSub :: ParseRoute sub => HandlerM sub master (Text -> Maybe (Route master))
 readRouteSub = do
   s <- get
   return $ fmap (toMasterRoute s) . readRoute
 
 -- | Get the current route attributes
 routeAttrSet :: RouteAttrs sub => HandlerM sub master (Set Text)
-routeAttrSet = liftM (S.map T.fromStrict . maybe S.empty routeAttrs . currentRoute . getRequestData) get
+routeAttrSet = liftM (maybe S.empty routeAttrs . currentRoute . getRequestData) get
 
 -- | Get the attributes for the current root route
 rootRouteAttrSet :: RouteAttrs master => HandlerM sub master (Set Text)
 rootRouteAttrSet = do
   s <- get
-  return $ S.map T.fromStrict $ maybe S.empty (routeAttrs . toMasterRoute s) $ currentRoute $ getRequestData s
+  return $ maybe S.empty (routeAttrs . toMasterRoute s) $ currentRoute $ getRequestData s
 
 -- | Add a header to the application response
 -- TODO: Differentiate between setting and adding headers
@@ -313,28 +312,28 @@ json a = do
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
-plain :: Text -> HandlerM sub master ()
+plain :: TL.Text -> HandlerM sub master ()
 plain = asContent typePlain
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
-html :: Text -> HandlerM sub master ()
+html :: TL.Text -> HandlerM sub master ()
 html = asContent typeHtml
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/css\".
-css :: Text -> HandlerM sub master ()
+css :: TL.Text -> HandlerM sub master ()
 css = asContent typeCss
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/javascript\".
-javascript :: Text -> HandlerM sub master ()
+javascript :: TL.Text -> HandlerM sub master ()
 javascript = asContent typeJavascript
 
 -- | Sets the content-type header to the given Bytestring
 --  (look in Network.Wai.Middleware.Routes.ContentTypes for examples)
 --  And sets the body of the response to the given Text
-asContent :: ByteString -> Text -> HandlerM sub master ()
+asContent :: ByteString -> TL.Text -> HandlerM sub master ()
 asContent ctype content = do
   header contentType ctype
   raw $ encodeUtf8 content
