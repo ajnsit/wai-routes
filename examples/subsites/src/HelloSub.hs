@@ -17,7 +17,7 @@ getHelloSub _ = HelloSub "Hello from subsite"
 -- The contract for the master site
 -- The master site should -
 --  1. Have renderable routes (RenderRoute constraint)
---  2. Allwo access to a parent route to go back to (parentRoute)
+--  2. Allow access to a parent route to go back to (parentRoute)
 --  3. Allow access to the current user name (currentUserName)
 class RenderRoute master => HelloMaster master where
   currentUserName :: master -> Text
