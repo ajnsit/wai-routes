@@ -16,6 +16,7 @@ Wai-routes adds the following features on top of wai -
     - Nested Routes
     - Subsites
     - Route Annotations
+  - Seamlessly mix and match "unrouted" request handlers with typesafe routing.
   - Sitewide Master data which is passed to all handlers and can be used for persistent data (like DB connections)
   - Easy to use Handler Monad which allows direct access to request and master data
   - Easy composition of multiple routes and middleware to construct an application
