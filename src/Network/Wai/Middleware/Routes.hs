@@ -89,10 +89,12 @@ module Network.Wai.Middleware.Routes
     , setCookie              -- | Add a cookie to the response
     , getCookie              -- | Get a cookie from the request
     , getCookies             -- | Get all cookies from the request
+
+    , module Network.HTTP.Types.Status
   )
   where
 
 import Network.Wai.Middleware.Routes.Routes
 import Network.Wai.Middleware.Routes.Monad
 import Network.Wai.Middleware.Routes.Handler
-
+import Network.HTTP.Types.Status
