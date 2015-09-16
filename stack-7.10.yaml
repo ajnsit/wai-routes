@@ -8,4 +8,4 @@ packages:
 - examples/rest-json
 - examples/streaming-response
 extra-deps: []
-resolver: lts-3.4
+resolver: lts-3.5
