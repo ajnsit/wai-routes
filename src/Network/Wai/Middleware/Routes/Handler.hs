@@ -113,14 +113,31 @@ data HandlerState sub master = HandlerState
                 , toMasterRoute  :: Route sub -> Route master
                 }
 
+-- Initial Handler State
+defaultHandlerState :: Env sub master -> RequestData sub -> HandlerState sub master
+defaultHandlerState env req = HandlerState
+  { getMaster = envMaster env
+  , getRequestData = req
+  , reqBody = Nothing
+  , respHeaders = []
+  , respStatus = status200
+  , respResp = defaultResponse
+  , respCookies = []
+  , getSub = envSub env
+  , toMasterRoute = envToMaster env
+  }
+
 -- Internal: Type of response
 -- Similar to Wai's Response type
 data MkResponse
     = ResponseFile FilePath (Maybe FilePart)
     | ResponseBuilder Builder
     | ResponseStream StreamingBody
-    -- Experimental: ResponseNext is the default, so if you don't respond in one handler, move to next automatically
     | ResponseNext
+
+-- Default response in case none is set by the handler
+defaultResponse :: MkResponse
+defaultResponse = ResponseBuilder ""
 
 -- The header name for request cookies
 cookieHeaderName :: CI ByteString
@@ -133,7 +150,7 @@ cookieSetHeaderName = mk "Set-Cookie"
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
-  (_, st) <- runStateT (extractH h) (HandlerState (envMaster env) req Nothing [] status200 ResponseNext [] (envSub env) (envToMaster env))
+  (_, st) <- runStateT (extractH h) (defaultHandlerState env req)
   -- Handle cookies (add them to headers)
   let cookieHeaders = map mkSetCookie (respCookies st)
   let st' = st {respHeaders = cookieHeaders ++ (respHeaders st)}
@@ -295,11 +312,8 @@ next = modify rNext
 
 -- Util
 -- Set the response handler
--- Experimental: Don't overwrite previous response handler
 _setResp :: HandlerState sub master -> MkResponse -> HandlerState sub master
-_setResp st r = case respResp st of
-  ResponseNext -> st{respResp=r}
-  _ -> st
+_setResp st r = st{respResp=r}
 
 -- Standard response bodies
 
