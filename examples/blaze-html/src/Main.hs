@@ -36,7 +36,7 @@ mkRoute "MyApp" [parseRoutes|
 
 getListR :: Handler MyApp
 getListR = runHandlerM $ do
-  MyApp people <- master
+  MyApp people <- sub
   let pageTitle = "Hello BlazeHtml"
   -- Render a page with a list of people
   html $ TL.toStrict $ page pageTitle $ peopleFragment people

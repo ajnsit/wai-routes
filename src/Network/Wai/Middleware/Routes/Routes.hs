@@ -3,6 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell, QuasiQuotes #-}
+{-# LANGUAGE RankNTypes #-}
 {- |
 Module      :  Network.Wai.Middleware.Routes.Routes
 Copyright   :  (c) Anupam Jain 2013
@@ -107,7 +108,7 @@ runNext :: App master
 runNext req = nextApp req $ waiReq req
 
 -- | A `Handler` generates an App from the master datatype
-type Handler master = HandlerS master master
+type Handler sub = forall master. RenderRoute master => HandlerS sub master
 type HandlerS sub master = Env sub master -> App sub
 
 -- | Generates everything except `Routable` instance and dispatch function

@@ -44,7 +44,7 @@ mkRoute "MyApp" [parseRoutes|
 
 getHomeR :: Handler MyApp
 getHomeR = runHandlerM $ do
-  MyApp people <- master
+  MyApp people <- sub
   showRouteQuery <- showRouteQuerySub
   let pageTitle = "Hello Hamlet"
   html $ TL.toStrict $ renderHtml $ home pageTitle people showRouteQuery

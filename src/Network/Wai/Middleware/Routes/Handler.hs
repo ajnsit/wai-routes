@@ -165,7 +165,7 @@ runHandlerM h env req hh = do
 
 -- | Get the request body as a bytestring. Consumes the entire body into memory at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
-rawBody :: HandlerM master master ByteString
+rawBody :: HandlerM sub master ByteString
 rawBody = do
   s <- get
   case reqBody s of
@@ -188,7 +188,7 @@ _readStrictRequestBody =
 #endif
 
 -- | Parse the body as a JSON object
-jsonBody :: FromJSON a => HandlerM master master (Either String a)
+jsonBody :: FromJSON a => HandlerM sub master (Either String a)
 jsonBody = liftM eitherDecodeStrict rawBody
 
 -- | Get the master

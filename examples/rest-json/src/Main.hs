@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, TypeFamilies, ViewPatterns, MultiParamTypeClasses, FlexibleInstances, DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, TypeFamilies, ViewPatterns, MultiParamTypeClasses, FlexibleInstances, DeriveDataTypeable, RankNTypes #-}
 module Main where
 {-
   Demonstrates use of Aeson to create a simple JSON REST API
@@ -80,7 +80,7 @@ application r = do
 -- Get all people
 getPeopleR :: Handler PeopleRoute
 getPeopleR = runHandlerM $ do
-  PeopleRoute (PeopleDB ref) <- master
+  PeopleRoute (PeopleDB ref) <- sub
   peeps <- liftIO $ readIORef ref
   json peeps
 
@@ -130,7 +130,7 @@ deletePersonR i = runHandlerM $ do
 -------------
 
 -- Run an IO action with PeopleRoute
-runCrudAction :: (PeopleDB -> IO a) -> HandlerM master PeopleRoute a
+runCrudAction :: (PeopleDB -> IO a) -> HandlerM PeopleRoute master a
 runCrudAction f = do
-  PeopleRoute peopleDB <- master
+  PeopleRoute peopleDB <- sub
   liftIO $ f peopleDB
