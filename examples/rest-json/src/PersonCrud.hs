@@ -5,12 +5,7 @@ module PersonCrud where
 import Data.Text (Text)
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as IM
-import Data.Typeable(Typeable)
-import Data.Data (Data)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Data.Aeson (FromJSON(..), ToJSON(..), Value(Object), (.:), (.=), object)
 import Data.Aeson.TH (deriveJSON, defaultOptions)
 
 -- A simple database of `Person`
