@@ -94,6 +94,8 @@ module Network.Wai.Middleware.Routes
     , getCookies             -- | Get all cookies from the request
 
     , module Network.HTTP.Types.Status
+    , module Network.Wai.Middleware.RequestLogger
+    , module Network.Wai.Application.Static
   )
   where
 
@@ -101,3 +103,5 @@ import Network.Wai.Middleware.Routes.Routes
 import Network.Wai.Middleware.Routes.Monad
 import Network.Wai.Middleware.Routes.Handler
 import Network.HTTP.Types.Status
+import Network.Wai.Middleware.RequestLogger
+import Network.Wai.Application.Static

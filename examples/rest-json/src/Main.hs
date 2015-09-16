@@ -11,9 +11,7 @@ module Main where
 -}
 
 import Network.Wai.Middleware.Routes
-import Network.Wai.Application.Static (staticApp, defaultFileServerSettings)
 import Network.Wai.Handler.Warp (run)
-import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Data.Aeson.TH (deriveJSON, defaultOptions)
 import Data.IORef (readIORef)
 import Control.Monad.IO.Class (liftIO)

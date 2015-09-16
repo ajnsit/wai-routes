@@ -7,9 +7,7 @@ module Main where
 -}
 
 import Network.Wai.Middleware.Routes
-import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
-import Network.Wai.Middleware.RequestLogger
 
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (liftIO)

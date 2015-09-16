@@ -7,7 +7,6 @@ module Main where
 
 import Network.Wai.Middleware.Routes
 import Network.Wai.Application.Static
-import Network.Wai.Middleware.RequestLogger
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TL
 import Network.Wai.Handler.Warp (run)

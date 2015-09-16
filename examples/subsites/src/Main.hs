@@ -5,10 +5,8 @@ module Main where
 -}
 
 import Network.Wai.Middleware.Routes
-import Network.Wai.Application.Static
 import Network.Wai.Handler.Warp
 import qualified Data.Text as T
-import Network.Wai.Middleware.RequestLogger
 
 -- Import HelloSub subsite
 import HelloSub (HelloSub(..), HelloMaster)
