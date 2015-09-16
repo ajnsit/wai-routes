@@ -30,6 +30,7 @@ module Network.Wai.Middleware.Routes.Routes
 
     -- * Dispatch
     , routeDispatch
+    , customRouteDispatch
 
     -- * URL rendering and parsing
     , showRoute
@@ -58,12 +59,15 @@ module Network.Wai.Middleware.Routes.Routes
     , currentRoute           -- | Extract the current `Route` from `RequestData`
     , runNext                -- | Run the next application in the stack
 
+    -- * Not exported outside wai-routes
+    , runHandler
+    , readQueryString
     )
     where
 
 -- Wai
 import Network.Wai (ResponseReceived, Middleware, Application, pathInfo, requestMethod, requestMethod, Response, Request(..))
-import Network.HTTP.Types (decodePath, encodePath, queryTextToQuery, queryToQueryText)
+import Network.HTTP.Types (Query, decodePath, encodePath, queryTextToQuery, queryToQueryText)
 
 -- Network.Wai.Middleware.Routes
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute(..), ParseRoute(..), RouteAttrs(..))
@@ -160,7 +164,7 @@ mkRouteDispatch typName routes = do
   let typ = parseType typName
   disp <- mkDispatchClause MkDispatchSettings
         { mdsRunHandler    = [| runHandler    |]
-        , mdsSubDispatcher = [| subDispatcher  |]
+        , mdsSubDispatcher = [| subDispatcher |]
         , mdsGetPathInfo   = [| getPathInfo   |]
         , mdsMethod        = [| getReqMethod  |]
         , mdsSetPathInfo   = [| setPathInfo   |]
@@ -190,9 +194,15 @@ class Routable sub master where
 
 -- | Generates the application middleware from a `Routable` master datatype
 routeDispatch :: Routable master master => master -> Middleware
+routeDispatch = customRouteDispatch dispatcher
+
+-- | Like routeDispatch but generates the application middleware from a custom dispatcher
+customRouteDispatch :: HandlerS master master -> master -> Middleware
+-- TODO: Should this have master master instead of sub master?
+-- TODO: Verify that this plays well with subsites
 -- Env master master is converted to Env sub master by subDispatcher
 -- Route information is filled in by runHandler
-routeDispatch master def req = dispatcher (_masterToEnv master) RequestData{waiReq=req, nextApp=def, currentRoute=Nothing}
+customRouteDispatch customDispatcher master def req = customDispatcher (_masterToEnv master) RequestData{waiReq=req, nextApp=def, currentRoute=Nothing}
 
 -- | Render a `Route` and Query parameters to Text
 showRouteQuery :: RenderRoute master => Route master -> [(Text,Text)] -> Text
@@ -210,7 +220,11 @@ _encodePathInfo segments = decodeUtf8 . toByteString . encodePath segments . que
 -- | Read a route from Text
 -- Returns Nothing if Route reading failed. Just route otherwise
 readRoute :: ParseRoute master => Text -> Maybe (Route master)
-readRoute = parseRoute . second (map (second (fromMaybe "")) . queryToQueryText) . decodePath . encodeUtf8
+readRoute = parseRoute . second readQueryString . decodePath . encodeUtf8
+
+-- | Convert a Query to the format expected by parseRoute
+readQueryString :: Query -> [(Text, Text)]
+readQueryString = map (second (fromMaybe "")) . queryToQueryText
 
 -- PRIVATE
 
@@ -237,6 +251,8 @@ app405 :: HandlerS sub master
 app405 _master = runNext
 
 -- Run a route handler function
+-- Currently all this does is populate the route into RequestData
+-- But it may do more in the future
 runHandler
     :: HandlerS sub master
     -> Env sub master

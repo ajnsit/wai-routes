@@ -15,6 +15,9 @@ module Network.Wai.Middleware.Routes.Monad
     ( -- * Route Monad
       RouteM
       -- * Compose Routes
+    , DefaultMaster(..)
+    , Route(DefaultRoute)
+    , handler
     , middleware
     , route
     , catchall
@@ -25,9 +28,12 @@ module Network.Wai.Middleware.Routes.Monad
     )
     where
 
+import Data.Text (Text)
+import Data.Set (empty)
+
 import Network.Wai
 import Network.Wai.Middleware.Routes.Routes
-import Network.HTTP.Types
+import Network.HTTP.Types (status404)
 
 import Util.Free (F(..), liftF)
 
@@ -36,6 +42,18 @@ data RouterF x = M Middleware x | D Application deriving Functor
 
 -- Router type
 type RouteM = F RouterF
+
+-- Experimental
+-- DefaultMaster is our default master datatype
+data DefaultMaster = DefaultMaster
+-- This makes it possible to define handlers without routing stuff
+instance RenderRoute DefaultMaster where
+  data Route DefaultMaster = DefaultRoute ([Text],[(Text, Text)]) deriving Eq
+  renderRoute (DefaultRoute r) = r
+instance ParseRoute DefaultMaster where
+  parseRoute = Just . DefaultRoute
+instance RouteAttrs DefaultMaster where
+  routeAttrs = const empty
 
 -- | Catch all routes and process them with the supplied application.
 -- Note: As expected from the name, no request proceeds past a catchall.
@@ -47,9 +65,16 @@ defaultAction :: Application -> RouteM ()
 defaultAction = catchall
 
 -- | Add a middleware to the application
--- Middleware are ordered so the one declared earlier is wraps the remaining application.
+-- Middleware are ordered so the one declared earlier wraps the ones later
 middleware :: Middleware -> RouteM ()
 middleware m = liftF $ M m ()
+
+-- | Add a wai-routes handler
+handler :: Handler DefaultMaster -> RouteM ()
+handler h = middleware $ customRouteDispatch dispatcher' DefaultMaster
+  where
+    dispatcher' env req = runHandler h env (Just $ DefaultRoute $ getRoute req) req
+    getRoute req = (pathInfo $ waiReq req, readQueryString $ queryString $ waiReq req)
 
 -- | Add a route to the application.
 -- Routes are ordered so the one declared earlier is matched first.

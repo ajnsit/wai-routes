@@ -51,6 +51,9 @@ module Network.Wai.Middleware.Routes
 
     -- * Route Monad makes it easy to compose routes together
     , RouteM
+    , DefaultMaster(..)
+    , Route(DefaultRoute)
+    , handler                -- | Add a wai-routes handler
     , catchall               -- | Catch all routes with the supplied application
     , defaultAction          -- | A synonym for `catchall`, kept for backwards compatibility
     , middleware             -- | Add another middleware to the app
