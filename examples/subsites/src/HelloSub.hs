@@ -25,7 +25,7 @@ class RenderRoute master => HelloMaster master where
 
 -- Generate the dispatcher for this subsite
 instance HelloMaster master => Routable HelloSub master where
-  dispatcher = $(mkRouteSubDispatch resourcesHelloSub)
+  dispatcher = $(mkRouteSubDispatch _resourcesHelloSub)
 
 -- Foo
 getFooR :: HelloMaster master => HandlerS HelloSub master

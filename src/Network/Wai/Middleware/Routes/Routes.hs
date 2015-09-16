@@ -119,7 +119,7 @@ type HandlerS sub master = Env sub master -> App sub
 mkRouteData :: String -> [ResourceTree String] -> Q [Dec]
 mkRouteData typName routes = do
   let typ = parseType typName
-  let rname = mkName $ "resources" ++ typName
+  let rname = mkName $ "_resources" ++ typName
   let resourceTrees = map (fmap parseType) routes
   eres <- lift routes
   let resourcesDec =
