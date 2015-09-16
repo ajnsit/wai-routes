@@ -66,7 +66,7 @@ defaultApplication _req h = h $ responseLBS status404 [("Content-Type", "text/pl
 waiApp :: RouteM () -> Application
 waiApp (F r) = r (const defaultApplication) f
   where
-    f (M m r) = m r
+    f (M m r') = m r'
     f (D a) = a
 
 -- | Similar to waiApp but returns the app in an arbitrary monad

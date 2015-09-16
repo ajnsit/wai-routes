@@ -256,8 +256,8 @@ subDispatcher _runhandler getSub toMasterRoute env reqData = dispatcher env' req
   where
     env' = _envToSub getSub toMasterRoute env
     reqData' = reqData{currentRoute=Nothing}
-    qq (k,mv) = (decodeUtf8 k, maybe "" decodeUtf8 mv)
-    req = waiReq reqData
+    -- qq (k,mv) = (decodeUtf8 k, maybe "" decodeUtf8 mv)
+    -- req = waiReq reqData
 
 _masterToEnv :: master -> Env master master
 _masterToEnv master = Env master master id
