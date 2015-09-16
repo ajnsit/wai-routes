@@ -51,11 +51,22 @@ getHelloR = runHandlerM $ do
     , "\">Go back</a>"
     ]
 
+-- An example of an unrouted handler
+handleInfoRequest :: Handler DefaultMaster
+handleInfoRequest = runHandlerM $ do
+  Just (DefaultRoute (_,query)) <- maybeRoute
+  case lookup "info" query of
+    -- If an override param "info" was supplied then display info
+    Just _ -> plain "Wai-routes, hello world example, handleInfoRequest"
+    -- Else, move on to the next handler (i.e. do nothing special)
+    Nothing -> next
+
 -- The application that uses our route
 -- NOTE: We use the Route Monad to simplify routing
 application :: RouteM ()
 application = do
   middleware logStdoutDev
+  handler handleInfoRequest
   route MyRoute
   catchall $ staticApp $ defaultFileServerSettings "static"
 

@@ -76,3 +76,4 @@ test-suite test
                , hspec-wai      >= 0.6 && < 0.7
                , hspec-wai-json >= 0.6 && < 0.7
                , wai-routes
+               , wai-app-static
