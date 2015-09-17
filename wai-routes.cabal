@@ -1,14 +1,14 @@
-name          : wai-routes
-version       : 0.8.1
-cabal-version : >=1.18
-build-type    : Simple
-license       : MIT
-license-file  : LICENSE
-maintainer    : ajnsit@gmail.com
-stability     : Experimental
-homepage      : https://ajnsit.github.io/wai-routes/
-synopsis      : Typesafe URLs for Wai applications.
-description   : Provides easy to use typesafe URLs for Wai Applications. See README for more information. Also see examples/ directory for usage examples.
+name               : wai-routes
+version            : 0.8.1
+cabal-version      : >=1.18
+build-type         : Simple
+license            : MIT
+license-file       : LICENSE
+maintainer         : ajnsit@gmail.com
+stability          : Experimental
+homepage           : https://ajnsit.github.io/wai-routes/
+synopsis           : Typesafe URLs for Wai applications.
+description        : Provides easy to use typesafe URLs for Wai Applications. See README for more information. Also see examples/ directory for usage examples.
 category           : Network
 author             : Anupam Jain
 data-dir           : ""
@@ -24,58 +24,59 @@ source-repository this
     tag      : v0.8.1
 
 library
-    build-depends: base               >= 4.7  && < 4.9
-                 , wai                >= 3.0  && < 3.1
-                 , wai-extra          >= 3.0  && < 3.1
-                 , wai-app-static     >= 3.0  && < 3.2
-                 , text               >= 1.2  && < 1.3
-                 , template-haskell   >= 2.9  && < 2.11
-                 , mtl                >= 2.1  && < 2.3
-                 , aeson              >= 0.8  && < 0.10
-                 , containers         >= 0.5  && < 0.6
-                 , random             >= 1.1  && < 1.2
-                 , path-pieces        >= 0.2  && < 0.3
-                 , bytestring         >= 0.10 && < 0.11
-                 , http-types         >= 0.8  && < 0.9
-                 , blaze-builder      >= 0.4  && < 0.5
-                 , monad-loops        >= 0.4  && < 0.5
-                 , case-insensitive   >= 1.2  && < 1.3
-                 , mime-types         >= 0.1  && < 0.2
-                 , filepath           >= 1.3  && < 1.5
-                 , cookie             >= 0.4  && < 0.5
-                 , data-default-class >= 0.0  && < 0.1
-    exposed-modules: Network.Wai.Middleware.Routes
-                     Network.Wai.Middleware.Routes.Parse
-                     Network.Wai.Middleware.Routes.Overlap
-                     Network.Wai.Middleware.Routes.Class
-                     Network.Wai.Middleware.Routes.Routes
-                     Network.Wai.Middleware.Routes.Monad
-                     Network.Wai.Middleware.Routes.Handler
-                     Network.Wai.Middleware.Routes.ContentTypes
-                     Network.Wai.Middleware.Routes.TH
-                     Network.Wai.Middleware.Routes.TH.Types
-                     Network.Wai.Middleware.Routes.TH.Dispatch
-                     Network.Wai.Middleware.Routes.TH.ParseRoute
-                     Network.Wai.Middleware.Routes.TH.RenderRoute
-                     Network.Wai.Middleware.Routes.TH.RouteAttrs
-                     Util.Free
-    exposed        : True
-    buildable      : True
-    hs-source-dirs : src
+    build-depends      : base               >= 4.7  && < 4.9
+                       , wai                >= 3.0  && < 3.1
+                       , wai-extra          >= 3.0  && < 3.1
+                       , wai-app-static     >= 3.0  && < 3.2
+                       , text               >= 1.2  && < 1.3
+                       , template-haskell   >= 2.9  && < 2.11
+                       , mtl                >= 2.1  && < 2.3
+                       , aeson              >= 0.8  && < 0.10
+                       , containers         >= 0.5  && < 0.6
+                       , random             >= 1.1  && < 1.2
+                       , path-pieces        >= 0.2  && < 0.3
+                       , bytestring         >= 0.10 && < 0.11
+                       , http-types         >= 0.8  && < 0.9
+                       , blaze-builder      >= 0.4  && < 0.5
+                       , monad-loops        >= 0.4  && < 0.5
+                       , case-insensitive   >= 1.2  && < 1.3
+                       , mime-types         >= 0.1  && < 0.2
+                       , filepath           >= 1.3  && < 1.5
+                       , cookie             >= 0.4  && < 0.5
+                       , data-default-class >= 0.0  && < 0.1
+    exposed-modules    : Network.Wai.Middleware.Routes
+    other-modules      : Network.Wai.Middleware.Routes.Parse
+                         Network.Wai.Middleware.Routes.Overlap
+                         Network.Wai.Middleware.Routes.Class
+                         Network.Wai.Middleware.Routes.Routes
+                         Network.Wai.Middleware.Routes.Monad
+                         Network.Wai.Middleware.Routes.Handler
+                         Network.Wai.Middleware.Routes.ContentTypes
+                         Network.Wai.Middleware.Routes.DefaultRoute
+                         Network.Wai.Middleware.Routes.TH
+                         Network.Wai.Middleware.Routes.TH.Types
+                         Network.Wai.Middleware.Routes.TH.Dispatch
+                         Network.Wai.Middleware.Routes.TH.ParseRoute
+                         Network.Wai.Middleware.Routes.TH.RenderRoute
+                         Network.Wai.Middleware.Routes.TH.RouteAttrs
+                         Util.Free
+    exposed            : True
+    buildable          : True
+    hs-source-dirs     : src
     default-language   : Haskell2010
 
 test-suite test
-  main-is:             Spec.hs
-  type:                exitcode-stdio-1.0
-  default-language:    Haskell2010
-  hs-source-dirs:      test
-  GHC-options:         -Wall -threaded -fno-warn-orphans
+  main-is          : Spec.hs
+  type             : exitcode-stdio-1.0
+  default-language : Haskell2010
+  hs-source-dirs   : test
+  GHC-options      : -Wall -threaded -fno-warn-orphans
 
-  build-depends: base           >= 4.7 && < 4.9
-               , wai            >= 3.0 && < 3.1
-               , aeson          >= 0.8 && < 0.10
-               , hspec          >= 2.1 && < 2.3
-               , hspec-wai      >= 0.6 && < 0.7
-               , hspec-wai-json >= 0.6 && < 0.7
-               , wai-routes
-               , wai-app-static
+  build-depends    : base           >= 4.7 && < 4.9
+                   , wai            >= 3.0 && < 3.1
+                   , aeson          >= 0.8 && < 0.10
+                   , hspec          >= 2.1 && < 2.3
+                   , hspec-wai      >= 0.6 && < 0.7
+                   , hspec-wai-json >= 0.6 && < 0.7
+                   , wai-app-static >= 3.0 && < 3.2
+                   , wai-routes

@@ -96,6 +96,7 @@ module Network.Wai.Middleware.Routes
     , module Network.HTTP.Types.Status
     , module Network.Wai.Middleware.RequestLogger
     , module Network.Wai.Application.Static
+    , Text
   )
   where
 
@@ -105,3 +106,4 @@ import Network.Wai.Middleware.Routes.Handler
 import Network.HTTP.Types.Status
 import Network.Wai.Middleware.RequestLogger
 import Network.Wai.Application.Static
+import Data.Text (Text)

@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving, TypeFamilies, RankNTypes, DeriveFunctor #-}
+{-# LANGUAGE OverloadedStrings, TypeFamilies, RankNTypes, DeriveFunctor #-}
 
 {- |
 Module      :  Network.Wai.Middleware.Routes.Monad
@@ -28,11 +28,9 @@ module Network.Wai.Middleware.Routes.Monad
     )
     where
 
-import Data.Text (Text)
-import Data.Set (empty)
-
 import Network.Wai
 import Network.Wai.Middleware.Routes.Routes
+import Network.Wai.Middleware.Routes.DefaultRoute
 import Network.HTTP.Types (status404)
 
 import Util.Free (F(..), liftF)
@@ -42,18 +40,6 @@ data RouterF x = M Middleware x | D Application deriving Functor
 
 -- Router type
 type RouteM = F RouterF
-
--- Experimental
--- DefaultMaster is our default master datatype
-data DefaultMaster = DefaultMaster
--- This makes it possible to define handlers without routing stuff
-instance RenderRoute DefaultMaster where
-  data Route DefaultMaster = DefaultRoute ([Text],[(Text, Text)]) deriving Eq
-  renderRoute (DefaultRoute r) = r
-instance ParseRoute DefaultMaster where
-  parseRoute = Just . DefaultRoute
-instance RouteAttrs DefaultMaster where
-  routeAttrs = const empty
 
 -- | Catch all routes and process them with the supplied application.
 -- Note: As expected from the name, no request proceeds past a catchall.
