@@ -9,6 +9,7 @@ module Main where
 -}
 
 import Data.Maybe (fromMaybe)
+import Data.Monoid (mconcat)
 import Data.Text.Encoding (decodeUtf8)
 
 import Network.Wai.Middleware.Routes
