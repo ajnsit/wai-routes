@@ -70,7 +70,7 @@ import Control.Monad (liftM)
 import Control.Monad.Loops (unfoldWhileM)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, liftIO, MonadTrans)
 
-import Control.Applicative (Applicative, (<$>))
+import Control.Applicative (Applicative, (<$>), (<*>))
 
 import Data.Maybe (maybe)
 import Data.ByteString (ByteString)
