@@ -428,18 +428,19 @@ _getCachedPostParams = postParams <$> get
 -- Util: Parse and cache post params
 _populatePostParams :: HandlerM sub master PostParams
 _populatePostParams = do
-  req <- request
-  case P.getRequestBodyType req of
-    Nothing -> return ([],[])
-    Just _ -> do
-      st <- get
-      case postParams st of
-        Nothing -> do
-          params' <- liftIO $ P.parseRequestBody P.lbsBackEnd req
-          let params = _toPostParams params'
-          put $ st{postParams=Just params}
-          return params
-        Just params -> return params
+  st <- get
+  case postParams st of
+    Just params -> return params
+    Nothing -> do
+      req <- request
+      params <- case P.getRequestBodyType req of
+        Nothing -> return ([],[])
+        Just _ -> do
+          -- TODO: Use cached request body instead of reading it from wai request
+          params <- liftIO $ P.parseRequestBody P.lbsBackEnd req
+          return $ _toPostParams params
+      put $ st{postParams=Just params}
+      return params
 
 -- PRIVATE
 -- Get a list of post parameters
