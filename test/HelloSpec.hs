@@ -4,6 +4,7 @@
 -}
 module HelloSpec (spec) where
 
+import Data.Maybe (fromMaybe)
 import Network.Wai (Application)
 import Network.Wai.Middleware.Routes
 import Network.Wai.Application.Static
@@ -20,6 +21,7 @@ data MyRoute = MyRoute
 mkRoute "MyRoute" [parseRoutes|
 /          HomeR GET
 /some-json FooR  GET
+/post      PostR POST
 |]
 
 getHomeR :: Handler MyRoute
@@ -27,6 +29,12 @@ getHomeR = runHandlerM $ plain "hello"
 
 getFooR :: Handler MyRoute
 getFooR = runHandlerM $ json $ object ["foo" .= Number 23, "bar" .= Number 42]
+
+-- Post parameters (getParam can also be used for query params)
+postPostR :: Handler MyRoute
+postPostR = runHandlerM $ do
+  name <- getParam "name"
+  plain $ fromMaybe "unnamed" name
 
 -- An example of an unrouted handler
 handleInfoRequest :: Handler DefaultMaster
@@ -60,6 +68,14 @@ spec = with application $ do
   describe "GET /?info" $
     it "responds with info when requested" $
       get "/?info" `shouldRespondWith` "Info was requested - You are running wai-routes tests" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "POST /post?name=foobar" $
+    it "can read query parameters" $
+      postHtmlForm "/post?name=foobar" [("name","ignored")] `shouldRespondWith` "foobar" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "POST /post" $
+    it "can read post body parameters" $
+      postHtmlForm "/post" [("name","foobar")] `shouldRespondWith` "foobar" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
   describe "GET /lambda.png" $
     it "returns a file correctly" $

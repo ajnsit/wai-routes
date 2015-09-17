@@ -44,6 +44,14 @@ module Network.Wai.Middleware.Routes.Handler
     , javascript             -- | Set the javascript response body
     , asContent              -- | Set the contentType and a 'Text' body
     , next                   -- | Run the next application in the stack
+    , getParams              -- | Get all params (query or post, not file)
+    , getParam               -- | Get a particular param (query or post, not file)
+    , getQueryParams         -- | Get all query params
+    , getQueryParam          -- | Get a particular query param
+    , getPostParams          -- | Get all post params
+    , getPostParam           -- | Get a particular post param
+    , getFileParams          -- | Get all file params
+    , getFileParam           -- | Get a particular file param
     , setCookie              -- | Add a cookie to the response
     , getCookie              -- | Get a cookie from the request
     , getCookies             -- | Get all cookies from the request
@@ -54,7 +62,7 @@ import Network.Wai (Request, Response, responseFile, responseBuilder, responseSt
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
-import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute)
+import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute, readQueryString)
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
 
@@ -87,6 +95,8 @@ import Data.CaseInsensitive (CI, mk)
 import Web.Cookie (Cookies, parseCookies, renderCookies, renderSetCookie, SetCookie(..))
 import Data.Default.Class (def)
 
+import qualified Network.Wai.Parse as P
+
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
 newtype HandlerMI sub master m a = H { extractH :: StateT (HandlerState sub master) m a }
@@ -98,20 +108,48 @@ type HandlerM sub master a = HandlerMI sub master IO a
 -- | A HandlerMM is a HandlerM Monad for use with a top level site (where the sub and master datatypes are the same)
 type HandlerMM master a = HandlerM master master a
 
+-- | Modeled after Network.Wai.Parse.FileInfo, but uses Text for names, and lazy ByteString for content
+data FileInfo = FileInfo
+  { fileName        :: Text
+  , fileContentType :: Text
+  , fileContent     :: BL.ByteString
+  }
+
+-- Post Params
+-- Files are read into memory
+-- TODO: Check for security issues. Allow automatic storing of files on disk.
+type PostParams = ([(Text, Text)], [(Text, FileInfo)])
+
+-- Private
+-- Convert from Network.Wai.Parse ([Param], [File y])  to PostParams
+_toPostParams :: ([P.Param], [P.File BL.ByteString])  -> PostParams
+_toPostParams (params, files) = (params', files')
+  where
+    params' = map (\(k,v) -> (decodeUtf8 k, decodeUtf8 v))     params
+    files'  = map (\(k,v) -> (decodeUtf8 k, decodeFileInfo v)) files
+    decodeFileInfo fi = FileInfo
+      { fileName = decodeUtf8 $ P.fileName fi
+      , fileContentType = decodeUtf8 $ P.fileContentType fi
+      , fileContent = P.fileContent fi
+      }
+
 -- | The state kept in a HandlerM Monad
 data HandlerState sub master = HandlerState
-                { getMaster      :: master
-                , getRequestData :: RequestData sub
-                -- TODO: Experimental
-                -- Streaming request body, consumed, and stored as a ByteString
-                , reqBody        :: Maybe ByteString
-                , respHeaders    :: [(HeaderName, ByteString)]
-                , respStatus     :: Status
-                , respResp       :: MkResponse
-                , respCookies    :: [SetCookie]
-                , getSub         :: sub
-                , toMasterRoute  :: Route sub -> Route master
-                }
+  { getMaster      :: master
+  , getRequestData :: RequestData sub
+  -- TODO: Experimental
+  -- Streaming request body, consumed, and stored as a ByteString
+  , reqBody        :: Maybe ByteString
+  , respHeaders    :: [(HeaderName, ByteString)]
+  , respStatus     :: Status
+  , respResp       :: MkResponse
+  , respCookies    :: [SetCookie]
+  , getSub         :: sub
+  , toMasterRoute  :: Route sub -> Route master
+  -- TODO: Experimental
+  -- Parsed POST request body, in the same format as Network.Wai.Parse
+  , postParams     :: Maybe PostParams
+  }
 
 -- Initial Handler State
 defaultHandlerState :: Env sub master -> RequestData sub -> HandlerState sub master
@@ -125,6 +163,7 @@ defaultHandlerState env req = HandlerState
   , respCookies = []
   , getSub = envSub env
   , toMasterRoute = envToMaster env
+  , postParams = Nothing
   }
 
 -- Internal: Type of response
@@ -315,6 +354,7 @@ next = modify rNext
 _setResp :: HandlerState sub master -> MkResponse -> HandlerState sub master
 _setResp st r = st{respResp=r}
 
+
 -- Standard response bodies
 
 -- | Set the body of the response to the JSON encoding of the given value. Also sets \"Content-Type\"
@@ -378,3 +418,75 @@ getCookie :: ByteString -> HandlerM sub master (Maybe ByteString)
 getCookie name = do
   cookies <- getCookies
   return $ lookup name cookies
+
+-- PRIVATE
+-- Get the cached post params (if any)
+_getCachedPostParams :: HandlerM sub master (Maybe PostParams)
+_getCachedPostParams = postParams <$> get
+
+-- PRIVATE
+-- Util: Parse and cache post params
+_populatePostParams :: HandlerM sub master PostParams
+_populatePostParams = do
+  req <- request
+  case P.getRequestBodyType req of
+    Nothing -> return ([],[])
+    Just _ -> do
+      st <- get
+      case postParams st of
+        Nothing -> do
+          params' <- liftIO $ P.parseRequestBody P.lbsBackEnd req
+          let params = _toPostParams params'
+          put $ st{postParams=Just params}
+          return params
+        Just params -> return params
+
+-- PRIVATE
+-- Get a list of post parameters
+_getAllFileOrPostParams :: HandlerM sub master PostParams
+_getAllFileOrPostParams = do
+  cachedPostParams <- _getCachedPostParams
+  case cachedPostParams of
+    Nothing -> _populatePostParams
+    Just params -> return params
+
+-- | Get all Query params
+getQueryParams :: HandlerM sub master [(Text,Text)]
+getQueryParams = readQueryString . queryString <$> request
+
+-- | Get a particular Query param
+getQueryParam :: Text -> HandlerM sub master (Maybe Text)
+getQueryParam name = lookup name <$> getQueryParams
+
+-- | Get all Post params
+getPostParams :: HandlerM sub master [(Text,Text)]
+getPostParams = do
+  (params,_) <- _getAllFileOrPostParams
+  return params
+
+-- | Get a particular Post param
+getPostParam :: Text -> HandlerM sub master (Maybe Text)
+getPostParam name = lookup name <$> getPostParams
+
+-- | Get all File params
+getFileParams :: HandlerM sub master [(Text,FileInfo)]
+getFileParams = do
+  (_,files) <- _getAllFileOrPostParams
+  return files
+
+-- | Get a particular File param
+getFileParam :: Text -> HandlerM sub master (Maybe FileInfo)
+getFileParam name = lookup name <$> getFileParams
+
+-- | Get all params (query or post, NOT file)
+-- Duplicate parameters are preserved
+getParams :: HandlerM sub master [(Text, Text)]
+getParams = (++) <$> getQueryParams <*> getPostParams
+
+-- | Get a param (query or post, NOT file)
+getParam :: Text -> HandlerM sub master (Maybe Text)
+getParam name = do
+  getLookup <- getQueryParam name
+  case getLookup of
+    Nothing -> getPostParam name
+    Just _ -> return $ getLookup

@@ -89,6 +89,14 @@ module Network.Wai.Middleware.Routes
     , javascript             -- | Set the javascript response body
     , asContent              -- | Set the contentType and a 'Text' body
     , next                   -- | Run the next application in the stack
+    , getParams              -- | Get all params (query or post, not file)
+    , getParam               -- | Get a particular param (query or post, not file)
+    , getQueryParams         -- | Get all query params
+    , getQueryParam          -- | Get a particular query param
+    , getPostParams          -- | Get all post params
+    , getPostParam           -- | Get a particular post param
+    , getFileParams          -- | Get all file params
+    , getFileParam           -- | Get a particular file param
     , setCookie              -- | Add a cookie to the response
     , getCookie              -- | Get a cookie from the request
     , getCookies             -- | Get all cookies from the request

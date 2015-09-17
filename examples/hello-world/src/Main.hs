@@ -8,6 +8,7 @@ module Main where
 import Network.Wai.Middleware.Routes
 import Network.Wai.Handler.Warp
 import qualified Data.Text as T
+import Data.Maybe (fromMaybe)
 
 -- The Master Site argument
 data MyRoute = MyRoute
@@ -16,6 +17,7 @@ data MyRoute = MyRoute
 mkRoute "MyRoute" [parseRoutes|
 /      HomeR  GET
 /hello HelloR GET
+/post  PostR  POST
 |]
 
 -- Handlers
@@ -27,13 +29,9 @@ getHomeR = runHandlerM $ do
   showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Home</h1>"
-    , "<p>You are on route - "
-    ,   showRoute r
-    , "</p>"
+    , "<p>You are on route - ", showRoute r, "</p>"
     , "<p>"
-    ,   "<a href=\""
-    ,   showRoute HelloR
-    ,   "\">Go to hello</a>"
+    ,   "<a href=\"", showRoute HelloR, "\">Go to hello</a>"
     ,   " to be greeted!"
     , "</p>"
     ]
@@ -44,9 +42,18 @@ getHelloR = runHandlerM $ do
   showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Hello World!</h1>"
-    , "<a href=\""
-    , showRoute HomeR
-    , "\">Go back</a>"
+    , "<a href=\"", showRoute HomeR, "\">Go back</a>"
+    ]
+
+-- Post parameters (getParam can also be used for query params)
+postPostR :: Handler MyRoute
+postPostR = runHandlerM $ do
+  name' <- getParam "name"
+  let name = fromMaybe "unnamed" name'
+  showRoute <- showRouteSub
+  html $ T.concat
+    [ "<h1>Hello '", name, "'!</h1>"
+    , "<a href=\"", showRoute HomeR, "\">Go back</a>"
     ]
 
 -- An example of an unrouted handler
