@@ -58,7 +58,7 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
+import Network.Wai (Request, Response, responseRaw, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
@@ -133,6 +133,9 @@ _toPostParams (params, files) = (params', files')
       , fileContent = P.fileContent fi
       }
 
+-- A Raw Response handler :: source -> sink -> IO
+type RespRawHandler = IO B.ByteString -> (B.ByteString -> IO ()) -> IO ()
+
 -- | The state kept in a HandlerM Monad
 data HandlerState sub master = HandlerState
   { getMaster      :: master
@@ -143,6 +146,7 @@ data HandlerState sub master = HandlerState
   , respHeaders    :: [(HeaderName, ByteString)]
   , respStatus     :: Status
   , respResp       :: MkResponse
+  , respRaw        :: Maybe RespRawHandler
   , respCookies    :: [SetCookie]
   , getSub         :: sub
   , toMasterRoute  :: Route sub -> Route master
@@ -160,6 +164,7 @@ defaultHandlerState env req = HandlerState
   , respHeaders = []
   , respStatus = status200
   , respResp = defaultResponse
+  , respRaw = Nothing
   , respCookies = []
   , getSub = envSub env
   , toMasterRoute = envToMaster env
@@ -192,15 +197,25 @@ runHandlerM h env req hh = do
   (_, st) <- runStateT (extractH h) (defaultHandlerState env req)
   -- Handle cookies (add them to headers)
   let cookieHeaders = map mkSetCookie (respCookies st)
-  let st' = st {respHeaders = cookieHeaders ++ (respHeaders st)}
-  -- Construct response
-  mkResponse st' (respResp st')
+  st <- return $ st {respHeaders = cookieHeaders ++ (respHeaders st)}
+  case respResp st of
+    -- Abort handling current response and move to next handler
+    ResponseNext -> runNext (getRequestData st) hh
+    -- Normal handling
+    normalResponse -> do
+      -- Construct the normal response
+      let resp = mkResponse st normalResponse
+      -- Check if we are trying to send a raw response
+      case respRaw st of
+        Nothing -> hh resp
+        Just rawHandler ->
+          -- TODO: Ensure the body has not been read before using raw response
+          hh $ responseRaw rawHandler resp
   where
     mkSetCookie s = (cookieSetHeaderName, toByteString $ renderSetCookie s)
-    mkResponse st (ResponseFile path part) = hh $ responseFile (respStatus st) (respHeaders st) path part
-    mkResponse st (ResponseBuilder builder) = hh $ responseBuilder (respStatus st) (respHeaders st) builder
-    mkResponse st (ResponseStream streaming) = hh $ responseStream (respStatus st) (respHeaders st) streaming
-    mkResponse st ResponseNext = runNext (getRequestData st) hh
+    mkResponse st (ResponseFile path part) = responseFile (respStatus st) (respHeaders st) path part
+    mkResponse st (ResponseBuilder builder) = responseBuilder (respStatus st) (respHeaders st) builder
+    mkResponse st (ResponseStream streaming) = responseStream (respStatus st) (respHeaders st) streaming
 
 -- | Get the request body as a bytestring. Consumes the entire body into memory at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
