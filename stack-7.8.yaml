@@ -7,5 +7,6 @@ packages:
 - examples/shakespeare
 - examples/rest-json
 - examples/streaming-response
+- examples/kitchen
 extra-deps: []
 resolver: lts-2.22
