@@ -66,6 +66,7 @@ module Network.Wai.Middleware.Routes
     , HandlerMM()            -- | HandlerM Monad specialised for top level sites (no subsites)
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , isWebsocket            -- | Is this a websocket request
     , reqHeader              -- | Get a particular request header (case insensitive)
     , reqHeaders             -- | Get all request headers (case insensitive)
     , maybeRootRoute         -- | Access the current route for root route

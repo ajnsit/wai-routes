@@ -15,6 +15,7 @@ module Network.Wai.Middleware.Routes.Handler
     , HandlerMM()            -- | HandlerM Monad specialised for top level sites (no subsites)
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , request                -- | Access the request data
+    , isWebsocket            -- | Is this a websocket request
     , reqHeader              -- | Get a particular request header (case insensitive)
     , reqHeaders             -- | Get all request headers (case insensitive)
     , routeAttrSet           -- | Access the route attribute list
@@ -256,6 +257,10 @@ sub = liftM getSub get
 -- | Get the request
 request :: HandlerM sub master Request
 request = liftM (waiReq . getRequestData) get
+
+-- | Is this a websocket request
+isWebsocket :: HandlerM sub master Bool
+isWebsocket = liftM (maybe False (== "websocket")) (reqHeader "upgrade")
 
 -- | Get a particular request header (Case insensitive)
 reqHeader :: ByteString -> HandlerM sub master (Maybe ByteString)
