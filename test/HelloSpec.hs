@@ -7,21 +7,46 @@ module HelloSpec (spec) where
 import Data.Maybe (fromMaybe)
 import Network.Wai (Application)
 import Network.Wai.Middleware.Routes
-import Network.Wai.Application.Static
 import Data.Aeson (Value(Number), (.=), object)
+
+import qualified Data.Text as T
 
 import Test.Hspec
 import Test.Hspec.Wai
 import qualified Test.Hspec.Wai.JSON as H (json)
 
+---- A SMALL SUBSITE ----
+
+data SubRoute = SubRoute
+
+class MasterContract master where
+  getMasterName :: master -> Text
+
+mkRouteSub "SubRoute" "MasterContract" [parseRoutes|
+/          SubHomeR GET
+|]
+
+getSubHomeR :: MasterContract master => HandlerS SubRoute master
+getSubHomeR = runHandlerM $ do
+  m <- master
+  plain $ T.concat ["subsite-", getMasterName m]
+
+getSubRoute :: master -> SubRoute
+getSubRoute = const SubRoute
+
+
 ---- THE APPLICATION TO BE TESTED ----
 
 data MyRoute = MyRoute
+
+instance MasterContract MyRoute where
+  getMasterName MyRoute = "MyRoute"
 
 mkRoute "MyRoute" [parseRoutes|
 /          HomeR GET
 /some-json FooR  GET
 /post      PostR POST
+/sub       SubR SubRoute getSubRoute
 |]
 
 getHomeR :: Handler MyRoute
@@ -76,6 +101,10 @@ spec = with application $ do
   describe "POST /post" $
     it "can read post body parameters" $
       postHtmlForm "/post" [("name","foobar")] `shouldRespondWith` "foobar" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "GET /sub" $
+    it "can access the subsite correctly" $
+      get "/sub" `shouldRespondWith` "subsite-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
   describe "GET /lambda.png" $
     it "returns a file correctly" $
