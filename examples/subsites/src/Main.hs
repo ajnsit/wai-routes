@@ -9,21 +9,21 @@ import Network.Wai.Handler.Warp
 import qualified Data.Text as T
 
 -- Import HelloSub subsite
-import qualified HelloSub as Sub -- (HelloSubRoute(HomeR))
+import qualified HelloSub as Sub
 import HelloSub (HelloSubRoute(..), HelloMaster(..))
 
 -- The Master Site argument
 data MyRoute = MyRoute
 
 -- Create a subsite datatype from the master datatype
-getHelloSubRoute :: MyRoute -> HelloSubRoute
-getHelloSubRoute _ = HelloSubRoute "Hello from subsite"
+getHelloSubRoute :: MyRoute -> Text -> HelloSubRoute
+getHelloSubRoute _ greeting = HelloSubRoute $ T.append greeting " from subsite: "
 
 -- Generate routing code
 -- getHelloSubRoute is defined in HelloSub.hs
 mkRoute "MyRoute" [parseRoutes|
-/      HomeR  GET
-/hello HelloR HelloSubRoute getHelloSubRoute
+/            HomeR  GET
+/hello/#Text HelloR HelloSubRoute getHelloSubRoute
 |]
 
 -- Fulfill the contract with HelloSub subsite
@@ -45,8 +45,12 @@ getHomeR = runHandlerM $ do
     , "</p>"
     , "<p>"
     ,   "<a href=\""
-    ,   showRoute $ HelloR Sub.HomeR
-    ,   "\">Go to subsite hello</a>"
+    ,   showRoute $ HelloR "howdy" Sub.HomeR
+    ,   "\">Go to subsite 'howdy'</a>"
+    ,   " or "
+    ,   "<a href=\""
+    ,   showRoute $ HelloR "namaste" Sub.HomeR
+    ,   "\">to subsite 'namaste'</a>"
     ,   " to be greeted!"
     , "</p>"
     ]

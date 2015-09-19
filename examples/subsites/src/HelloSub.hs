@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, TypeFamilies, ViewPatterns, FlexibleInstances, MultiParamTypeClasses #-}
-module HelloSub where --(HelloSubRoute(..), HelloMaster(..), getHelloSubRoute) where
+module HelloSub where
 {-
   A simple subsite
 -}
