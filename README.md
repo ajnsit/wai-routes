@@ -63,6 +63,11 @@ Provides a simple example of how to build JSON REST services with wai-routes. Us
 
 Wai has had the ability to stream content for a long time. Now wai-routes exposes this functionality with the `stream` function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - `curl localhost:8080` will dump the data as it is being streamed from the server.
 
+**Example 7. Kitchen sink ** - [Code](examples/kitchen)
+
+*Work in progress*. Demonstrates all major features in wai-routes.
+
+
 Deployment
 ==========
 
