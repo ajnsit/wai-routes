@@ -97,10 +97,9 @@ The following features are planned for later releases -
 - Support for raw network responses (see http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw)
 - Seamless websocket support
 - Development mode
-- Keter and Heroku support
 - Scaffolding
-- Better documentation
-- Tests and code coverage
+- Better documentation, and a getting started tutorial
+- More tests and code coverage
 
 
 Changelog
