@@ -4,6 +4,7 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell, QuasiQuotes #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE CPP #-}
 {- |
 Module      :  Network.Wai.Middleware.Routes.Routes
 Copyright   :  (c) Anupam Jain 2013
@@ -137,7 +138,6 @@ mkRouteData typName routes = do
 mkRouteSubDispatch :: String -> String -> [ResourceTree a] -> Q [Dec]
 mkRouteSubDispatch typName constraint routes = do
   let typ = parseType typName
-  let constrn = parseType constraint
   disp  <- mkDispatchClause MkDispatchSettings
         { mdsRunHandler    = [| runHandler    |]
         , mdsSubDispatcher = [| subDispatcher |]
@@ -149,9 +149,21 @@ mkRouteSubDispatch typName constraint routes = do
         , mdsGetHandler    = defaultGetHandler
         } routes
   master <- newName "master"
-  return [InstanceD [constrn `AppT` VarT master]
+  -- We don't simply use parseType for GHC 7.8 (TH-2.9) compatibility
+  -- ParseType only works on Type (not Pred)
+  -- In GHC 7.10 (TH-2.10) onwards, Pred is aliased to Type
+  className <- lookupTypeName constraint
+  let contract = maybe (error $ "Unknown typeclass " ++ show constraint) (getContract master) className
+  return [InstanceD [contract]
           (ConT ''Routable `AppT` typ `AppT` VarT master)
           [FunD (mkName "dispatcher") [disp]]]
+  where
+    getContract master className =
+#if MIN_VERSION_template_haskell(2,10,0)
+      ConT className `AppT` VarT master
+#else
+      ClassP className [VarT master]
+#endif
 
 -- | Generates a 'Routable' instance and dispatch function
 mkRouteDispatch :: String -> [ResourceTree String] -> Q [Dec]
@@ -181,6 +193,7 @@ mkRoute typName routes = do
   disp <- mkRouteDispatch typName routes
   return (disp++dat)
 
+-- TODO: Also allow using the master datatype name directly, instead of a constraint class
 -- | Same as mkRoute, but for subsites
 mkRouteSub :: String -> String -> [ResourceTree String] -> Q [Dec]
 mkRouteSub typName constraint routes = do
