@@ -37,6 +37,7 @@ module Network.Wai.Middleware.Routes.Handler
     , filepart               -- | Send a part of a file as response
     , stream                 -- | Stream a response
     , raw                    -- | Set the raw response body
+    , rawBuilder             -- | Set the raw response body as a ByteString Builder
     , json                   -- | Set the json response body
     , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
@@ -81,8 +82,9 @@ import Network.HTTP.Types.Header (HeaderName(), RequestHeaders)
 import Network.HTTP.Types.Status (Status(), status200)
 
 import Data.Aeson (ToJSON, FromJSON, eitherDecodeStrict)
-import Data.Aeson.Encode (encodeToByteStringBuilder)
+
 import qualified Data.Aeson as A
+import qualified Data.Aeson.Encode as AE
 
 import Data.Set (Set)
 import qualified Data.Set as S (empty, map)
@@ -361,9 +363,13 @@ stream s = modify addStream
 
 -- | Set the response body
 raw :: ByteString -> HandlerM sub master ()
-raw bs = modify addBody
+raw = rawBuilder . fromByteString
+
+-- | Set the response body as a builder
+rawBuilder :: Builder -> HandlerM sub master ()
+rawBuilder b = modify addBody
   where
-    addBody st = _setResp st $ ResponseBuilder (fromByteString bs)
+    addBody st = _setResp st $ ResponseBuilder b
 
 -- | Run the next application
 next :: HandlerM sub master ()
@@ -384,12 +390,13 @@ _setResp st r = st{respResp=r}
 json :: ToJSON a => a -> HandlerM sub master ()
 json a = do
   header contentType typeJson
-  raw $ _encodeStrict a
-
--- PRIVATE
--- Like `A.encode`, but outputs a strict bytestring
-_encodeStrict :: ToJSON a => a -> ByteString
-_encodeStrict = toByteString . encodeToByteStringBuilder . A.toJSON
+  rawBuilder $ _encode $ A.toJSON a
+  where
+#if MIN_VERSION_aeson(0,9,0)
+    _encode = AE.encodeToBuilder
+#else
+    _encode = AE.encodeToByteStringBuilder
+#endif
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".

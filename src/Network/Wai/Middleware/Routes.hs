@@ -82,6 +82,7 @@ module Network.Wai.Middleware.Routes
     , filepart               -- | Send a part of a file as response
     , stream                 -- | Stream a response
     , raw                    -- | Set the raw response body
+    , rawBuilder             -- | Set the raw response body as a ByteString Builder
     , json                   -- | Set the json response body
     , plain                  -- | Set the plain text response body
     , html                   -- | Set the html response body
