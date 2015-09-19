@@ -9,27 +9,27 @@ import Network.Wai.Handler.Warp
 import qualified Data.Text as T
 
 -- Import HelloSub subsite
-import HelloSub (HelloSub(..), HelloMaster)
-import qualified HelloSub as Sub
+import qualified HelloSub as Sub -- (HelloSubRoute(HomeR))
+import HelloSub (HelloSubRoute(..), HelloMaster(..))
 
 -- The Master Site argument
 data MyRoute = MyRoute
 
+-- Create a subsite datatype from the master datatype
+getHelloSubRoute :: MyRoute -> HelloSubRoute
+getHelloSubRoute _ = HelloSubRoute "Hello from subsite"
+
 -- Generate routing code
--- getHelloSub is defined in HelloSub.hs
+-- getHelloSubRoute is defined in HelloSub.hs
 mkRoute "MyRoute" [parseRoutes|
 /      HomeR  GET
-/hello HelloR HelloSub getHelloSub
+/hello HelloR HelloSubRoute getHelloSubRoute
 |]
 
--- The contract with HelloSub subsite
+-- Fulfill the contract with HelloSub subsite
 instance HelloMaster MyRoute where
   currentUserName _ = "John Doe"
   parentRoute _ = HomeR
-
--- How to get subsite datatype from the master datatype
-getHelloSub :: MyRoute -> HelloSub
-getHelloSub = Sub.getHelloSub
 
 -- Handlers
 
@@ -51,17 +51,14 @@ getHomeR = runHandlerM $ do
     , "</p>"
     ]
 
--- The application that uses our route
--- NOTE: We use the Route Monad to simplify routing
-application :: RouteM ()
-application = do
-  middleware logStdoutDev
-  route MyRoute
-  defaultAction $ staticApp $ defaultFileServerSettings "static"
-
 -- Run the application
 main :: IO ()
 main = do
   putStrLn "Starting server on port 8080"
-  toWaiApp application >>= run 8080
-
+  run 8080 $ waiApp $ do
+    -- Log everything
+    middleware logStdoutDev
+    -- Add our routing
+    route MyRoute
+    -- Serve static files when no route matches
+    defaultAction $ staticApp $ defaultFileServerSettings "static"

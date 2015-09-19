@@ -10,17 +10,14 @@ Portability :  non-portable (uses ghc extensions)
 This package provides typesafe URLs for Wai applications.
 -}
 module Network.Wai.Middleware.Routes
-    ( -- * Quasi Quoters
-      parseRoutes            -- | Parse Routes declared inline
+    ( -- * Declaring Routes using Template Haskell
+      parseRoutes
     , parseRoutesFile        -- | Parse routes declared in a file
-    , parseRoutesNoCheck     -- | Parse routes declared inline, without checking for overlaps
-    , parseRoutesFileNoCheck -- | Parse routes declared in a file, without checking for overlaps
+    , parseRoutesNoCheck
+    , parseRoutesFileNoCheck -- | Same as parseRoutesFile, but performs no overlap checking.
 
-    -- * Template Haskell methods
     , mkRoute
-    , mkRouteData
-    , mkRouteDispatch
-    , mkRouteSubDispatch
+    , mkRouteSub
 
     -- * Dispatch
     , routeDispatch

@@ -1,45 +1,38 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes, TypeFamilies, ViewPatterns, FlexibleInstances, MultiParamTypeClasses #-}
-module HelloSub
-  ( module HelloSub.Data
-  , module HelloSub) where
+module HelloSub where --(HelloSubRoute(..), HelloMaster(..), getHelloSubRoute) where
+{-
+  A simple subsite
+-}
 
 import Network.Wai.Middleware.Routes
-import Data.Text (Text)
 import qualified Data.Text as T
 
--- Import the subsite datatype
-import HelloSub.Data
+-- The Subsite argument
+data HelloSubRoute = HelloSubRoute {getHello :: Text}
 
--- Create a HelloSub datatype from the master
-getHelloSub :: HelloMaster master => master -> HelloSub
-getHelloSub _ = HelloSub "Hello from subsite"
-
--- The contract for the master site
+-- The contract with the master site
 -- The master site should -
 --  1. Have renderable routes (RenderRoute constraint)
 --  2. Allow access to a parent route to go back to (parentRoute)
 --  3. Allow access to the current user name (currentUserName)
 class RenderRoute master => HelloMaster master where
-  currentUserName :: master -> Text
   parentRoute :: master -> Route master
+  currentUserName :: master -> Text
 
--- Generate the dispatcher for this subsite
-instance HelloMaster master => Routable HelloSub master where
-  dispatcher = $(mkRouteSubDispatch _resourcesHelloSub)
+-- Generate routing code using mkRouteSub
+-- Note that for subsites, you also need to provide the constraint class
+-- (in this case `HelloMaster`), which provides the contract with the master site
+mkRouteSub "HelloSubRoute" "HelloMaster" [parseRoutes|
+/ HomeR GET
+/foo FooR GET
+|]
 
--- Foo
-getFooR :: HelloMaster master => HandlerS HelloSub master
-getFooR = runHandlerM $ do
-  showRoute <- showRouteSub
-  html $ T.concat
-    ["<h1>FOOO</h1>"
-    , "<a href=\""
-    ,   showRoute HomeR
-    , "\">Go back</a>"
-    ]
+
+-- Subsite Handlers
+-- For subsites use HandlerS instead of Handler
 
 -- Hello
-getHomeR :: HelloMaster master => HandlerS HelloSub master
+getHomeR :: HelloMaster master => HandlerS HelloSubRoute master
 getHomeR = runHandlerM $ do
   m <- master
   s <- sub
@@ -57,4 +50,15 @@ getHomeR = runHandlerM $ do
     , "<a href=\""
     ,   showRouteM $ parentRoute m
     , "\">Go back to the Master site /</a>"
+    ]
+
+-- Foo
+getFooR :: HelloMaster master => HandlerS HelloSubRoute master
+getFooR = runHandlerM $ do
+  showRoute <- showRouteSub
+  html $ T.concat
+    ["<h1>FOOO</h1>"
+    , "<a href=\""
+    ,   showRoute HomeR
+    , "\">Go back</a>"
     ]

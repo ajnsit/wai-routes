@@ -24,9 +24,7 @@ module Network.Wai.Middleware.Routes.Routes
 
     -- * Template Haskell methods
     , mkRoute
-    , mkRouteData
-    , mkRouteDispatch
-    , mkRouteSubDispatch
+    , mkRouteSub
 
     -- * Dispatch
     , routeDispatch
@@ -115,7 +113,7 @@ runNext req = nextApp req $ waiReq req
 type Handler sub = forall master. RenderRoute master => HandlerS sub master
 type HandlerS sub master = Env sub master -> App sub
 
--- | Generates everything except `Routable` instance and dispatch function
+-- | Generates everything except actual dispatch
 mkRouteData :: String -> [ResourceTree String] -> Q [Dec]
 mkRouteData typName routes = do
   let typ = parseType typName
@@ -135,8 +133,11 @@ mkRouteData typName routes = do
                   , rinst
                   ]
 
-mkRouteSubDispatch :: [ResourceTree a] -> Q Exp
-mkRouteSubDispatch routes = do
+-- | Same as mkRouteDispatch but for subsites
+mkRouteSubDispatch :: String -> String -> [ResourceTree a] -> Q [Dec]
+mkRouteSubDispatch typName constraint routes = do
+  let typ = parseType typName
+  let constrn = parseType constraint
   disp  <- mkDispatchClause MkDispatchSettings
         { mdsRunHandler    = [| runHandler    |]
         , mdsSubDispatcher = [| subDispatcher |]
@@ -147,16 +148,10 @@ mkRouteSubDispatch routes = do
         , mds405           = [| app405        |]
         , mdsGetHandler    = defaultGetHandler
         } routes
-  inner <- newName "inner"
-  let innerFun = FunD inner [disp]
-  helper <- newName "helper"
-  let fun = FunD helper
-              [ Clause
-                  []
-                  (NormalB $ VarE inner)
-                  [innerFun]
-              ]
-  return $ LetE [fun] (VarE helper)
+  master <- newName "master"
+  return [InstanceD [constrn `AppT` VarT master]
+          (ConT ''Routable `AppT` typ `AppT` VarT master)
+          [FunD (mkName "dispatcher") [disp]]]
 
 -- | Generates a 'Routable' instance and dispatch function
 mkRouteDispatch :: String -> [ResourceTree String] -> Q [Dec]
@@ -176,14 +171,21 @@ mkRouteDispatch typName routes = do
           (ConT ''Routable `AppT` typ `AppT` typ)
           [FunD (mkName "dispatcher") [disp]]]
 
--- | Generates all the things needed for efficient routing,
--- including your application's `Route` datatype, and
---  `RenderRoute`, `ParseRoute`, and `RouteAttr` instances, and
---   `Routable` instance
+-- | Generates all the things needed for efficient routing.
+-- Including your application's `Route` datatype,
+-- `RenderRoute`, `ParseRoute`, `RouteAttrs`, and `Routable` instances.
+-- Use this for everything except subsites
 mkRoute :: String -> [ResourceTree String] -> Q [Dec]
 mkRoute typName routes = do
   dat <- mkRouteData typName routes
   disp <- mkRouteDispatch typName routes
+  return (disp++dat)
+
+-- | Same as mkRoute, but for subsites
+mkRouteSub :: String -> String -> [ResourceTree String] -> Q [Dec]
+mkRouteSub typName constraint routes = do
+  dat <- mkRouteData typName routes
+  disp <- mkRouteSubDispatch typName constraint routes
   return (disp++dat)
 
 -- | A `Routable` instance can be used in dispatching.
