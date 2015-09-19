@@ -92,7 +92,7 @@ import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 import Data.CaseInsensitive (CI, mk)
 
-import Web.Cookie (Cookies, parseCookies, renderCookies, renderSetCookie, SetCookie(..))
+import Web.Cookie (CookiesText, parseCookiesText, renderSetCookie, SetCookie(..))
 import Data.Default.Class (def)
 
 import qualified Network.Wai.Parse as P
@@ -223,7 +223,7 @@ rawBody = do
     Just consumedBody -> return consumedBody
     Nothing -> do
       req <- request
-      rbody <- liftIO $ fmap BL.toStrict $ _readStrictRequestBody req
+      rbody <- liftIO $ BL.toStrict <$> _readStrictRequestBody req
       put s {reqBody = Just rbody}
       return rbody
 
@@ -259,10 +259,16 @@ isWebsocket :: HandlerM sub master Bool
 isWebsocket = liftM (maybe False (== "websocket")) (reqHeader "upgrade")
 
 -- | Get a particular request header (Case insensitive)
-reqHeader :: ByteString -> HandlerM sub master (Maybe ByteString)
-reqHeader name = liftM (lookup $ mk name) reqHeaders
+reqHeader :: Text -> HandlerM sub master (Maybe Text)
+reqHeader name = liftM (fmap decodeUtf8) (_reqHeaderBS nameText)
+  where
+    nameText = mk $ encodeUtf8 name
 
--- | Get all request headers (Case insensitive)
+-- PRIVATE
+_reqHeaderBS :: CI ByteString -> HandlerM sub master (Maybe ByteString)
+_reqHeaderBS name = liftM (lookup name) reqHeaders
+
+-- | Get all request headers as raw case-insensitive bytestrings
 reqHeaders :: HandlerM sub master RequestHeaders
 reqHeaders = liftM requestHeaders request
 
@@ -274,7 +280,7 @@ maybeRoute = liftM (currentRoute . getRequestData) get
 maybeRootRoute :: HandlerM sub master (Maybe (Route master))
 maybeRootRoute = do
   s <- get
-  return $ fmap (toMasterRoute s) $ currentRoute $ getRequestData s
+  return $ toMasterRoute s <$> currentRoute (getRequestData s)
 
 -- | Get the route rendering function for the master site
 showRouteMaster :: RenderRoute master => HandlerM sub master (Route master -> Text)
@@ -304,7 +310,7 @@ readRouteMaster = return readRoute
 readRouteSub :: ParseRoute sub => HandlerM sub master (Text -> Maybe (Route master))
 readRouteSub = do
   s <- get
-  return $ fmap (toMasterRoute s) . readRoute
+  return $ (toMasterRoute s <$>) . readRoute
 
 -- | Get the current route attributes
 routeAttrSet :: RouteAttrs sub => HandlerM sub master (Set Text)
@@ -420,17 +426,17 @@ setCookie s = modify setCookie
     setCookie st = st {respCookies = s : respCookies st}
 
 -- | Get all cookies
-getCookies :: HandlerM sub master Cookies
+getCookies :: HandlerM sub master CookiesText
 getCookies = do
   -- Note: We don't cache the parsedCookies for all requests to avoid overhead
   -- However it is pretty easy to cache cookies in the app itself
-  cookies <- reqHeader "Cookie"
+  cookies <- _reqHeaderBS cookieHeaderName
   return $ case cookies of
     Nothing -> []
-    Just cookies' -> parseCookies cookies'
+    Just cookies' -> parseCookiesText cookies'
 
 -- | Get a particular cookie
-getCookie :: ByteString -> HandlerM sub master (Maybe ByteString)
+getCookie :: Text -> HandlerM sub master (Maybe Text)
 getCookie name = do
   cookies <- getCookies
   return $ lookup name cookies

@@ -46,8 +46,8 @@ putRootR    = runHandlerM $ plain "put-ted!"
 -- get a header:
 postReadHeadersR :: Handler MasterRoute
 postReadHeadersR = runHandlerM $ do
-  Just agent <- reqHeader "User-Agent"
-  plain $ decodeUtf8 agent
+  agent <- reqHeader "User-Agent"
+  plain $ fromMaybe "unknown user-agent" agent
 
 -- set a header:
 postSetHeadersR :: Handler MasterRoute
