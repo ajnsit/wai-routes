@@ -72,7 +72,8 @@ module Network.Wai.Middleware.Routes
     , rootRouteAttrSet       -- | Access the current root route attributes as a set
     , master                 -- | Access the master datatype
     , sub                    -- | Access the sub datatype
-    , rawBody                -- | Consume and return the request body as a lazy bytestring
+    , rawBody                -- | Consume and return the request body as ByteString
+    , textBody               -- | Consume and return the request body as Text
     , jsonBody               -- | Consume and return the request body as JSON
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status

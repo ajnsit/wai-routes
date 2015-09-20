@@ -30,7 +30,8 @@ module Network.Wai.Middleware.Routes.Handler
     , readRouteSub           -- | Get the route parsing function for the subsite
     , master                 -- | Access the master datatype
     , sub                    -- | Access the sub datatype
-    , rawBody                -- | Consume and return the request body as a bytestring
+    , rawBody                -- | Consume and return the request body as ByteString
+    , textBody               -- | Consume and return the request body as Text
     , jsonBody               -- | Consume and return the request body as JSON
     , header                 -- | Add a header to the response
     , status                 -- | Set the response status
@@ -234,6 +235,11 @@ rawBody = do
       rbody <- liftIO $ BL.toStrict <$> _readStrictRequestBody req
       put s {reqBody = Just rbody}
       return rbody
+
+-- | Get the request body as a Text. However consumes the entire body at once.
+-- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
+textBody :: HandlerM master master Text
+textBody = liftM decodeUtf8 rawBody
 
 -- PRIVATE
 _readStrictRequestBody :: Request -> IO BL.ByteString
