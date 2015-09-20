@@ -13,6 +13,7 @@ Provides a HandlerM Monad that makes it easy to build Handlers
 module Network.Wai.Middleware.Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
+    , mountedAppHandler      -- | Convert a full wai application to a HandlerS
     , request                -- | Access the request data
     , isWebsocket            -- | Is this a websocket request
     , reqHeader              -- | Get a particular request header (case insensitive)
@@ -59,7 +60,7 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Request, Response, responseRaw, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
+import Network.Wai (Application, Request, Response, responseRaw, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody)
 #endif
@@ -189,6 +190,11 @@ cookieHeaderName = mk "Cookie"
 -- The header name for response cookies
 cookieSetHeaderName :: CI ByteString
 cookieSetHeaderName = mk "Set-Cookie"
+
+-- | Convert a full wai application to a Handler
+-- A bit like subsites, but at a higher level.
+mountedAppHandler :: Application -> HandlerS sub master
+mountedAppHandler app _env req hh = app (waiReq req) hh
 
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master

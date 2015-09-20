@@ -61,6 +61,7 @@ module Network.Wai.Middleware.Routes
     -- * HandlerM Monad makes it easy to build a handler
     , HandlerM()
     , runHandlerM            -- | Run a HandlerM to get a Handler
+    , mountedAppHandler      -- | Convert a full wai application to a HandlerS
     , request                -- | Access the request data
     , isWebsocket            -- | Is this a websocket request
     , reqHeader              -- | Get a particular request header (case insensitive)
