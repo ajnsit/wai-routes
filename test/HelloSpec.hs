@@ -9,6 +9,7 @@ import Network.Wai (Application)
 import Network.Wai.Middleware.Routes
 import Data.Aeson (Value(Number), (.=), object)
 
+import Data.Text (Text)
 import qualified Data.Text as T
 
 import Test.Hspec

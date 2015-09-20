@@ -6,6 +6,7 @@ module Main where
 
 import Network.Wai.Middleware.Routes
 import Network.Wai.Handler.Warp
+import Data.Text (Text)
 import qualified Data.Text as T
 
 -- Import HelloSub subsite

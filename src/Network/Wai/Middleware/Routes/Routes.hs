@@ -153,6 +153,7 @@ mkRouteSubDispatch typName constraint routes = do
   -- ParseType only works on Type (not Pred)
   -- In GHC 7.10 (TH-2.10) onwards, Pred is aliased to Type
   className <- lookupTypeName constraint
+  -- Check if this is a classname or a type
   let contract = maybe (error $ "Unknown typeclass " ++ show constraint) (getContract master) className
   return [InstanceD [contract]
           (ConT ''Routable `AppT` typ `AppT` VarT master)

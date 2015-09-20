@@ -10,7 +10,7 @@ module Main where
 
 import Data.Maybe (fromMaybe)
 import Data.Monoid (mconcat)
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text (Text)
 
 import Network.Wai.Middleware.Routes
 import Network.Wai.Handler.Warp (run)

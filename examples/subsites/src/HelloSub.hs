@@ -5,6 +5,7 @@ module HelloSub where
 -}
 
 import Network.Wai.Middleware.Routes
+import Data.Text (Text)
 import qualified Data.Text as T
 
 -- The Subsite argument
