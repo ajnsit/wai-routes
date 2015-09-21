@@ -201,27 +201,25 @@ mountedAppHandler app _env req hh = app (waiReq req) hh
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
   (_, st) <- runStateT (extractH h) (defaultHandlerState env req)
-  -- Handle cookies (add them to headers)
-  let cookieHeaders = map mkSetCookie (respCookies st)
-  st <- return $ st {respHeaders = cookieHeaders ++ (respHeaders st)}
   case respResp st of
     -- Abort handling current response and move to next handler
     ResponseNext -> runNext (getRequestData st) hh
     -- Normal handling
-    normalResponse -> do
+    otherResponse -> do
+      -- Handle cookies (add them to headers)
+      let headers' = map mkSetCookie (respCookies st) ++ respHeaders st
       -- Construct the normal response
-      let resp = mkResponse st normalResponse
+      let resp = mkResponse (respStatus st) headers' otherResponse
       -- Check if we are trying to send a raw response
       case respRaw st of
         Nothing -> hh resp
-        Just rawHandler ->
-          -- TODO: Ensure the body has not been read before using raw response
-          hh $ responseRaw rawHandler resp
+        -- TODO: Ensure the body has not been read before using raw response
+        Just rawHandler -> hh $ responseRaw rawHandler resp
   where
     mkSetCookie s = (cookieSetHeaderName, toByteString $ renderSetCookie s)
-    mkResponse st (ResponseFile path part) = responseFile (respStatus st) (respHeaders st) path part
-    mkResponse st (ResponseBuilder builder) = responseBuilder (respStatus st) (respHeaders st) builder
-    mkResponse st (ResponseStream streaming) = responseStream (respStatus st) (respHeaders st) streaming
+    mkResponse status headers (ResponseFile path part) = responseFile status headers path part
+    mkResponse status headers (ResponseBuilder builder) = responseBuilder status headers builder
+    mkResponse status headers (ResponseStream streaming) = responseStream status headers streaming
 
 -- | Get the request body as a bytestring. Consumes the entire body into memory at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
