@@ -1,4 +1,4 @@
-[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.9.0-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Join the chat at https://gitter.im/ajnsit/wai-routes](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg)](https://gitter.im/ajnsit/wai-routes)
+[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.9.1-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Join the chat at https://gitter.im/ajnsit/wai-routes](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg)](https://gitter.im/ajnsit/wai-routes)
 ====================================
 
 Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.
@@ -105,6 +105,7 @@ The following features are planned for later releases -
 Changelog
 =========
 
+* 0.9.1 : Greatly simplified subsites (simply use mkRouteSub). Added 'mountedAppHandler' to integrate external full wai apps.
 * 0.9.0 : Support for "unrouted" handlers. API changes to avoid returning lazy text or bytestring. Methods to fetch post/file params. Removed 'HandlerMM' and made 'Handler' more useful.
 * 0.8.1 : Bumped dependencies. Added 'HandlerMM' type alias
 * 0.8.0 : Replaced 'show/renderRoute' with 'show/renderRouteSub' and 'show/renderRouteMaster'. Added functions to access request headers (reqHeader/s), send a part of a file (filepart). Auto infer mime-types when sending files. Added cookie handling functions (get/setCookie/s). Added 'sub' to allow access to subsite datatype.
