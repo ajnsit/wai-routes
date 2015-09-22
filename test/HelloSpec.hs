@@ -47,7 +47,10 @@ mkRoute "MyRoute" [parseRoutes|
 /          HomeR GET
 /some-json FooR  GET
 /post      PostR POST
-/sub       SubR SubRoute getSubRoute
+/subsite   SubR SubRoute getSubRoute
+/nested       NestedR:
+  /             NRootR     GET
+  /abcd         AbcdR      GET
 |]
 
 getHomeR :: Handler MyRoute
@@ -61,6 +64,11 @@ postPostR :: Handler MyRoute
 postPostR = runHandlerM $ do
   name <- getParam "name"
   plain $ fromMaybe "unnamed" name
+
+-- Nested routes
+getNRootR, getAbcdR :: Handler MyRoute
+getNRootR = runHandlerM $ plain "Nested ROOT"
+getAbcdR  = runHandlerM $ plain "Nested ABCD"
 
 -- An example of an unrouted handler
 handleInfoRequest :: Handler DefaultMaster
@@ -103,9 +111,17 @@ spec = with application $ do
     it "can read post body parameters" $
       postHtmlForm "/post" [("name","foobar")] `shouldRespondWith` "foobar" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
-  describe "GET /sub" $
+  describe "GET /subsite" $
     it "can access the subsite correctly" $
-      get "/sub" `shouldRespondWith` "subsite-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+      get "/subsite" `shouldRespondWith` "subsite-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "GET /nested" $
+    it "can access nested routes root correctly" $
+      get "/nested" `shouldRespondWith` "Nested ROOT" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "GET /nested/abcd" $
+    it "can access nested routes correctly" $
+      get "/nested/abcd" `shouldRespondWith` "Nested ABCD" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
   describe "GET /lambda.png" $
     it "returns a file correctly" $
