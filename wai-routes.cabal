@@ -13,6 +13,7 @@ category           : Network
 author             : Anupam Jain
 data-dir           : ""
 extra-source-files : README.md
+                   , test/static/lambda.png
 
 source-repository head
     type     : git
