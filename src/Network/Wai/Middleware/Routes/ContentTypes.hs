@@ -13,8 +13,10 @@ Defines the commonly used content types
 -}
 module Network.Wai.Middleware.Routes.ContentTypes
     ( -- * Construct content Type
-      contentType, contentTypeFromFile
+      acceptContentType
+    , contentType, contentTypeFromFile
       -- * Various common content types
+    , typeAll
     , typeHtml, typePlain, typeJson
     , typeXml, typeAtom, typeRss
     , typeJpeg, typePng, typeGif
@@ -30,6 +32,10 @@ import Network.HTTP.Types.Header (HeaderName())
 import Network.Mime (defaultMimeLookup)
 import System.FilePath (takeFileName)
 
+-- | The request header for accpetable content types
+acceptContentType :: HeaderName
+acceptContentType = "Accept"
+
 -- | Construct an appropriate content type header from a file name
 contentTypeFromFile :: FilePath -> ByteString
 contentTypeFromFile = defaultMimeLookup . T.pack . takeFileName
@@ -38,6 +44,9 @@ contentTypeFromFile = defaultMimeLookup . T.pack . takeFileName
 -- Ready to be passed to `responseLBS`
 contentType :: HeaderName
 contentType = "Content-Type"
+
+typeAll :: ByteString
+typeAll = "*/*"
 
 typeHtml :: ByteString
 typeHtml = "text/html; charset=utf-8"

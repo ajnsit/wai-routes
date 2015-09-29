@@ -45,7 +45,9 @@ module Network.Wai.Middleware.Routes.Handler
     , html                   -- | Set the html response body
     , css                    -- | Set the css response body
     , javascript             -- | Set the javascript response body
+    , content                -- | Sets the response body when the content type is acceptable
     , asContent              -- | Set the contentType and a 'Text' body
+    , whenContent            -- | Runs the action when a content type is acceptable
     , next                   -- | Run the next application in the stack
     , getParams              -- | Get all params (query or post, not file)
     , getParam               -- | Get a particular param (query or post, not file)
@@ -67,15 +69,15 @@ import Network.Wai (strictRequestBody)
 #endif
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute, readQueryString)
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
-import Network.Wai.Middleware.Routes.ContentTypes (contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript)
+import Network.Wai.Middleware.Routes.ContentTypes (acceptContentType, contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript, typeAll)
 
-import Control.Monad (liftM)
+import Control.Monad (liftM, when)
 import Control.Monad.Loops (unfoldWhileM)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, liftIO, MonadTrans)
 
 import Control.Applicative (Applicative, (<$>), (<*>))
 
-import Data.Maybe (maybe)
+import Data.Maybe (maybe, fromMaybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -98,6 +100,7 @@ import Data.CaseInsensitive (CI, mk)
 
 import Web.Cookie (CookiesText, parseCookiesText, renderSetCookie, SetCookie(..))
 import Data.Default.Class (def)
+import Data.List (intersect)
 
 import qualified Network.Wai.Parse as P
 
@@ -146,7 +149,7 @@ data HandlerState sub master = HandlerState
   , reqBody        :: Maybe ByteString
   , respHeaders    :: [(HeaderName, ByteString)]
   , respStatus     :: Status
-  , respResp       :: MkResponse
+  , respResp       :: Maybe MkResponse
   , respRaw        :: Maybe RespRawHandler
   , respCookies    :: [SetCookie]
   , getSub         :: sub
@@ -154,6 +157,7 @@ data HandlerState sub master = HandlerState
   -- TODO: Experimental
   -- Parsed POST request body, in the same format as Network.Wai.Parse
   , postParams     :: Maybe PostParams
+  , acceptCTypes   :: Maybe [ByteString]
   }
 
 -- Initial Handler State
@@ -164,12 +168,13 @@ defaultHandlerState env req = HandlerState
   , reqBody = Nothing
   , respHeaders = []
   , respStatus = status200
-  , respResp = defaultResponse
+  , respResp = Nothing
   , respRaw = Nothing
   , respCookies = []
   , getSub = envSub env
   , toMasterRoute = envToMaster env
   , postParams = Nothing
+  , acceptCTypes = Nothing
   }
 
 -- Internal: Type of response
@@ -201,7 +206,7 @@ mountedAppHandler app _env req hh = app (waiReq req) hh
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
   (_, st) <- runStateT (extractH h) (defaultHandlerState env req)
-  case respResp st of
+  case fromMaybe defaultResponse (respResp st) of
     -- Abort handling current response and move to next handler
     ResponseNext -> runNext (getRequestData st) hh
     -- Normal handling
@@ -268,7 +273,7 @@ request = liftM (waiReq . getRequestData) get
 
 -- | Is this a websocket request
 isWebsocket :: HandlerM sub master Bool
-isWebsocket = liftM (maybe False (== "websocket")) (reqHeader "upgrade")
+isWebsocket = liftM (maybe False (== "websocket")) (_reqHeaderBS "upgrade")
 
 -- | Get a particular request header (Case insensitive)
 reqHeader :: Text -> HandlerM sub master (Maybe Text)
@@ -388,9 +393,11 @@ next = modify rNext
     rNext st = _setResp st ResponseNext
 
 -- Util
--- Set the response handler
+-- Set the response handler (don't overwrite an existing response)
 _setResp :: HandlerState sub master -> MkResponse -> HandlerState sub master
-_setResp st r = st{respResp=r}
+_setResp st r = case respResp st of
+  Nothing -> st{respResp=Just r}
+  _ -> st
 
 
 -- Standard response bodies
@@ -398,6 +405,8 @@ _setResp st r = st{respResp=r}
 -- | Set the body of the response to the JSON encoding of the given value. Also sets \"Content-Type\"
 -- header to \"application/json\".
 json :: ToJSON a => a -> HandlerM sub master ()
+-- TODO: Use Accept header parsing
+-- json a = whenContent [typeJson, typeJavascript, typePlain] $ do
 json a = do
   header contentType typeJson
   rawBuilder $ _encode $ A.toJSON a
@@ -411,21 +420,29 @@ json a = do
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/plain\".
 plain :: Text -> HandlerM sub master ()
+-- TODO: Use Accept header parsing
+-- plain = content [typePlain]
 plain = asContent typePlain
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/html\".
 html :: Text -> HandlerM sub master ()
+-- TODO: Use Accept header parsing
+-- html = content [typeHtml, typePlain]
 html = asContent typeHtml
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/css\".
 css :: Text -> HandlerM sub master ()
+-- TODO: Use Accept header parsing
+-- css = content [typeCss, typePlain]
 css = asContent typeCss
 
 -- | Set the body of the response to the given 'Text' value. Also sets \"Content-Type\"
 -- header to \"text/javascript\".
 javascript :: Text -> HandlerM sub master ()
+-- TODO: Use Accept header parsing
+-- javascript = content [typeJavascript, typePlain]
 javascript = asContent typeJavascript
 
 -- | Sets the content-type header to the given Bytestring
@@ -435,6 +452,31 @@ asContent :: ByteString -> Text -> HandlerM sub master ()
 asContent ctype content = do
   header contentType ctype
   raw $ encodeUtf8 content
+
+-- | Sets the response body when the content type is acceptable
+content :: [ByteString] -> Text -> HandlerM sub master ()
+content [] _ = return ()
+content ctypes content = whenContent ctypes (asContent (head ctypes) content)
+
+-- | Perform an action only when there is no accept list or the given contentType is acceptable
+whenContent :: [ByteString] -> HandlerM sub master () -> HandlerM sub master ()
+whenContent ctypes respHandler = do
+  atypes <- acceptableContentTypes
+  let noAcceptList = not $ null atypes
+  let acceptableTypeFound = not $ null $ intersect (typeAll:ctypes) atypes
+  when (noAcceptList || acceptableTypeFound) respHandler
+
+-- | Get a list of content types acceptable to the request
+acceptableContentTypes :: HandlerM sub master [ByteString]
+acceptableContentTypes = do
+  st <- get
+  maybe (getCTypes st) return (acceptCTypes st)
+  where
+    getCTypes st = do
+      h <- _reqHeaderBS acceptContentType
+      let parsedCTypes = maybe [] P.parseHttpAccept h
+      put st{acceptCTypes = Just parsedCTypes}
+      return parsedCTypes
 
 -- | Sets a cookie to the response
 setCookie :: SetCookie -> HandlerM sub master ()
