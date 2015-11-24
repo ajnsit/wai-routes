@@ -9,4 +9,4 @@ packages:
 - examples/streaming-response
 - examples/kitchen
 extra-deps: []
-resolver: lts-3.7
+resolver: lts-3.15
