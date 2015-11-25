@@ -24,6 +24,10 @@ main = do
   -- Global state
   times <- liftIO $ newIORef 0
 
+  -- We create a global vault key to store the counter
+  -- This key is only created once when the application starts
+  timesKey <- liftIO $ V.newKey
+
   -- Run the app
   putStrLn "Starting server on port 8080"
   run 8080 $ waiApp $ do
@@ -33,8 +37,11 @@ main = do
     -- The first handler is always called and can also be used to perform common
     --   global processing (such as incrementing the counter on every request)
     handler $ runHandlerM $ do
+      -- Increment the global counter
       n <- liftIO $ readIORef times
       liftIO $ writeIORef times (n+1)
+      -- Insert the key in the vault for all subsequent handlers to access
+      updateVault $ V.insert timesKey n
       -- Remember to call finally next, so other handlers are invoked
       next
 
@@ -42,7 +49,7 @@ main = do
     handler $ runHandlerM $ do
       -- You can access untyped (but parsed) route information
       Just (DefaultRoute (pieces, query)) <- maybeRoute
-      n <- liftIO $ readIORef times
+      Just n <- lookupVault timesKey
       if mod n 10 == 0
          -- Every 10th invocation, jump to the next handler
          then next
@@ -55,5 +62,5 @@ main = do
 
     -- This handler will only be reached when the previous handler calls next (on every 10th invocation)
     handler $ runHandlerM $ do
-      n <- liftIO $ readIORef times
+      Just n <- lookupVault timesKey
       html $ T.concat $ map T.pack ["<h1>You are the special ", show n, "th caller!</h1>"]
