@@ -60,12 +60,15 @@ module Network.Wai.Middleware.Routes.Handler
     , setCookie              -- | Add a cookie to the response
     , getCookie              -- | Get a cookie from the request
     , getCookies             -- | Get all cookies from the request
+    , reqVault               -- | Access the vault from the request
+    , lookupVault            -- | Lookup a key in the request vault
+    , updateVault            -- | Update the request vault
     )
     where
 
 import Network.Wai (Application, Request, Response, responseRaw, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
 #if MIN_VERSION_wai(3,0,1)
-import Network.Wai (strictRequestBody)
+import Network.Wai (strictRequestBody, vault)
 #endif
 import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute, readQueryString)
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
@@ -101,6 +104,8 @@ import Data.CaseInsensitive (CI, mk)
 import Web.Cookie (CookiesText, parseCookiesText, renderSetCookie, SetCookie(..))
 import Data.Default.Class (def)
 import Data.List (intersect)
+
+import qualified Data.Vault.Lazy as V
 
 import qualified Network.Wai.Parse as P
 
@@ -284,6 +289,25 @@ reqHeader name = liftM (fmap decodeUtf8) (_reqHeaderBS nameText)
 -- PRIVATE
 _reqHeaderBS :: CI ByteString -> HandlerM sub master (Maybe ByteString)
 _reqHeaderBS name = liftM (lookup name) reqHeaders
+
+-- VAULT
+-- | Access the vault
+reqVault :: HandlerM sub master V.Vault
+reqVault = liftM vault request
+
+-- Lookup a value in the request vault
+lookupVault :: V.Key a -> HandlerM sub master (Maybe a)
+lookupVault k = liftM (V.lookup k) reqVault
+
+-- Update the request vault
+-- For example: `updateVault (V.insert key val)`
+updateVault :: (V.Vault -> V.Vault) -> HandlerM sub master ()
+updateVault f = modify $ \st ->
+  let rd = getRequestData st
+      r = waiReq rd
+      v = f $ vault r
+  in st { getRequestData = rd { waiReq = r { vault = v } } }
+-- END VAULT
 
 -- | Get all request headers as raw case-insensitive bytestrings
 reqHeaders :: HandlerM sub master RequestHeaders

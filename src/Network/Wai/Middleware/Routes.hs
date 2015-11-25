@@ -100,6 +100,9 @@ module Network.Wai.Middleware.Routes
     , setCookie              -- | Add a cookie to the response
     , getCookie              -- | Get a cookie from the request
     , getCookies             -- | Get all cookies from the request
+    , reqVault               -- | Access the vault from the request
+    , lookupVault            -- | Lookup a key in the request vault
+    , updateVault            -- | Update the request vault
 
     , module Network.HTTP.Types.Status
     , module Network.Wai.Middleware.RequestLogger
