@@ -8,6 +8,7 @@ packages:
 - examples/rest-json
 - examples/streaming-response
 - examples/kitchen
+- examples/unrouted
 extra-deps:
 - aeson-0.10.0.0
 - attoparsec-0.13.0.1

@@ -67,6 +67,10 @@ Wai has had the ability to stream content for a long time. Now wai-routes expose
 
 *Work in progress*. Demonstrates all major features in wai-routes.
 
+**Example 8. Unrouted** - [Code](examples/unrouted)
+
+Demonstrates "unrouted" applications. These require no TH, or GHC extensions. Basically allow you to sequence request handlers in a cascade, with each handler having the full functionality of HandlerM monad available to them. Each handler also has access to untyped (but parsed) route information. Unrouted handlers are freely mixable with typesafe routing.
+
 
 Deployment
 ==========

@@ -8,5 +8,6 @@ packages:
 - examples/rest-json
 - examples/streaming-response
 - examples/kitchen
+- examples/unrouted
 extra-deps: []
 resolver: lts-2.22

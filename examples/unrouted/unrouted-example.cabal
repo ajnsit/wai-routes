@@ -1,0 +1,27 @@
+name          : unrouted-example
+version       : 0.8.0
+cabal-version : >=1.16
+build-type    : Simple
+license       : PublicDomain
+maintainer    : ajnsit@gmail.com
+synopsis      : Using "unrouted" handlers example for wai-routes
+description   : Using "unrouted" handlers example for wai-routes
+category      : Web
+author        : Anupam Jain
+data-dir      : ""
+
+executable unrouted-example
+    build-depends    : base
+                     , wai
+                     , wai-routes
+                     , wai-extra
+                     , wai-app-static
+                     , warp
+                     , text
+                     , transformers
+                     , vault
+    main-is          : Main.hs
+    buildable        : True
+    default-language : Haskell2010
+    ghc-options      : -Wall
+    hs-source-dirs : src
