@@ -47,12 +47,10 @@ getHomeR = runHandlerM $ do
   let pageTitle = "Hello Hamlet"
   html $ TL.toStrict $ renderHtml $ home pageTitle people showRouteQuery
 
--- Render CSS as raw bytestring for simplicity, browsers don't seem to mind
--- TODO: Add CSS content-type headers
 getStylesheetR :: Handler MyApp
 getStylesheetR = runHandlerM $ do
   showRouteQuery <- showRouteQuerySub
-  raw $ encodeUtf8 $ TL.toStrict $ renderCss $ style showRouteQuery
+  css $ TL.toStrict $ renderCss $ style showRouteQuery
 
 -- Inline cassius example, julius and lucius would be similar
 style :: CssUrl MyAppRoute
@@ -72,8 +70,6 @@ copyright :: HtmlUrl MyAppRoute
 copyright = [hamlet| <small>Copyright 2015. All Rights Reserved |]
 
 -- Define Application using RouteM Monad
--- The application that uses our route
--- NOTE: We use the Route Monad to simplify routing
 application :: RouteM ()
 application = do
   middleware logStdoutDev
