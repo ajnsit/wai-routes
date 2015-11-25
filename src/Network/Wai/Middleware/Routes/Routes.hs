@@ -134,20 +134,20 @@ mkRouteData typName routes = do
                   , rinst
                   ]
 
+-- | Generates a 'Routable' instance and dispatch function
+mkRouteDispatch :: String -> [ResourceTree String] -> Q [Dec]
+mkRouteDispatch typName routes = do
+  let typ = parseType typName
+  disp <- mkRouteDispatchClause routes
+  return [InstanceD []
+          (ConT ''Routable `AppT` typ `AppT` typ)
+          [FunD (mkName "dispatcher") [disp]]]
+
 -- | Same as mkRouteDispatch but for subsites
 mkRouteSubDispatch :: String -> String -> [ResourceTree a] -> Q [Dec]
 mkRouteSubDispatch typName constraint routes = do
   let typ = parseType typName
-  disp  <- mkDispatchClause MkDispatchSettings
-        { mdsRunHandler    = [| runHandler    |]
-        , mdsSubDispatcher = [| subDispatcher |]
-        , mdsGetPathInfo   = [| getPathInfo   |]
-        , mdsMethod        = [| getReqMethod  |]
-        , mdsSetPathInfo   = [| setPathInfo   |]
-        , mds404           = [| app404        |]
-        , mds405           = [| app405        |]
-        , mdsGetHandler    = defaultGetHandler
-        } routes
+  disp <- mkRouteDispatchClause routes
   master <- newName "master"
   -- We don't simply use parseType for GHC 7.8 (TH-2.9) compatibility
   -- ParseType only works on Type (not Pred)
@@ -166,23 +166,20 @@ mkRouteSubDispatch typName constraint routes = do
       ClassP className [VarT master]
 #endif
 
--- | Generates a 'Routable' instance and dispatch function
-mkRouteDispatch :: String -> [ResourceTree String] -> Q [Dec]
-mkRouteDispatch typName routes = do
-  let typ = parseType typName
-  disp <- mkDispatchClause MkDispatchSettings
-        { mdsRunHandler    = [| runHandler    |]
-        , mdsSubDispatcher = [| subDispatcher |]
-        , mdsGetPathInfo   = [| getPathInfo   |]
-        , mdsMethod        = [| getReqMethod  |]
-        , mdsSetPathInfo   = [| setPathInfo   |]
-        , mds404           = [| app404        |]
-        , mds405           = [| app405        |]
-        , mdsGetHandler    = defaultGetHandler
-        } routes
-  return [InstanceD []
-          (ConT ''Routable `AppT` typ `AppT` typ)
-          [FunD (mkName "dispatcher") [disp]]]
+-- Helper that creates the dispatch clause
+mkRouteDispatchClause :: [ResourceTree a] -> Q Clause
+mkRouteDispatchClause routes =
+  mkDispatchClause MkDispatchSettings
+    { mdsRunHandler    = [| runHandler    |]
+    , mdsSubDispatcher = [| subDispatcher |]
+    , mdsGetPathInfo   = [| getPathInfo   |]
+    , mdsMethod        = [| getReqMethod  |]
+    , mdsSetPathInfo   = [| setPathInfo   |]
+    , mds404           = [| app404        |]
+    , mds405           = [| app405        |]
+    , mdsGetHandler    = defaultGetHandler
+    } routes
+
 
 -- | Generates all the things needed for efficient routing.
 -- Including your application's `Route` datatype,
