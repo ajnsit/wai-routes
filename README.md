@@ -39,35 +39,35 @@ Example Usage
 
 Wai-routes comes with several examples in the `examples/` directory. New examples are being added regularly.
 
-**Example 1. Hello World** - [Code](examples/hello-world)
+**Example 1. Hello World** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/hello-world/src)
 
 A simple hello-world web app with two interlinked pages. This provides the simplest example of using routing and linking between pages with typesafe routes.
 
-**Example 2. Hello World with Subsites** - [Code](examples/subsites)
+**Example 2. Hello World with Subsites** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/subsites/src)
 
 Similar functionality as the first example, but uses a hello world subsites to provide the hello world functionality. A subsite is an independently developed site that can be embedded into a parent site as long as the parent site satisfies a particular api contract. It's easy to swap out subsites for different functionality as long as the api contract remains constant.
 
-**Example 3. Using Blaze-HTML to generate HTML** - [Code](examples/blaze-html)
+**Example 3. Using Blaze-HTML to generate HTML** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/blaze-html/src)
 
 A simple example of how to generate HTML using blaze-html combinators in your handlers.
 
-**Example 4. Using Shakespearean Templates (hamlet, cassius, lucius, julius) to generate HTML/CSS/JS** - [Code](examples/shakespeare)
+**Example 4. Using Shakespearean Templates (hamlet, cassius, lucius, julius) to generate HTML/CSS/JS** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/shakespeare/src)
 
 A simple example of how to generate HTML/CSS/JS using shakespearean templates. You can use both external and inline templates.
 
-**Example 5. Building a JSON REST Service** - [Code](examples/rest-json)
+**Example 5. Building a JSON REST Service** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/rest-json/src)
 
 Provides a simple example of how to build JSON REST services with wai-routes. Uses Aeson for JSON conversion. Note that this example just demonstrates the web facing side of the application. It doesn't permanently persist data, and is also not threadsafe. You must use a more robust data storage mechanism in production! An example of doing this with a Relational DB adapter (like persistent) is in the works.
 
-**Example 6. Stream a response** - [Code](examples/streaming-response)
+**Example 6. Stream a response** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/streaming-response/src)
 
 Wai has had the ability to stream content for a long time. Now wai-routes exposes this functionality with the `stream` function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - `curl localhost:8080` will dump the data as it is being streamed from the server.
 
-**Example 7. Kitchen sink** - [Code](examples/kitchen)
+**Example 7. Kitchen sink** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/kitchen/src)
 
 *Work in progress*. Demonstrates all major features in wai-routes.
 
-**Example 8. Unrouted** - [Code](examples/unrouted)
+**Example 8. Unrouted** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/unrouted/src)
 
 Demonstrates "unrouted" applications. These require no TH, or GHC extensions. Basically allow you to sequence request handlers in a cascade, with each handler having the full functionality of HandlerM monad available to them. Each handler also has access to untyped (but parsed) route information. Unrouted handlers are freely mixable with typesafe routing.
 
