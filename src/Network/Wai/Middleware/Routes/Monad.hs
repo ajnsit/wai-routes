@@ -56,7 +56,7 @@ middleware :: Middleware -> RouteM ()
 middleware m = liftF $ M m ()
 
 -- | Add a wai-routes handler
-handler :: Handler DefaultMaster -> RouteM ()
+handler :: HandlerS DefaultMaster DefaultMaster -> RouteM ()
 handler h = middleware $ customRouteDispatch dispatcher' DefaultMaster
   where
     dispatcher' env req = runHandler h env (Just $ DefaultRoute $ getRoute req) req
