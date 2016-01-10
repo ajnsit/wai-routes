@@ -10,4 +10,4 @@ packages:
 - examples/kitchen
 - examples/unrouted
 extra-deps: []
-resolver: lts-3.20
+resolver: lts-4.0
