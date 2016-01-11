@@ -17,6 +17,9 @@ import HelloSub (HelloSubRoute(..), HelloMaster(..))
 data MyRoute = MyRoute
 
 -- Create a subsite datatype from the master datatype
+-- NOTE: The (Route master -> Route sub) conversion function handles the route arguments
+--   which are defined in the master routes and passed down to the subsite handlers via the subsite datatype
+--   So in this case, we handle the #Text greeting argument here and put it into the subsite datatype
 getHelloSubRoute :: MyRoute -> Text -> HelloSubRoute
 getHelloSubRoute _ greeting = HelloSubRoute $ T.append greeting " from subsite: "
 
