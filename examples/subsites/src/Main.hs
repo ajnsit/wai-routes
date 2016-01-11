@@ -23,11 +23,19 @@ data MyRoute = MyRoute
 getHelloSubRoute :: MyRoute -> Text -> HelloSubRoute
 getHelloSubRoute _ greeting = HelloSubRoute $ T.append greeting " from subsite: "
 
+-- Like getHelloSubRoute, but uses a default greeting
+-- This shows an example of passing no route argument data to the subsite
+namasteHelloSubRoute :: MyRoute -> HelloSubRoute
+namasteHelloSubRoute mr = getHelloSubRoute mr "namaste"
+
 -- Generate routing code
 -- getHelloSubRoute is defined in HelloSub.hs
+-- Note that subsites are allowed within hierarchical routes as well
 mkRoute "MyRoute" [parseRoutes|
 /            HomeR  GET
 /hello/#Text HelloR HelloSubRoute getHelloSubRoute
+/sub SubR:
+  /hello HelloSubR HelloSubRoute namasteHelloSubRoute
 |]
 
 -- Fulfill the contract with HelloSub subsite
