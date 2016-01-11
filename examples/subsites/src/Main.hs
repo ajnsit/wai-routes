@@ -35,7 +35,8 @@ mkRoute "MyRoute" [parseRoutes|
 /            HomeR  GET
 /hello/#Text HelloR HelloSubRoute getHelloSubRoute
 /sub SubR:
-  /hello HelloSubR HelloSubRoute namasteHelloSubRoute
+  /sub2 Sub2R:
+    /hello HelloSubR HelloSubRoute namasteHelloSubRoute
 |]
 
 -- Fulfill the contract with HelloSub subsite
@@ -63,6 +64,10 @@ getHomeR = runHandlerM $ do
     ,   "<a href=\""
     ,   showRoute $ HelloR "namaste" Sub.HomeR
     ,   "\">to subsite 'namaste'</a>"
+    ,   " or "
+    ,   "<a href=\""
+    ,   showRoute $ SubR $ Sub2R $ HelloSubR Sub.HomeR
+    ,   "\">to deeply nested subsite with default 'namaste'</a>"
     ,   " to be greeted!"
     , "</p>"
     ]
