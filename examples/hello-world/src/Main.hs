@@ -18,6 +18,10 @@ mkRoute "MyRoute" [parseRoutes|
 /      HomeR  GET
 /hello HelloR GET
 /post  PostR  POST
+/upper UpperR:
+  / UpperBasementR GET
+  /lower LowerR:
+    / LowerBasementR GET
 |]
 
 -- Handlers
@@ -33,6 +37,9 @@ getHomeR = runHandlerM $ do
     , "<p>"
     ,   "<a href=\"", showRoute HelloR, "\">Go to hello</a>"
     ,   " to be greeted!"
+    , "</p>"
+    , "<p>"
+    ,   "<a href=\"", showRoute (UpperR UpperBasementR), "\">Explore the basement</a>"
     , "</p>"
     ]
 
@@ -54,6 +61,28 @@ postPostR = runHandlerM $ do
   html $ T.concat
     [ "<h1>Hello '", name, "'!</h1>"
     , "<a href=\"", showRoute HomeR, "\">Go back</a>"
+    ]
+
+-- Nested hierarchical routes
+getUpperBasementR :: Handler MyRoute
+getUpperBasementR = runHandlerM $ do
+  showRoute <- showRouteSub
+  html $ T.concat
+    [ "<h1>You are at the upper basement!</h1>"
+    , "<p>"
+    , "<a href=\"", showRoute HomeR, "\">Go back up</a>"
+    , "</p>"
+    , "<p>"
+    , "<a href=\"", showRoute (UpperR $ LowerR LowerBasementR), "\">Take the stairs down</a>"
+    , "</p>"
+    ]
+
+getLowerBasementR :: Handler MyRoute
+getLowerBasementR = runHandlerM $ do
+  showRoute <- showRouteSub
+  html $ T.concat
+    [ "<h1>You found the lower basement!</h1>"
+    , "<a href=\"", showRoute (UpperR UpperBasementR), "\">Take the stairs up</a>"
     ]
 
 -- An example of an unrouted handler
