@@ -1,4 +1,4 @@
-[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.9.4-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Join the chat at https://gitter.im/ajnsit/wai-routes](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg)](https://gitter.im/ajnsit/wai-routes)
+[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.9.5-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Join the chat at https://gitter.im/ajnsit/wai-routes](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg)](https://gitter.im/ajnsit/wai-routes)
 ====================================
 
 Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.
@@ -109,6 +109,7 @@ The following features are planned for later releases -
 Changelog
 =========
 
+* 0.9.5 : Subsites now play well with hierarchical routes
 * 0.9.4 : Wai-3.2 compatibility. Added functions to manipulate wai "vault". Minor changes to internal types.
 * 0.9.3 : Added `content` and `whenContent`. Allow http-types-0.9.
 * 0.9.2 : Fix failing test in release tarball. (Only tests changed).
