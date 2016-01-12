@@ -175,12 +175,11 @@ mkDispatchClause MkDispatchSettings {..} resources = do
                     subDispatcherE <- mdsSubDispatcher
                     runHandlerE <- mdsRunHandler
                     sub <- newName "sub"
-                    let sub2 = LamE [VarP sub]
-                            (foldl' (\a b -> a `AppE` b) (VarE (mkName getSub) `AppE` VarE sub) dyns)
+                    sroute <- newName "sroute"
+                    let allDyns = extraParams ++ dyns
+                    let sub2 = LamE [VarP sub] (foldl' AppE (VarE (mkName getSub) `AppE` VarE sub) allDyns)
                     let reqExp' = setPathInfoE `AppE` VarE restPath `AppE` reqExp
                         route' = foldl' AppE (ConE (mkName name)) dyns
-                        -- Subsites didn't work with hierarchical routes earlier
-                        sroute = mkName "sroute"
                         route = LamE [VarP sroute] $ foldr AppE (AppE route' $ VarE sroute) extraCons
                         exp = subDispatcherE
                             `AppE` runHandlerE
