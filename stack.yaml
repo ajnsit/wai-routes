@@ -1,1 +1,13 @@
-stack-7.10.yaml
+flags: {}
+packages:
+- '.'
+- examples/hello-world
+- examples/subsites
+- examples/blaze-html
+- examples/shakespeare
+- examples/rest-json
+- examples/streaming-response
+- examples/kitchen
+- examples/unrouted
+extra-deps: []
+resolver: lts-4.0
