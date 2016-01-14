@@ -18,7 +18,7 @@ import qualified Test.Hspec.Wai.JSON as H (json)
 
 ---- A SMALL SUBSITE ----
 
-data SubRoute = SubRoute
+data SubRoute = SubRoute Text
 
 class MasterContract master where
   getMasterName :: master -> Text
@@ -29,11 +29,15 @@ mkRouteSub "SubRoute" "MasterContract" [parseRoutes|
 
 getSubHomeR :: MasterContract master => HandlerS SubRoute master
 getSubHomeR = runHandlerM $ do
+  SubRoute s <- sub
   m <- master
-  plain $ T.concat ["subsite-", getMasterName m]
+  plain $ T.concat ["subsite-", s, "-", getMasterName m]
 
-getSubRoute :: master -> SubRoute
+getSubRoute :: master -> Text -> SubRoute
 getSubRoute = const SubRoute
+
+getDefaultSubRoute :: master -> SubRoute
+getDefaultSubRoute = const $ SubRoute "default"
 
 
 ---- THE APPLICATION TO BE TESTED ----
@@ -47,10 +51,14 @@ mkRoute "MyRoute" [parseRoutes|
 /          HomeR GET
 /some-json FooR  GET
 /post      PostR POST
-/subsite   SubR SubRoute getSubRoute
+/subsite   SubR SubRoute getDefaultSubRoute
 /nested       NestedR:
   /             NRootR     GET
   /abcd         AbcdR      GET
+  /nested2      Nested2R:
+    /subsite       SubNestedR SubRoute getDefaultSubRoute
+    /nested3/#Text Nested3:
+      /argsub        SubNestedArgR SubRoute getSubRoute
 |]
 
 getHomeR :: Handler MyRoute
@@ -113,7 +121,7 @@ spec = with application $ do
 
   describe "GET /subsite" $
     it "can access the subsite correctly" $
-      get "/subsite" `shouldRespondWith` "subsite-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+      get "/subsite" `shouldRespondWith` "subsite-default-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
   describe "GET /nested" $
     it "can access nested routes root correctly" $
@@ -122,6 +130,14 @@ spec = with application $ do
   describe "GET /nested/abcd" $
     it "can access nested routes correctly" $
       get "/nested/abcd" `shouldRespondWith` "Nested ABCD" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "GET /nested/nested2/subsite" $
+    it "can access the nested subsite correctly" $
+      get "/nested/nested2/subsite" `shouldRespondWith` "subsite-default-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "GET /nested/nested2/nested3/helloworld/argsub" $
+    it "can pass route arguments to the nested subsite correctly" $
+      get "/nested/nested2/nested3/helloworld/argsub" `shouldRespondWith` "subsite-helloworld-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
   describe "GET /lambda.png" $
     it "returns a file correctly" $
