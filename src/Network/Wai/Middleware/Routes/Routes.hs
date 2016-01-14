@@ -178,6 +178,7 @@ mkRouteDispatchClause routes =
     , mds404           = [| app404        |]
     , mds405           = [| app405        |]
     , mdsGetHandler    = defaultGetHandler
+    , mdsUnwrapper     = return
     } routes
 
 
