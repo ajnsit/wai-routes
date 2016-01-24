@@ -71,6 +71,9 @@ Wai has had the ability to stream content for a long time. Now wai-routes expose
 
 Demonstrates "unrouted" applications. These require no TH, or GHC extensions. Basically allow you to sequence request handlers in a cascade, with each handler having the full functionality of HandlerM monad available to them. Each handler also has access to untyped (but parsed) route information. Unrouted handlers are freely mixable with typesafe routing.
 
+**Example 9. Typesafe "Bare" Wai routing** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/bare-wai/src)
+
+Demonstrates writing no-overhead "bare" wai applications with routing. Wai-routes handlers are simple functions that return wai responses. This means that you are free to use typesafe routing, but without using runHandlerM, instead accessing the master datatype and the route args as arguments passed to the handler function.
 
 Deployment
 ==========

@@ -9,6 +9,7 @@ packages:
 - examples/streaming-response
 - examples/kitchen
 - examples/unrouted
+- examples/bare-wai
 extra-deps:
 - aeson-0.10.0.0
 - attoparsec-0.13.0.1

@@ -9,5 +9,6 @@ packages:
 - examples/streaming-response
 - examples/kitchen
 - examples/unrouted
+- examples/bare-wai
 extra-deps: []
 resolver: lts-4.0
