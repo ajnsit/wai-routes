@@ -23,6 +23,9 @@ module Network.Wai.Middleware.Routes
     , routeDispatch
 
     -- * URL rendering and parsing
+    , showRoute
+    , showRouteQuery
+    , readRoute
     , showRouteMaster
     , showRouteQueryMaster
     , readRouteMaster
@@ -103,6 +106,14 @@ module Network.Wai.Middleware.Routes
     , reqVault               -- | Access the vault from the request
     , lookupVault            -- | Lookup a key in the request vault
     , updateVault            -- | Update the request vault
+
+    -- * Bare Handlers
+    , Env(..)
+    , RequestData            -- | An abstract representation of the request data. You can get the wai request object by using `waiReq`
+    , waiReq                 -- | Extract the wai `Request` object from `RequestData`
+    , nextApp                -- | Extract the next Application in the stack
+    , currentRoute           -- | Extract the current `Route` from `RequestData`
+    , runNext                -- | Run the next application in the stack
 
     , module Network.HTTP.Types.Status
     , module Network.Wai.Middleware.RequestLogger
