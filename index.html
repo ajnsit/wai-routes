@@ -20,7 +20,7 @@
 
     <section class="main-content">
       <h1>
-<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.9.5-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://gitter.im/ajnsit/wai-routes"><img src="https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg" alt="Join the chat at https://gitter.im/ajnsit/wai-routes"></a>
+<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.9.7-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://gitter.im/ajnsit/wai-routes"><img src="https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg" alt="Join the chat at https://gitter.im/ajnsit/wai-routes"></a>
 </h1>
 
 <p>Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.</p>
@@ -30,7 +30,7 @@
 <p>Much of Wai-route's typesafe URL functionality was pulled from the corresponding features in <a href="http://www.yesodweb.com/">Yesod</a>, and indeed the underlying aim of wai-routes is - <em>"To provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications."</em>.</p>
 
 <h1>
-<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
 
 <p>Wai-routes adds the following features on top of wai -</p>
 
@@ -52,7 +52,7 @@
 </ul>
 
 <h1>
-<a id="performance" class="anchor" href="#performance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performance</h1>
+<a id="performance" class="anchor" href="#performance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Performance</h1>
 
 <p>When it comes to performance, Wai-routes compares quite favorably with other Haskell web development micro frameworks.</p>
 
@@ -61,7 +61,7 @@
 <p><img src="./benchmark/result-tama.png" alt="result"></p>
 
 <h1>
-<a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example Usage</h1>
+<a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Usage</h1>
 
 <p>Wai-routes comes with several examples in the <code>examples/</code> directory. New examples are being added regularly.</p>
 
@@ -97,8 +97,12 @@
 
 <p>Demonstrates "unrouted" applications. These require no TH, or GHC extensions. Basically allow you to sequence request handlers in a cascade, with each handler having the full functionality of HandlerM monad available to them. Each handler also has access to untyped (but parsed) route information. Unrouted handlers are freely mixable with typesafe routing.</p>
 
+<p><strong>Example 9. Typesafe "Bare" Wai routing</strong> - <a href="https://github.com/ajnsit/wai-routes/tree/master/examples/bare-wai/src">Code</a></p>
+
+<p>Demonstrates writing no-overhead "bare" wai applications with routing. Wai-routes handlers are simple functions that return wai responses. This means that you are free to use typesafe routing, but without using runHandlerM, instead accessing the master datatype and the route args as arguments passed to the handler function.</p>
+
 <h1>
-<a id="deployment" class="anchor" href="#deployment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deployment</h1>
+<a id="deployment" class="anchor" href="#deployment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deployment</h1>
 
 <p>The current recommended route (pun not intended) for deploying wai-routes apps is <a href="http://hackage.haskell.org/package/keter">keter</a>. You need to read the port from the environment variables -</p>
 
@@ -121,7 +125,7 @@ host: mydomainname.example.com
 <p>Upload that file to your server's <code>incoming</code> folder for keter to pick it up. You obviously need keter already installed and configured properly at the server.</p>
 
 <h1>
-<a id="planned-features" class="anchor" href="#planned-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Planned Features</h1>
+<a id="planned-features" class="anchor" href="#planned-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Planned Features</h1>
 
 <p>The following features are planned for later releases -</p>
 
@@ -135,9 +139,11 @@ host: mydomainname.example.com
 </ul>
 
 <h1>
-<a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changelog</h1>
+<a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Changelog</h1>
 
 <ul>
+<li>0.9.7 : Allow Aeson-0.11. Export Env, RequestData, and show/readRoute to enable "bare" handlers.</li>
+<li>0.9.6 : Subsites now receive parent route arguments, in line with regular nested routes</li>
 <li>0.9.5 : Subsites now play well with hierarchical routes</li>
 <li>0.9.4 : Wai-3.2 compatibility. Added functions to manipulate wai "vault". Minor changes to internal types.</li>
 <li>0.9.3 : Added <code>content</code> and <code>whenContent</code>. Allow http-types-0.9.</li>
