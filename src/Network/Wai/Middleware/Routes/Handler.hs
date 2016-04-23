@@ -66,21 +66,21 @@ module Network.Wai.Middleware.Routes.Handler
     )
     where
 
-import Network.Wai (Application, Request, Response, responseRaw, responseFile, responseBuilder, responseStream, pathInfo, queryString, requestBody, StreamingBody, requestHeaders, FilePart)
+import Network.Wai (Application, Request, responseRaw, responseFile, responseBuilder, responseStream, queryString, StreamingBody, requestHeaders, FilePart)
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody, vault)
 #endif
-import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, ResponseHandler, showRoute, showRouteQuery, readRoute, readQueryString)
+import Network.Wai.Middleware.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, showRoute, showRouteQuery, readRoute, readQueryString)
 import Network.Wai.Middleware.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
 import Network.Wai.Middleware.Routes.ContentTypes (acceptContentType, contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript, typeAll)
 
 import Control.Monad (liftM, when)
-import Control.Monad.Loops (unfoldWhileM)
-import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, lift, liftIO, MonadTrans)
+import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, liftIO, MonadTrans)
 
+import Control.Arrow ((***))
 import Control.Applicative (Applicative, (<$>), (<*>))
 
-import Data.Maybe (maybe, fromMaybe)
+import Data.Maybe (fromMaybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -94,7 +94,7 @@ import qualified Data.Aeson as A
 import qualified Data.Aeson.Encode as AE
 
 import Data.Set (Set)
-import qualified Data.Set as S (empty, map)
+import qualified Data.Set as S (empty)
 
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
@@ -102,7 +102,6 @@ import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.CaseInsensitive (CI, mk)
 
 import Web.Cookie (CookiesText, parseCookiesText, renderSetCookie, SetCookie(..))
-import Data.Default.Class (def)
 import Data.List (intersect)
 
 import qualified Data.Vault.Lazy as V
@@ -134,8 +133,8 @@ type PostParams = ([(Text, Text)], [(Text, FileInfo)])
 _toPostParams :: ([P.Param], [P.File BL.ByteString])  -> PostParams
 _toPostParams (params, files) = (params', files')
   where
-    params' = map (\(k,v) -> (decodeUtf8 k, decodeUtf8 v))     params
-    files'  = map (\(k,v) -> (decodeUtf8 k, decodeFileInfo v)) files
+    params' = map (decodeUtf8 *** decodeUtf8)     params
+    files'  = map (decodeUtf8 *** decodeFileInfo) files
     decodeFileInfo fi = FileInfo
       { fileName = decodeUtf8 $ P.fileName fi
       , fileContentType = decodeUtf8 $ P.fileContentType fi
@@ -205,21 +204,22 @@ cookieSetHeaderName = mk "Set-Cookie"
 -- | Convert a full wai application to a Handler
 -- A bit like subsites, but at a higher level.
 mountedAppHandler :: Application -> HandlerS sub master
-mountedAppHandler app _env req hh = app (waiReq req) hh
+mountedAppHandler app _env = app . waiReq
 
 -- | "Run" HandlerM, resulting in a Handler
 runHandlerM :: HandlerM sub master () -> HandlerS sub master
 runHandlerM h env req hh = do
   (_, st) <- runStateT (extractH h) (defaultHandlerState env req)
-  case fromMaybe defaultResponse (respResp st) of
+  -- Fetch the internal response structure
+  let respData = fromMaybe defaultResponse (respResp st)
+  -- Handle cookies (add them to headers)
+  let headers' = map mkSetCookie (respCookies st) ++ respHeaders st
+  -- Construct the actual wai response
+  case mkResponse (respStatus st) headers' respData of
     -- Abort handling current response and move to next handler
-    ResponseNext -> runNext (getRequestData st) hh
+    Nothing -> runNext (getRequestData st) hh
     -- Normal handling
-    otherResponse -> do
-      -- Handle cookies (add them to headers)
-      let headers' = map mkSetCookie (respCookies st) ++ respHeaders st
-      -- Construct the normal response
-      let resp = mkResponse (respStatus st) headers' otherResponse
+    Just resp ->
       -- Check if we are trying to send a raw response
       case respRaw st of
         Nothing -> hh resp
@@ -227,9 +227,10 @@ runHandlerM h env req hh = do
         Just rawHandler -> hh $ responseRaw rawHandler resp
   where
     mkSetCookie s = (cookieSetHeaderName, toByteString $ renderSetCookie s)
-    mkResponse status headers (ResponseFile path part) = responseFile status headers path part
-    mkResponse status headers (ResponseBuilder builder) = responseBuilder status headers builder
-    mkResponse status headers (ResponseStream streaming) = responseStream status headers streaming
+    mkResponse rstatus headers (ResponseFile path part) = Just $ responseFile rstatus headers path part
+    mkResponse rstatus headers (ResponseBuilder builder) = Just $ responseBuilder rstatus headers builder
+    mkResponse rstatus headers (ResponseStream streaming) = Just $ responseStream rstatus headers streaming
+    mkResponse _ _ ResponseNext = Nothing
 
 -- | Get the request body as a bytestring. Consumes the entire body into memory at once.
 -- TODO: Implement streaming. Prevent clash with direct use of `Network.Wai.requestBody`
@@ -366,17 +367,17 @@ rootRouteAttrSet = do
 -- | Add a header to the application response
 -- TODO: Differentiate between setting and adding headers
 header :: HeaderName -> ByteString -> HandlerM sub master ()
-header h s = modify $ addHeader h s
+header h b = modify addHeader
   where
-    addHeader :: HeaderName -> ByteString -> HandlerState sub master -> HandlerState sub master
-    addHeader h b s@(HandlerState {respHeaders=hs}) = s {respHeaders=(h,b):hs}
+    addHeader :: HandlerState sub master -> HandlerState sub master
+    addHeader st@(HandlerState {respHeaders=hs}) = st {respHeaders=(h,b):hs}
 
 -- | Set the response status
 status :: Status -> HandlerM sub master ()
-status s = modify $ setStatus s
+status s = modify setStatus
   where
-    setStatus :: Status -> HandlerState sub master -> HandlerState sub master
-    setStatus s st = st{respStatus=s}
+    setStatus :: HandlerState sub master -> HandlerState sub master
+    setStatus st = st{respStatus=s}
 
 -- | Send a file as response
 file :: FilePath -> HandlerM sub master ()
@@ -473,14 +474,14 @@ javascript = asContent typeJavascript
 --  (look in Network.Wai.Middleware.Routes.ContentTypes for examples)
 --  And sets the body of the response to the given Text
 asContent :: ByteString -> Text -> HandlerM sub master ()
-asContent ctype content = do
+asContent ctype s = do
   header contentType ctype
-  raw $ encodeUtf8 content
+  raw $ encodeUtf8 s
 
 -- | Sets the response body when the content type is acceptable
 content :: [ByteString] -> Text -> HandlerM sub master ()
 content [] _ = return ()
-content ctypes content = whenContent ctypes (asContent (head ctypes) content)
+content ctypes s = whenContent ctypes (asContent (head ctypes) s)
 
 -- | Perform an action only when there is no accept list or the given contentType is acceptable
 whenContent :: [ByteString] -> HandlerM sub master () -> HandlerM sub master ()
@@ -504,9 +505,9 @@ acceptableContentTypes = do
 
 -- | Sets a cookie to the response
 setCookie :: SetCookie -> HandlerM sub master ()
-setCookie s = modify setCookie
+setCookie s = modify setCookie'
   where
-    setCookie st = st {respCookies = s : respCookies st}
+    setCookie' st = st {respCookies = s : respCookies st}
 
 -- | Get all cookies
 getCookies :: HandlerM sub master CookiesText
@@ -595,4 +596,4 @@ getParam name = do
   getLookup <- getQueryParam name
   case getLookup of
     Nothing -> getPostParam name
-    Just _ -> return $ getLookup
+    Just _ -> return getLookup

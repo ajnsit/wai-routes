@@ -168,7 +168,7 @@ mkRouteSubDispatch typName constraint routes = do
 
 -- Helper that creates the dispatch clause
 mkRouteDispatchClause :: [ResourceTree a] -> Q Clause
-mkRouteDispatchClause routes =
+mkRouteDispatchClause =
   mkDispatchClause MkDispatchSettings
     { mdsRunHandler    = [| runHandler    |]
     , mdsSubDispatcher = [| subDispatcher |]
@@ -179,7 +179,7 @@ mkRouteDispatchClause routes =
     , mds405           = [| app405        |]
     , mdsGetHandler    = defaultGetHandler
     , mdsUnwrapper     = return
-    } routes
+    }
 
 
 -- | Generates all the things needed for efficient routing.
