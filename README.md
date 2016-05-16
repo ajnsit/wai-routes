@@ -7,6 +7,8 @@ Wai-routes is based on the Haskell [Web Application Interface](http://hackage.ha
 
 Much of Wai-route's typesafe URL functionality was pulled from the corresponding features in [Yesod](http://www.yesodweb.com/), and indeed the underlying aim of wai-routes is - *"To provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications."*.
 
+***Note*** - If you are looking for typesafe URLs for Snap, take a look at [Snap-Routes](https://github.com/ajnsit/snap-routes) - A port of this library for Snap.
+
 Features
 ==========
 
