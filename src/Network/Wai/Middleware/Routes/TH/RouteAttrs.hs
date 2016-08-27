@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, CPP #-}
 {-# LANGUAGE RecordWildCards #-}
 module Network.Wai.Middleware.Routes.TH.RouteAttrs
     ( mkRouteAttrsInstance
@@ -13,7 +13,12 @@ import Data.Text (pack)
 mkRouteAttrsInstance :: Type -> [ResourceTree a] -> Q Dec
 mkRouteAttrsInstance typ ress = do
     clauses <- mapM (goTree id) ress
-    return $ InstanceD [] (ConT ''RouteAttrs `AppT` typ)
+#if MIN_VERSION_template_haskell(2,11,0)
+    let inst = InstanceD Nothing
+#else
+    let inst = InstanceD
+#endif
+    return $ inst [] (ConT ''RouteAttrs `AppT` typ)
         [ FunD 'routeAttrs $ concat clauses
         ]
 
