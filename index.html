@@ -20,7 +20,7 @@
 
     <section class="main-content">
       <h1>
-<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.9.7-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://gitter.im/ajnsit/wai-routes"><img src="https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg" alt="Join the chat at https://gitter.im/ajnsit/wai-routes"></a>
+<a id="wai-routes----" class="anchor" href="#wai-routes----" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="https://ajnsit.github.io/wai-routes">Wai-Routes</a> <a href="https://hackage.haskell.org/package/wai-routes"><img src="https://img.shields.io/badge/hackage-v0.9.8-brightgreen.svg" alt="Hackage"></a> <a href="http://packdeps.haskellers.com/feed?needle=wai-routes"><img src="https://img.shields.io/hackage-deps/v/wai-routes.svg" alt="Hackage-Deps"></a> <a href="https://travis-ci.org/ajnsit/wai-routes"><img src="https://img.shields.io/travis/ajnsit/wai-routes.svg" alt="Build Status"></a> <a href="https://gitter.im/ajnsit/wai-routes"><img src="https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg" alt="Join the chat at https://gitter.im/ajnsit/wai-routes"></a>
 </h1>
 
 <p>Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.</p>
@@ -28,6 +28,8 @@
 <p>Wai-routes is based on the Haskell <a href="http://hackage.haskell.org/package/wai">Web Application Interface</a> and uses it for most of the heavy lifting. It also provides a convenient but thin veneer over most of the wai API so it is unnecessary to directly use raw wai APIs when building web apps.</p>
 
 <p>Much of Wai-route's typesafe URL functionality was pulled from the corresponding features in <a href="http://www.yesodweb.com/">Yesod</a>, and indeed the underlying aim of wai-routes is - <em>"To provide a similar level of typesafe URL functionality to Wai applications as is available to Yesod applications."</em>.</p>
+
+<p><strong><em>Note</em></strong> - If you are looking for typesafe URLs for Snap, take a look at <a href="https://github.com/ajnsit/snap-routes">Snap-Routes</a> - A port of this library for Snap.</p>
 
 <h1>
 <a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
@@ -142,6 +144,7 @@ host: mydomainname.example.com
 <a id="changelog" class="anchor" href="#changelog" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Changelog</h1>
 
 <ul>
+<li>0.9.8 : Allow Data.Default-0.1.0. Allow comments in route definitions. Some other minor changes.</li>
 <li>0.9.7 : Allow Aeson-0.11. Export Env, RequestData, and show/readRoute to enable "bare" handlers.</li>
 <li>0.9.6 : Subsites now receive parent route arguments, in line with regular nested routes</li>
 <li>0.9.5 : Subsites now play well with hierarchical routes</li>
