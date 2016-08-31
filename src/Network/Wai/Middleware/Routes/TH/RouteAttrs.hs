@@ -13,12 +13,7 @@ import Data.Text (pack)
 mkRouteAttrsInstance :: Type -> [ResourceTree a] -> Q Dec
 mkRouteAttrsInstance typ ress = do
     clauses <- mapM (goTree id) ress
-#if MIN_VERSION_template_haskell(2,11,0)
-    let inst = InstanceD Nothing
-#else
-    let inst = InstanceD
-#endif
-    return $ inst [] (ConT ''RouteAttrs `AppT` typ)
+    return $ instanceD [] (ConT ''RouteAttrs `AppT` typ)
         [ FunD 'routeAttrs $ concat clauses
         ]
 
@@ -41,3 +36,10 @@ goRes front Resource {..} =
         []
   where
     toText s = VarE 'pack `AppE` LitE (StringL s)
+
+instanceD :: Cxt -> Type -> [Dec] -> Dec
+#if MIN_VERSION_template_haskell(2,11,0)
+instanceD = InstanceD Nothing
+#else
+instanceD = InstanceD
+#endif
