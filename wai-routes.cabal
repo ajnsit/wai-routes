@@ -25,7 +25,7 @@ source-repository this
     tag      : v0.9.8
 
 library
-    build-depends      : base               >= 4.7  && < 4.9
+    build-depends      : base               >= 4.7  && < 4.10
                        , wai                >= 3.0  && < 3.3
                        , wai-extra          >= 3.0  && < 3.1
                        , wai-app-static     >= 3.0  && < 3.2
@@ -76,7 +76,7 @@ test-suite test
   hs-source-dirs   : test
   GHC-options      : -Wall -threaded -fno-warn-orphans
 
-  build-depends    : base           >= 4.7 && < 4.9
+  build-depends    : base           >= 4.7 && < 4.10
                    , wai            >= 3.0 && < 3.3
                    , aeson          >= 0.8 && < 0.12
                    , hspec          >= 2.1 && < 2.3

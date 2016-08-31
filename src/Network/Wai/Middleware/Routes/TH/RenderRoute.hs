@@ -155,10 +155,12 @@ mkRenderRouteInstance' cxt typ ress = do
     (cons, decs) <- mkRouteCons ress
 #if MIN_VERSION_template_haskell(2,11,0)
     did <- DataInstD [] ''Route [typ] Nothing cons <$> mapM conT clazzes
+    let inst = InstanceD Nothing
 #else
     let did = DataInstD [] ''Route [typ] cons clazzes
+    let inst = InstanceD
 #endif
-    return $ InstanceD cxt (ConT ''RenderRoute `AppT` typ)
+    return $ inst cxt (ConT ''RenderRoute `AppT` typ)
         [ did
         , FunD (mkName "renderRoute") cls
         ] : decs
