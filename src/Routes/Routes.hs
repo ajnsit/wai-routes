@@ -6,7 +6,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
 {- |
-Module      :  Wai.Routes.Routes
+Module      :  Routes.Routes
 Copyright   :  (c) Anupam Jain 2013
 License     :  MIT (see the file LICENSE)
 
@@ -16,7 +16,7 @@ Portability :  non-portable (uses ghc extensions)
 
 This package provides typesafe URLs for Wai applications.
 -}
-module Wai.Routes.Routes
+module Routes.Routes
     ( -- * Quasi Quoters
       parseRoutes            -- | Parse Routes declared inline
     , parseRoutesFile        -- | Parse routes declared in a file
@@ -69,9 +69,9 @@ import Network.Wai (ResponseReceived, Middleware, Application, pathInfo, request
 import Network.HTTP.Types (Query, decodePath, encodePath, queryTextToQuery, queryToQueryText)
 
 -- Routes
-import Wai.Routes.Class (Route, RenderRoute(..), ParseRoute(..), RouteAttrs(..))
-import Wai.Routes.Parse (parseRoutes, parseRoutesNoCheck, parseRoutesFile, parseRoutesFileNoCheck, parseType)
-import Wai.Routes.TH (mkRenderRouteInstance, mkParseRouteInstance, mkRouteAttrsInstance, mkDispatchClause, ResourceTree(..), MkDispatchSettings(..), defaultGetHandler)
+import Routes.Class (Route, RenderRoute(..), ParseRoute(..), RouteAttrs(..))
+import Routes.Parse (parseRoutes, parseRoutesNoCheck, parseRoutesFile, parseRoutesFileNoCheck, parseType)
+import Routes.TH (mkRenderRouteInstance, mkParseRouteInstance, mkRouteAttrsInstance, mkDispatchClause, ResourceTree(..), MkDispatchSettings(..), defaultGetHandler)
 
 -- Text and Bytestring
 import Data.ByteString (ByteString)

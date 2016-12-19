@@ -121,9 +121,9 @@ module Wai.Routes
   )
   where
 
-import Wai.Routes.Routes
-import Wai.Routes.Monad
-import Wai.Routes.Handler
+import Routes.Routes
+import Routes.Monad
+import Routes.Handler
 import Network.HTTP.Types.Status
 import Network.Wai.Middleware.RequestLogger
 import Network.Wai.Application.Static

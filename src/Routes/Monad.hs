@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings, TypeFamilies, RankNTypes, DeriveFunctor #-}
 
 {- |
-Module      :  Wai.Routes.Monad
+Module      :  Routes.Monad
 Copyright   :  (c) Anupam Jain 2013
 License     :  MIT (see the file LICENSE)
 
@@ -11,7 +11,7 @@ Portability :  non-portable (uses ghc extensions)
 
 Defines a Routing Monad that provides easy composition of Routes
 -}
-module Wai.Routes.Monad
+module Routes.Monad
     ( -- * Route Monad
       RouteM
       -- * Compose Routes
@@ -29,8 +29,8 @@ module Wai.Routes.Monad
     where
 
 import Network.Wai
-import Wai.Routes.Routes
-import Wai.Routes.DefaultRoute
+import Routes.Routes
+import Routes.DefaultRoute
 import Network.HTTP.Types (status404)
 
 import Util.Free (F(..), liftF)

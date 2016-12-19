@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, CPP #-}
-module Wai.Routes.TH.RenderRoute
+module Routes.TH.RenderRoute
     ( -- ** RenderRoute
       mkRenderRouteInstance
     , mkRenderRouteInstance'
@@ -7,7 +7,7 @@ module Wai.Routes.TH.RenderRoute
     , mkRenderRouteClauses
     ) where
 
-import Wai.Routes.TH.Types
+import Routes.TH.Types
 #if MIN_VERSION_template_haskell(2,11,0)
 import Language.Haskell.TH (conT)
 #endif
@@ -16,7 +16,7 @@ import Data.Maybe (maybeToList)
 import Control.Monad (replicateM)
 import Data.Text (pack)
 import Web.PathPieces (PathPiece (..), PathMultiPiece (..))
-import Wai.Routes.Class
+import Routes.Class
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative ((<$>))
 import Data.Monoid (mconcat)

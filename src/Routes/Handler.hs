@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving, CPP #-}
 {- |
-Module      :  Wai.Routes.Handler
+Module      :  Routes.Handler
 Copyright   :  (c) Anupam Jain 2013
 License     :  MIT (see the file LICENSE)
 
@@ -10,7 +10,7 @@ Portability :  non-portable (uses ghc extensions)
 
 Provides a HandlerM Monad that makes it easy to build Handlers
 -}
-module Wai.Routes.Handler
+module Routes.Handler
     ( HandlerM()             -- | A Monad that makes it easier to build a Handler
     , runHandlerM            -- | Run a HandlerM to get a Handler
     , mountedAppHandler      -- | Convert a full wai application to a HandlerS
@@ -70,9 +70,9 @@ import Network.Wai (Application, Request, responseRaw, responseFile, responseBui
 #if MIN_VERSION_wai(3,0,1)
 import Network.Wai (strictRequestBody, vault)
 #endif
-import Wai.Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, showRoute, showRouteQuery, readRoute, readQueryString)
-import Wai.Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
-import Wai.Routes.ContentTypes (acceptContentType, contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript, typeAll)
+import Routes.Routes (Env(..), RequestData, HandlerS, waiReq, currentRoute, runNext, showRoute, showRouteQuery, readRoute, readQueryString)
+import Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
+import Routes.ContentTypes (acceptContentType, contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript, typeAll)
 
 import Control.Monad (liftM, when)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, liftIO, MonadTrans)
@@ -476,7 +476,7 @@ javascript :: Text -> HandlerM sub master ()
 javascript = asContent typeJavascript
 
 -- | Sets the content-type header to the given Bytestring
---  (look in Wai.Routes.ContentTypes for examples)
+--  (look in Routes.ContentTypes for examples)
 --  And sets the body of the response to the given Text
 asContent :: ByteString -> Text -> HandlerM sub master ()
 asContent ctype s = do

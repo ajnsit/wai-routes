@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
-module Wai.Routes.Class
+module Routes.Class
     ( RenderRoute (..)
     , ParseRoute (..)
     , RouteAttrs (..)

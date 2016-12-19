@@ -1,10 +1,10 @@
 -- | Check for overlapping routes.
-module Wai.Routes.Overlap
+module Routes.Overlap
     ( findOverlapNames
     , Overlap (..)
     ) where
 
-import Wai.Routes.TH.Types
+import Routes.TH.Types
 import Data.List (intercalate)
 
 data Flattened t = Flattened
@@ -63,7 +63,7 @@ piecesOverlap _ _ = True
 
 findOverlapNames :: [ResourceTree t] -> [(String, String)]
 findOverlapNames =
-    map go . findOverlapsF . filter fCheck . concatMap Wai.Routes.Overlap.flatten
+    map go . findOverlapsF . filter fCheck . concatMap Routes.Overlap.flatten
   where
     go (OverlapF x y) =
         (go' x, go' y)

@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE PatternGuards #-}
 {-# OPTIONS_GHC -fno-warn-missing-fields #-} -- QuasiQuoter
-module Wai.Routes.Parse
+module Routes.Parse
     ( parseRoutes
     , parseRoutesFile
     , parseRoutesNoCheck
@@ -16,8 +16,8 @@ import Language.Haskell.TH.Syntax
 import Data.Char (isUpper)
 import Language.Haskell.TH.Quote
 import qualified System.IO as SIO
-import Wai.Routes.TH
-import Wai.Routes.Overlap (findOverlapNames)
+import Routes.TH
+import Routes.Overlap (findOverlapNames)
 import Data.List (foldl', isPrefixOf)
 import Data.Maybe (mapMaybe)
 import qualified Data.Set as Set

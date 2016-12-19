@@ -1,5 +1,5 @@
 {-# LANGUAGE RecordWildCards, TemplateHaskell, ViewPatterns #-}
-module Wai.Routes.TH.Dispatch
+module Routes.TH.Dispatch
     ( MkDispatchSettings (..)
     , mkDispatchClause
     , defaultGetHandler
@@ -13,7 +13,7 @@ import Control.Monad (forM)
 import Data.List (foldl')
 import Control.Arrow (second)
 import System.Random (randomRIO)
-import Wai.Routes.TH.Types
+import Routes.TH.Types
 import Data.Char (toLower)
 
 data MkDispatchSettings b site c = MkDispatchSettings
@@ -36,7 +36,7 @@ data SDC = SDC
     , reqExp :: Exp
     }
 
--- | A simpler version of Wai.Routes.TH.Dispatch.mkDispatchClause, based on
+-- | A simpler version of Routes.TH.Dispatch.mkDispatchClause, based on
 -- view patterns.
 --
 -- Since 1.4.0

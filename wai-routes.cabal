@@ -47,20 +47,20 @@ library
                        , data-default-class >= 0.0  && < 0.2
                        , vault              >= 0.3  && < 0.4
     exposed-modules    : Wai.Routes, Network.Wai.Middleware.Routes
-    other-modules      : Wai.Routes.Parse
-                         Wai.Routes.Overlap
-                         Wai.Routes.Class
-                         Wai.Routes.Routes
-                         Wai.Routes.Monad
-                         Wai.Routes.Handler
-                         Wai.Routes.ContentTypes
-                         Wai.Routes.DefaultRoute
-                         Wai.Routes.TH
-                         Wai.Routes.TH.Types
-                         Wai.Routes.TH.Dispatch
-                         Wai.Routes.TH.ParseRoute
-                         Wai.Routes.TH.RenderRoute
-                         Wai.Routes.TH.RouteAttrs
+    other-modules      : Routes.Parse
+                         Routes.Overlap
+                         Routes.Class
+                         Routes.Routes
+                         Routes.Monad
+                         Routes.Handler
+                         Routes.ContentTypes
+                         Routes.DefaultRoute
+                         Routes.TH
+                         Routes.TH.Types
+                         Routes.TH.Dispatch
+                         Routes.TH.ParseRoute
+                         Routes.TH.RenderRoute
+                         Routes.TH.RouteAttrs
                          Util.Free
     exposed            : True
     buildable          : True

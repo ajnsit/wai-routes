@@ -1,14 +1,14 @@
 {-# LANGUAGE TemplateHaskell, CPP #-}
-module Wai.Routes.TH.ParseRoute
+module Routes.TH.ParseRoute
     ( -- ** ParseRoute
       mkParseRouteInstance
     ) where
 
-import Wai.Routes.TH.Types
+import Routes.TH.Types
 import Language.Haskell.TH.Syntax
 import Data.Text (Text)
-import Wai.Routes.Class
-import Wai.Routes.TH.Dispatch
+import Routes.Class
+import Routes.TH.Dispatch
 
 mkParseRouteInstance :: Type -> [ResourceTree a] -> Q Dec
 mkParseRouteInstance typ ress = do
