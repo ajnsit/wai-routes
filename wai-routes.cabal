@@ -46,21 +46,21 @@ library
                        , cookie             >= 0.4  && < 0.5
                        , data-default-class >= 0.0  && < 0.2
                        , vault              >= 0.3  && < 0.4
-    exposed-modules    : Network.Wai.Middleware.Routes
-    other-modules      : Network.Wai.Middleware.Routes.Parse
-                         Network.Wai.Middleware.Routes.Overlap
-                         Network.Wai.Middleware.Routes.Class
-                         Network.Wai.Middleware.Routes.Routes
-                         Network.Wai.Middleware.Routes.Monad
-                         Network.Wai.Middleware.Routes.Handler
-                         Network.Wai.Middleware.Routes.ContentTypes
-                         Network.Wai.Middleware.Routes.DefaultRoute
-                         Network.Wai.Middleware.Routes.TH
-                         Network.Wai.Middleware.Routes.TH.Types
-                         Network.Wai.Middleware.Routes.TH.Dispatch
-                         Network.Wai.Middleware.Routes.TH.ParseRoute
-                         Network.Wai.Middleware.Routes.TH.RenderRoute
-                         Network.Wai.Middleware.Routes.TH.RouteAttrs
+    exposed-modules    : Wai.Routes, Network.Wai.Middleware.Routes
+    other-modules      : Wai.Routes.Parse
+                         Wai.Routes.Overlap
+                         Wai.Routes.Class
+                         Wai.Routes.Routes
+                         Wai.Routes.Monad
+                         Wai.Routes.Handler
+                         Wai.Routes.ContentTypes
+                         Wai.Routes.DefaultRoute
+                         Wai.Routes.TH
+                         Wai.Routes.TH.Types
+                         Wai.Routes.TH.Dispatch
+                         Wai.Routes.TH.ParseRoute
+                         Wai.Routes.TH.RenderRoute
+                         Wai.Routes.TH.RouteAttrs
                          Util.Free
     exposed            : True
     buildable          : True

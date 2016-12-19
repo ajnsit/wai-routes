@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeFamilies #-}
 
 {- |
-Module      :  Network.Wai.Middleware.Routes.DefaultRoute
+Module      :  Wai.Routes.DefaultRoute
 Copyright   :  (c) Anupam Jain 2013 - 2015
 License     :  MIT (see the file LICENSE)
 
@@ -11,7 +11,7 @@ Portability :  non-portable (uses ghc extensions)
 
 Defines a DefaultMaster datatype and associated route (DefaultRoute) which is used for "unrouted" handlers
 -}
-module Network.Wai.Middleware.Routes.DefaultRoute
+module Wai.Routes.DefaultRoute
   ( DefaultMaster(..)
   , Route(DefaultRoute)
   )
@@ -20,7 +20,7 @@ module Network.Wai.Middleware.Routes.DefaultRoute
 import Data.Text (Text)
 import Data.Set (empty)
 
-import Network.Wai.Middleware.Routes.Routes
+import Wai.Routes.Routes
 
 -- Default master datatype, which is used for "unrouted" handlers
 data DefaultMaster = DefaultMaster deriving (Eq, Show, Ord)

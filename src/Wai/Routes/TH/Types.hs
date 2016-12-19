@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE TemplateHaskell #-}
 -- | Warning! This module is considered internal and may have breaking changes
-module Network.Wai.Middleware.Routes.TH.Types
+module Wai.Routes.TH.Types
     ( -- * Data types
       Resource (..)
     , ResourceTree (..)
