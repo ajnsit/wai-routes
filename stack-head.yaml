@@ -11,4 +11,4 @@ packages:
 - examples/unrouted
 - examples/bare-wai
 extra-deps: []
-resolver: nightly-2016-08-31
+resolver: nightly-2016-12-18

@@ -3,4 +3,4 @@ packages:
 - '.'
 - '../..'
 extra-deps: []
-resolver: lts-6.14
+resolver: lts-7.14
