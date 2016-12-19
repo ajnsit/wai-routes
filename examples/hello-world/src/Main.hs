@@ -5,7 +5,7 @@ module Main where
   Note: Look at the code in subsites/ for an example of building the same functionality as a subsite.
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Handler.Warp
 import qualified Data.Text as T
 import Data.Maybe (fromMaybe)

@@ -6,7 +6,7 @@ module Main where
   Try CURL to see the effect of streaming. "curl localhost:8080"
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Handler.Warp
 
 import Control.Monad (forM_)

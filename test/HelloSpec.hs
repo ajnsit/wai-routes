@@ -6,7 +6,7 @@ module HelloSpec (spec) where
 
 import Data.Maybe (fromMaybe)
 import Network.Wai (Application)
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Data.Aeson (Value(Number), (.=), object)
 
 import Data.Text (Text)
@@ -142,4 +142,3 @@ spec = with application $ do
   describe "GET /lambda.png" $
     it "returns a file correctly" $
       get "/lambda.png" `shouldRespondWith` 200 {matchHeaders = ["Content-Type" <:> "image/png"]}
-

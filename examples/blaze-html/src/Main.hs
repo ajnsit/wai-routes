@@ -5,7 +5,7 @@ module Main where
   Simple demonstration of using blaze-html to generate html
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Application.Static
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TL

@@ -6,7 +6,7 @@ module Main where
 
 import Network.Wai (responseLBS)
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Handler.Warp
 import qualified Data.ByteString.Lazy as BS
 import Data.Text (Text)

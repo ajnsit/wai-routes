@@ -10,7 +10,7 @@ module Main where
     as PeopleRoute is defined in another file. This can't be helped.
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Handler.Warp (run)
 import Data.Aeson.TH (deriveJSON, defaultOptions)
 import Data.IORef (readIORef)

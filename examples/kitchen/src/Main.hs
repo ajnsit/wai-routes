@@ -12,7 +12,7 @@ import Data.Maybe (fromMaybe)
 import Data.Monoid (mconcat)
 import Data.Text (Text)
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Handler.Warp (run)
 
 -------------

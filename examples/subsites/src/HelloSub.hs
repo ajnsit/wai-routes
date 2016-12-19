@@ -4,7 +4,7 @@ module HelloSub where
   A simple subsite
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Data.Text (Text)
 import qualified Data.Text as T
 

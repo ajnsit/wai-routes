@@ -5,7 +5,7 @@ module Main where
   Example using shakespearean templates (hamlet, cassius, lucius, julius)
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TL
 import Network.Wai.Handler.Warp (run)

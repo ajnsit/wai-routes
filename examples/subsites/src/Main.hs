@@ -4,7 +4,7 @@ module Main where
   Simple demonstration of subsites
 -}
 
-import Network.Wai.Middleware.Routes
+import Wai.Routes
 import Network.Wai.Handler.Warp
 import Data.Text (Text)
 import qualified Data.Text as T
