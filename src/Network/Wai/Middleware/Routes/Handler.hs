@@ -436,7 +436,9 @@ json a = do
   header contentType typeJson
   rawBuilder $ _encode $ A.toJSON a
   where
-#if MIN_VERSION_aeson(0,9,0)
+#if MIN_VERSION_aeson(0,10,0)
+    _encode = A.fromEncoding . A.toEncoding
+#elif MIN_VERSION_aeson(0,9,0)
     _encode = AE.encodeToBuilder
 #else
     _encode = AE.encodeToByteStringBuilder
