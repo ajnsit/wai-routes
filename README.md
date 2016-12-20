@@ -1,4 +1,4 @@
-[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.9.8-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Join the chat at https://gitter.im/ajnsit/wai-routes](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg)](https://gitter.im/ajnsit/wai-routes)
+[Wai-Routes](https://ajnsit.github.io/wai-routes) [![Hackage](https://img.shields.io/badge/hackage-v0.9.9-brightgreen.svg)](https://hackage.haskell.org/package/wai-routes) [![Hackage-Deps](https://img.shields.io/hackage-deps/v/wai-routes.svg)](http://packdeps.haskellers.com/feed?needle=wai-routes) [![Build Status](https://img.shields.io/travis/ajnsit/wai-routes.svg)](https://travis-ci.org/ajnsit/wai-routes) [![Join the chat at https://gitter.im/ajnsit/wai-routes](https://img.shields.io/badge/gitter-join%20chat%20%E2%86%A3-blue.svg)](https://gitter.im/ajnsit/wai-routes)
 ====================================
 
 Wai-routes is a micro web framework for Haskell that focuses on typesafe URLs.
@@ -114,6 +114,7 @@ The following features are planned for later releases -
 Changelog
 =========
 
+* 0.9.9 : GHC 8 compatibility. Change namespace from Network.Wai.Middleware.Routes -> Wai.Routes
 * 0.9.8 : Allow Data.Default-0.1.0. Allow comments in route definitions. Some other minor changes.
 * 0.9.7 : Allow Aeson-0.11. Export Env, RequestData, and show/readRoute to enable "bare" handlers.
 * 0.9.6 : Subsites now receive parent route arguments, in line with regular nested routes
