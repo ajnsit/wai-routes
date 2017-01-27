@@ -11,4 +11,4 @@ packages:
 - examples/unrouted
 - examples/bare-wai
 extra-deps: []
-resolver: lts-7.14
+resolver: lts-7.17
