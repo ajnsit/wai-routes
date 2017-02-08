@@ -109,11 +109,7 @@ module Wai.Routes
 
     -- * Bare Handlers
     , Env(..)
-    , RequestData            -- | An abstract representation of the request data. You can get the wai request object by using `waiReq`
-    , waiReq                 -- | Extract the wai `Request` object from `RequestData`
-    , nextApp                -- | Extract the next Application in the stack
     , currentRoute           -- | Extract the current `Route` from `RequestData`
-    , runNext                -- | Run the next application in the stack
 
     , module Network.HTTP.Types.Status
     , module Network.Wai.Middleware.RequestLogger
