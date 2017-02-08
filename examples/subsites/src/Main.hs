@@ -6,6 +6,7 @@ module Main where
 
 import Wai.Routes
 import Network.Wai.Handler.Warp
+import Network.Wai.Application.Static
 import Data.Text (Text)
 import qualified Data.Text as T
 

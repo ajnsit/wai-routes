@@ -9,12 +9,11 @@ import Wai.Routes
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TL
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Application.Static
 
 import Text.Hamlet (hamletFile, hamlet, HtmlUrl)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import Text.Cassius (renderCss, cassius, CssUrl)
-
-import Data.Text.Encoding (encodeUtf8)
 
 -- Data for a person
 data Person = Person

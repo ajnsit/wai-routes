@@ -12,6 +12,7 @@ module Main where
 
 import Wai.Routes
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Application.Static
 import Data.Aeson.TH (deriveJSON, defaultOptions)
 import Data.IORef (readIORef)
 import Control.Monad.IO.Class (liftIO)

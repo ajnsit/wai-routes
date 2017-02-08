@@ -92,7 +92,10 @@ application :: IO Application
 application = return $ waiApp $ do
   handler handleInfoRequest
   route MyRoute
-  catchall $ staticApp $ defaultFileServerSettings "test/static"
+  handler $ runHandlerM $ do
+    Just (DefaultRoute (route,_)) <- maybeRoute
+    plain $ T.pack $ show route
+  -- catchall $ plain "This will never be reached"
 
 
 ---- THE TESTS ----
@@ -139,6 +142,6 @@ spec = with application $ do
     it "can pass route arguments to the nested subsite correctly" $
       get "/nested/nested2/nested3/helloworld/argsub" `shouldRespondWith` "subsite-helloworld-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
-  describe "GET /lambda.png" $
-    it "returns a file correctly" $
-      get "/lambda.png" `shouldRespondWith` 200 {matchHeaders = ["Content-Type" <:> "image/png"]}
+  describe "GET /does/not/exist" $
+    it "handles catch all routes correctly" $
+      get "/does/not/exist" `shouldRespondWith` "[\"does\",\"not\",\"exist\"]" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}

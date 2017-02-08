@@ -8,6 +8,7 @@ module Main where
 
 import Wai.Routes
 import Network.Wai.Handler.Warp
+import Network.Wai.Application.Static
 
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (liftIO)

@@ -8,6 +8,7 @@ import Network.Wai (responseLBS)
 
 import Wai.Routes
 import Network.Wai.Handler.Warp
+import Network.Wai.Application.Static
 import qualified Data.ByteString.Lazy as BS
 import Data.Text (Text)
 import qualified Data.Text as T
