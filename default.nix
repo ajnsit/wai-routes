@@ -2,7 +2,7 @@
 , case-insensitive, containers, cookie, data-default-class
 , filepath, hspec, hspec-wai, hspec-wai-json, http-types
 , mime-types, monad-loops, mtl, path-pieces, random, stdenv
-, template-haskell, text, vault, wai, wai-app-static, wai-extra
+, template-haskell, text, vault, wai, wai-extra
 }:
 mkDerivation {
   pname = "wai-routes";
@@ -12,7 +12,7 @@ mkDerivation {
     aeson base blaze-builder bytestring case-insensitive containers
     cookie data-default-class filepath http-types mime-types
     monad-loops mtl path-pieces random template-haskell text vault wai
-    wai-app-static wai-extra
+    wai-extra
   ];
   testHaskellDepends = [
     aeson base hspec hspec-wai hspec-wai-json text wai
