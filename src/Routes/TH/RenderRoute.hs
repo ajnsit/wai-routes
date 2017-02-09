@@ -46,7 +46,9 @@ mkRouteCons rttypes =
 
     mkRouteCon (ResourceParent name _check pieces children) = do
         (cons, decs) <- mkRouteCons children
-#if MIN_VERSION_template_haskell(2,11,0)
+#if MIN_VERSION_template_haskell(2,12,0)
+        dec <- DataD [] (mkName name) [] Nothing cons <$> fmap (pure . DerivClause Nothing) (mapM conT [''Show, ''Read, ''Eq])
+#elif MIN_VERSION_template_haskell(2,11,0)
         dec <- DataD [] (mkName name) [] Nothing cons <$> mapM conT [''Show, ''Read, ''Eq]
 #else
         let dec = DataD [] (mkName name) [] cons [''Show, ''Read, ''Eq]
@@ -55,7 +57,7 @@ mkRouteCons rttypes =
       where
         con = NormalC (mkName name)
             $ map (\x -> (notStrict, x))
-            $ concat [singles, [ConT $ mkName name]]
+            $ singles ++ [ConT $ mkName name]
 
         singles = concatMap toSingle pieces
         toSingle Static{} = []
@@ -99,7 +101,7 @@ mkRenderRouteClauses =
         dyns <- replicateM cnt $ newName "dyn"
         sub <-
             case resourceDispatch res of
-                Subsite{} -> fmap return $ newName "sub"
+                Subsite{} -> return <$> newName "sub"
                 _ -> return []
         let pat = ConP (mkName $ resourceName res) $ map VarP $ dyns ++ sub
 
@@ -136,7 +138,7 @@ mkRenderRouteClauses =
     mkPieces _ _ [] _ = []
     mkPieces toText tsp (Static s:ps) dyns = toText s : mkPieces toText tsp ps dyns
     mkPieces toText tsp (Dynamic{}:ps) (d:dyns) = tsp `AppE` VarE d : mkPieces toText tsp ps dyns
-    mkPieces _ _ ((Dynamic _) : _) [] = error "mkPieces 120"
+    mkPieces _ _ (Dynamic _ : _) [] = error "mkPieces 120"
 
 -- | Generate the 'RenderRoute' instance.
 --
@@ -153,7 +155,9 @@ mkRenderRouteInstance' :: Cxt -> Type -> [ResourceTree Type] -> Q [Dec]
 mkRenderRouteInstance' cxt typ ress = do
     cls <- mkRenderRouteClauses ress
     (cons, decs) <- mkRouteCons ress
-#if MIN_VERSION_template_haskell(2,11,0)
+#if MIN_VERSION_template_haskell(2,12,0)
+    did <- DataInstD [] ''Route [typ] Nothing cons <$> fmap (pure . DerivClause Nothing) (mapM conT clazzes)
+#elif MIN_VERSION_template_haskell(2,11,0)
     did <- DataInstD [] ''Route [typ] Nothing cons <$> mapM conT clazzes
 #else
     let did = DataInstD [] ''Route [typ] cons clazzes
