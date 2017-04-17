@@ -30,6 +30,8 @@ matrix:
     compiler: ": # lts-6"
   - env: ARGS="--resolver lts-7"
     compiler: ": # lts-7"
+  - env: ARGS="--resolver lts-8"
+    compiler: ": # lts-7"
   - env: ARGS="--resolver lts"
     compiler: ": # lts"
   - env: ARGS="--resolver nightly"
