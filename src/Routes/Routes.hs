@@ -134,17 +134,19 @@ mkRouteData typName routes = do
                   , rinst
                   ]
 
+instanceD :: Cxt -> Type -> [Dec] -> Dec
+#if MIN_VERSION_template_haskell(2,11,0)
+instanceD = InstanceD Nothing
+#else
+instanceD = InstanceD
+#endif
+
 -- | Generates a 'Routable' instance and dispatch function
 mkRouteDispatch :: String -> [ResourceTree String] -> Q [Dec]
 mkRouteDispatch typName routes = do
   let typ = parseType typName
   disp <- mkRouteDispatchClause routes
-#if MIN_VERSION_template_haskell(2,11,0)
-  let inst = InstanceD Nothing
-#else
-  let inst = InstanceD
-#endif
-  return [inst []
+  return [instanceD []
           (ConT ''Routable `AppT` typ `AppT` typ)
           [FunD (mkName "dispatcher") [disp]]]
 
@@ -160,12 +162,7 @@ mkRouteSubDispatch typName constraint routes = do
   className <- lookupTypeName constraint
   -- Check if this is a classname or a type
   let contract = maybe (error $ "Unknown typeclass " ++ show constraint) (getContract master) className
-#if MIN_VERSION_template_haskell(2,11,0)
-  let inst = InstanceD Nothing
-#else
-  let inst = InstanceD
-#endif
-  return [inst [contract]
+  return [instanceD [contract]
           (ConT ''Routable `AppT` typ `AppT` VarT master)
           [FunD (mkName "dispatcher") [disp]]]
   where
