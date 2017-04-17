@@ -13,7 +13,6 @@ import qualified Data.ByteString.Lazy as BS
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as E
-import Data.Maybe (fromMaybe)
 
 -- The Master Site argument
 data MyRoute = MyRoute
@@ -29,22 +28,22 @@ mkRoute "MyRoute" [parseRoutes|
 -- Bare handlers don't use `runHandlerM`
 -- Get env and request data as arguments
 getHomeR :: Handler MyRoute
-getHomeR env req continue = do
+getHomeR _env req continue = do
   -- We are in the IO Monad
   putStrLn "Home Page"
   -- Construct a wai Response and pass it to the continuation function
   continue resp
   where
-    showRouteMaster = textToBytestring . showRoute
-    Just route = currentRoute req
+    showRouteBS = textToBytestring . showRoute
+    Just thisRoute = currentRoute req
     resp = responseLBS
         status200
         [("Content-Type", "text/html")]
         (BS.concat
           [ "<h1>Home</h1>"
-          , "<p>You are on route - ", showRouteMaster route, "</p>"
+          , "<p>You are on route - ", showRouteBS thisRoute, "</p>"
           , "<p>"
-          ,   "<a href=\"", showRouteMaster (HelloR "World"), "\">Go to hello</a>"
+          ,   "<a href=\"", showRouteBS (HelloR "World"), "\">Go to hello</a>"
           ,   " to be greeted!"
           , "</p>"
           ])
@@ -52,17 +51,17 @@ getHomeR env req continue = do
 -- Hello
 -- "who" Text parameter is passed to the handler as usual
 getHelloR :: Text -> Handler MyRoute
-getHelloR who env req continue = do
+getHelloR who _env _req continue = do
   putStrLn $ "Hello " ++ T.unpack who
   continue resp
   where
-    showRouteMaster = textToBytestring . showRoute
+    showRouteBS = textToBytestring . showRoute
     resp = responseLBS
         status200
         [("Content-Type", "text/html")]
         (BS.concat
           [ "<h1>Hello ", textToBytestring who, "!</h1>"
-          , "<a href=\"", showRouteMaster HomeR, "\">Go back</a>"
+          , "<a href=\"", showRouteBS HomeR, "\">Go back</a>"
           ])
 
 -- The application that uses our route

@@ -42,14 +42,11 @@ mkRoute "MyApp" [parseRoutes|
 getHomeR :: Handler MyApp
 getHomeR = runHandlerM $ do
   MyApp people <- sub
-  showRouteQuery <- showRouteQuerySub
   let pageTitle = "Hello Hamlet"
   html $ TL.toStrict $ renderHtml $ home pageTitle people showRouteQuery
 
 getStylesheetR :: Handler MyApp
-getStylesheetR = runHandlerM $ do
-  showRouteQuery <- showRouteQuerySub
-  css $ TL.toStrict $ renderCss $ style showRouteQuery
+getStylesheetR = runHandlerM $ css $ TL.toStrict $ renderCss $ style showRouteQuery
 
 -- Inline cassius example, julius and lucius would be similar
 style :: CssUrl MyAppRoute

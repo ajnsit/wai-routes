@@ -31,7 +31,6 @@ mkRoute "MyRoute" [parseRoutes|
 getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
   Just r <- maybeRoute
-  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Home</h1>"
     , "<p>You are on route - ", showRoute r, "</p>"
@@ -47,7 +46,6 @@ getHomeR = runHandlerM $ do
 -- Hello
 getHelloR :: Handler MyRoute
 getHelloR = runHandlerM $ do
-  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Hello World!</h1>"
     , "<a href=\"", showRoute HomeR, "\">Go back</a>"
@@ -58,7 +56,6 @@ postPostR :: Handler MyRoute
 postPostR = runHandlerM $ do
   name' <- getParam "name"
   let name = fromMaybe "unnamed" name'
-  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>Hello '", name, "'!</h1>"
     , "<a href=\"", showRoute HomeR, "\">Go back</a>"
@@ -67,7 +64,6 @@ postPostR = runHandlerM $ do
 -- Nested hierarchical routes
 getUpperBasementR :: Handler MyRoute
 getUpperBasementR = runHandlerM $ do
-  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>You are at the upper basement!</h1>"
     , "<p>"
@@ -80,7 +76,6 @@ getUpperBasementR = runHandlerM $ do
 
 getLowerBasementR :: Handler MyRoute
 getLowerBasementR = runHandlerM $ do
-  showRoute <- showRouteSub
   html $ T.concat
     [ "<h1>You found the lower basement!</h1>"
     , "<a href=\"", showRoute (UpperR UpperBasementR), "\">Take the stairs up</a>"

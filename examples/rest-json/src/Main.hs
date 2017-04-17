@@ -16,7 +16,6 @@ import Network.Wai.Application.Static
 import Data.Aeson.TH (deriveJSON, defaultOptions)
 import Data.IORef (readIORef)
 import Control.Monad.IO.Class (liftIO)
-import Network.HTTP.Types (status404, status400)
 
 -- Import the CRUD operations for our DB
 import PersonCrud (initPeopleDB, PeopleDB(..), newPerson, getPerson, updatePerson, deletePerson)

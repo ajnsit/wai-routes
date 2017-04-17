@@ -37,29 +37,28 @@ getHomeR :: HelloMaster master => HandlerS HelloSubRoute master
 getHomeR = runHandlerM $ do
   m <- master
   s <- sub
-  showRoute <- showRouteSub
-  showRouteM <- showRouteMaster
+  showRouteS <- showRouteSub
   html $ T.concat
     [ "<h1>"
     , getHello s
     , currentUserName m
     , "</h1>"
     , "<a href=\""
-    ,   showRoute FooR
+    ,   showRouteS FooR
     , "\">Go to an internal subsite route - Foo</a>"
     , "<br />"
     , "<a href=\""
-    ,   showRouteM $ parentRoute m
+    ,   showRoute $ parentRoute m
     , "\">Go back to the Master site /</a>"
     ]
 
 -- Foo
 getFooR :: HelloMaster master => HandlerS HelloSubRoute master
 getFooR = runHandlerM $ do
-  showRoute <- showRouteSub
+  showRouteS <- showRouteSub
   html $ T.concat
     ["<h1>FOOO</h1>"
     , "<a href=\""
-    ,   showRoute HomeR
+    ,   showRouteS HomeR
     , "\">Go back</a>"
     ]
