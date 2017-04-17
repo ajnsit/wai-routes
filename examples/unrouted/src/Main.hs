@@ -22,7 +22,7 @@ import Network.Wai.Handler.Warp
 main :: IO ()
 main = do
   -- Global state
-  times <- liftIO $ newIORef 0
+  times <- liftIO $ newIORef (0::Int)
 
   -- We create a global vault key to store the counter
   -- This key is only created once when the application starts
