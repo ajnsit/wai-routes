@@ -1,4 +1,5 @@
-{-# LANGUAGE TemplateHaskell, CPP #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Routes.TH.ParseRoute
     ( -- ** ParseRoute
       mkParseRouteInstance

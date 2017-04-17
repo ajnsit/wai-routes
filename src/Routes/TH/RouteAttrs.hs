@@ -1,4 +1,5 @@
-{-# LANGUAGE TemplateHaskell, CPP #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
 module Routes.TH.RouteAttrs
     ( mkRouteAttrsInstance
