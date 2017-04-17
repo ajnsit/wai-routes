@@ -20,11 +20,12 @@ import qualified Test.Hspec.Wai.JSON as H (json)
 
 data SubRoute = SubRoute Text
 
-class MasterContract master where
+class RenderRoute master => MasterContract master where
   getMasterName :: master -> Text
 
 mkRouteSub "SubRoute" "MasterContract" [parseRoutes|
-/          SubHomeR GET
+/          SubHomeR  GET
+/route     SubRouteR GET
 |]
 
 getSubHomeR :: MasterContract master => HandlerS SubRoute master
@@ -32,6 +33,11 @@ getSubHomeR = runHandlerM $ do
   SubRoute s <- sub
   m <- master
   plain $ T.concat ["subsite-", s, "-", getMasterName m]
+
+getSubRouteR :: MasterContract master => HandlerS SubRoute master
+getSubRouteR = runHandlerM $ do
+  showRouteS <- showRouteSub
+  plain $ T.concat ["this route as sub:", showRouteS SubRouteR, ", this route as master:", showRoute SubRouteR]
 
 getSubRoute :: master -> Text -> SubRoute
 getSubRoute = const SubRoute
@@ -125,6 +131,10 @@ spec = with application $ do
   describe "GET /subsite" $
     it "can access the subsite correctly" $
       get "/subsite" `shouldRespondWith` "subsite-default-MyRoute" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
+
+  describe "GET /subsite/route" $
+    it "can handle routing across subsite correctly" $
+      get "/subsite/route" `shouldRespondWith` "this route as sub:/subsite/route, this route as master:/route" {matchStatus = 200, matchHeaders = ["Content-Type" <:> "text/plain; charset=utf-8"]}
 
   describe "GET /nested" $
     it "can access nested routes root correctly" $
