@@ -1,0 +1,29 @@
+name          : digestive-functors-hamlet-example
+version       : 0.8.0
+cabal-version : >=1.16
+build-type    : Simple
+license       : PublicDomain
+maintainer    : ajnsit@gmail.com
+synopsis      : Digestive-functors + hamlet example for wai-routes
+description   : Digestive-functors + hamlet example for wai-routes
+category      : Web
+author        : Anupam Jain
+data-dir      : ""
+
+executable digestive-functors-hamlet-example
+    build-depends    : base
+                     , wai-routes
+                     , wai-extra
+                     , wai-app-static
+                     , warp
+                     , text
+                     , shakespeare
+                     , blaze-html
+                     , digestive-functors
+                     , digestive-functors-blaze
+    main-is          : Main.hs
+    buildable        : True
+    default-language : Haskell2010
+    other-extensions : OverloadedStrings TemplateHaskell QuasiQuotes TypeFamilies ViewPatterns
+    ghc-options      : -Wall
+    hs-source-dirs : src
