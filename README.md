@@ -57,23 +57,27 @@ A simple example of how to generate HTML using blaze-html combinators in your ha
 
 A simple example of how to generate HTML/CSS/JS using shakespearean templates. You can use both external and inline templates.
 
-**Example 5. Building a JSON REST Service** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/rest-json/src)
+**Example 5. Using Digestive Functors and Hamlet** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/digestive-functors-hamlet/src)
+
+An example of using digestive functors for form handling and hamlet for templating. It demonstrates composing nested forms with validation, nested views defined in hamlet templates, and how to wire it together with wai-routes.
+
+**Example 6. Building a JSON REST Service** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/rest-json/src)
 
 Provides a simple example of how to build JSON REST services with wai-routes. Uses Aeson for JSON conversion. Note that this example just demonstrates the web facing side of the application. It doesn't permanently persist data, and is also not threadsafe. You must use a more robust data storage mechanism in production! An example of doing this with a Relational DB adapter (like persistent) is in the works.
 
-**Example 6. Stream a response** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/streaming-response/src)
+**Example 7. Stream a response** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/streaming-response/src)
 
 Wai has had the ability to stream content for a long time. Now wai-routes exposes this functionality with the `stream` function. This example shows how to stream content in a handler. Note that most browsers using default settings will not show content as it is being streamed. You can use "curl" to observe the effect of streaming. E.g. - `curl localhost:8080` will dump the data as it is being streamed from the server.
 
-**Example 7. Kitchen sink** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/kitchen/src)
+**Example 8. Kitchen sink** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/kitchen/src)
 
 *Work in progress*. Demonstrates all major features in wai-routes.
 
-**Example 8. Unrouted** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/unrouted/src)
+**Example 9. Unrouted** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/unrouted/src)
 
 Demonstrates "unrouted" applications. These require no TH, or GHC extensions. Basically allow you to sequence request handlers in a cascade, with each handler having the full functionality of HandlerM monad available to them. Each handler also has access to untyped (but parsed) route information. Unrouted handlers are freely mixable with typesafe routing.
 
-**Example 9. Typesafe "Bare" Wai routing** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/bare-wai/src)
+**Example 10. Typesafe "Bare" Wai routing** - [Code](https://github.com/ajnsit/wai-routes/tree/master/examples/bare-wai/src)
 
 Demonstrates writing no-overhead "bare" wai applications with routing. Wai-routes handlers are simple functions that return wai responses. This means that you are free to use typesafe routing, but without using runHandlerM, instead accessing the master datatype and the route args as arguments passed to the handler function.
 
@@ -103,7 +107,6 @@ Planned Features
 
 The following features are planned for later releases -
 
-- Support for raw network responses (see http://hackage.haskell.org/package/wai-3.0.3.0/docs/Network-Wai.html#v:responseRaw)
 - Seamless websocket support
 - Development mode
 - Scaffolding
