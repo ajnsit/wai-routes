@@ -11,6 +11,8 @@ module Main where
 
 import Wai.Routes
 
+import Control.Applicative ((<$>), (<*>))
+
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
