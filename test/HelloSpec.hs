@@ -99,8 +99,8 @@ application = return $ waiApp $ do
   handler handleInfoRequest
   route MyRoute
   handler $ runHandlerM $ do
-    Just (DefaultRoute (route,_)) <- maybeRoute
-    plain $ T.pack $ show route
+    Just (DefaultRoute (r,_)) <- maybeRoute
+    plain $ T.pack $ show r
   -- catchall $ plain "This will never be reached"
 
 

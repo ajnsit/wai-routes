@@ -26,7 +26,7 @@ import Text.Blaze.Html5 (toHtml)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import Text.Digestive.Util (readMaybe)
 import Text.Digestive.Blaze.Html5 (inputSubmit, inputSelect, inputText, errorList, childErrorList)
-import Text.Digestive (Form, Result, View, getForm, postForm, FormInput(TextInput), text, check, (.:), Result(Error, Success), validate, choice, subView)
+import Text.Digestive (Form, View, getForm, postForm, FormInput(TextInput), text, check, (.:), Result(Error, Success), validate, choice, subView)
 
 -- Our master datatype
 data MyApp = MyApp

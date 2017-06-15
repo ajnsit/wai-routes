@@ -51,7 +51,7 @@ instance HelloMaster MyRoute where
 getHomeR :: Handler MyRoute
 getHomeR = runHandlerM $ do
   Just r <- maybeRoute
-  showRoute <- showRouteSub
+  showRouteS <- showRouteSub
   html $ T.concat
     [ "<h1>Home</h1>"
     , "<p>You are on route - "
@@ -59,15 +59,15 @@ getHomeR = runHandlerM $ do
     , "</p>"
     , "<p>"
     ,   "<a href=\""
-    ,   showRoute $ HelloR "howdy" Sub.HomeR
+    ,   showRouteS $ HelloR "howdy" Sub.HomeR
     ,   "\">Go to subsite 'howdy'</a>"
     ,   " or "
     ,   "<a href=\""
-    ,   showRoute $ HelloR "namaste" Sub.HomeR
+    ,   showRouteS $ HelloR "namaste" Sub.HomeR
     ,   "\">to subsite 'namaste'</a>"
     ,   " or "
     ,   "<a href=\""
-    ,   showRoute $ SubR $ Sub2R $ HelloSubR Sub.HomeR
+    ,   showRouteS $ SubR $ Sub2R $ HelloSubR Sub.HomeR
     ,   "\">to deeply nested subsite with default 'namaste'</a>"
     ,   " to be greeted!"
     , "</p>"
