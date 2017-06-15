@@ -15,4 +15,4 @@ extra-deps:
 # Needed for the digestive-functors-hamlet example
 - digestive-functors-0.8.2.0
 - digestive-functors-blaze-0.6.1.0
-resolver: lts-8.11
+resolver: lts-8.18
