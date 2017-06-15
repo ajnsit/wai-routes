@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Routes.TH
     ( module Routes.TH.Types
       -- * Functions
