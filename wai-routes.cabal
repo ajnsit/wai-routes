@@ -74,12 +74,12 @@ test-suite test
   hs-source-dirs   : test
   GHC-options      : -Wall -threaded -fno-warn-orphans
 
-  build-depends    : base           >= 4.7 && < 4.10
+  build-depends    : base           >= 4.7 && < 4.11
                    , wai            >= 3.0 && < 3.3
                    , aeson          >= 0.8 && < 1.3
                    , hspec          >= 2.1 && < 2.5
-                   , hspec-wai      >= 0.6 && < 0.9
-                   , hspec-wai-json >= 0.6 && < 0.9
+                   , hspec-wai      >= 0.6 && < 0.10
+                   , hspec-wai-json >= 0.6 && < 0.10
                    , text           >= 1.2 && < 1.3
                    , wai-routes
   ghc-options        : -Wall
