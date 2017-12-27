@@ -13,6 +13,6 @@ packages:
 - examples/bare-wai
 extra-deps:
 # Needed for the digestive-functors-hamlet example
-- digestive-functors-0.8.2.0
-- digestive-functors-blaze-0.6.1.0
-resolver: lts-8.18
+- digestive-functors-0.8.3.0
+- digestive-functors-blaze-0.6.2.0
+resolver: lts-10.1
