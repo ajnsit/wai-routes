@@ -4,7 +4,7 @@
 sudo: false
 
 # Choose a lightweight base image; we provide our own build tools.
-language: c
+language: generic
 
 # GHC depends on GMP. You can add other dependencies here as well.
 addons:
@@ -43,6 +43,29 @@ matrix:
   - env: ARGS=""
     compiler: ": # Default osx"
     os: osx
+  - env: ARGS="--resolver lts-6"
+    compiler: ": # lts-6 osx"
+    os: osx
+  - env: ARGS="--resolver lts-7"
+    compiler: ": # lts-7 osx"
+    os: osx
+  - env: ARGS="--resolver lts-8"
+    compiler: ": # lts-8 osx"
+    os: osx
+  - env: ARGS="--resolver lts-9"
+    compiler: ": # lts-9 osx"
+    os: osx
+  - env: ARGS="--resolver lts-10"
+    compiler: ": # lts-10 osx"
+    os: osx
+  - env: ARGS="--resolver lts"
+    compiler: ": # lts osx"
+    os: osx
+  - env: ARGS="--resolver nightly"
+    compiler: ": # nightly osx"
+    os: osx
+  allow-failures:
+  - env: ARGS="--resolver nightly"
 
 before_install:
 # Undo the side-effect of using compiler above
@@ -66,6 +89,8 @@ script: stack $ARGS --no-terminal --install-ghc test --haddock
 # Caching so the next build will be fast too.
 cache:
   directories:
+  - $HOME/.ghc
+  - $HOME/.cabal
   - $HOME/.stack
 
 after_script:
