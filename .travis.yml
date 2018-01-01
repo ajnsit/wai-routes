@@ -64,7 +64,7 @@ matrix:
   - env: ARGS="--resolver nightly"
     compiler: ": # nightly osx"
     os: osx
-  allow-failures:
+  allow_failures:
   - env: ARGS="--resolver nightly"
 
 before_install:
