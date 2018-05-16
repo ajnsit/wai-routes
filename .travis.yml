@@ -36,6 +36,8 @@ matrix:
     compiler: ": # lts-9"
   - env: ARGS="--resolver lts-10"
     compiler: ": # lts-10"
+  - env: ARGS="--resolver lts-11"
+    compiler: ": # lts-11"
   - env: ARGS="--resolver lts"
     compiler: ": # lts"
   - env: ARGS="--resolver nightly"
@@ -57,6 +59,9 @@ matrix:
     os: osx
   - env: ARGS="--resolver lts-10"
     compiler: ": # lts-10 osx"
+    os: osx
+  - env: ARGS="--resolver lts-11"
+    compiler: ": # lts-11 osx"
     os: osx
   - env: ARGS="--resolver lts"
     compiler: ": # lts osx"
