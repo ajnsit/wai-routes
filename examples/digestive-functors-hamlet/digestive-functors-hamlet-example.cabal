@@ -11,7 +11,7 @@ author        : Anupam Jain
 data-dir      : ""
 
 executable digestive-functors-hamlet-example
-    build-depends    : base
+    build-depends    : base >= 4.7  && < 4.12
                      , wai-routes
                      , wai-extra
                      , wai-app-static
