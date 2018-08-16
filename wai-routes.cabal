@@ -44,6 +44,7 @@ library
                        , cookie             >= 0.4  && < 0.5
                        , data-default-class >= 0.0  && < 0.2
                        , vault              >= 0.3  && < 0.4
+                       , safe-exceptions    >= 0.1.0.0 && < 0.2
     exposed-modules    : Wai.Routes, Network.Wai.Middleware.Routes
     other-modules      : Routes.Parse
                          Routes.Overlap
