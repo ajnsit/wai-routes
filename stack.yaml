@@ -16,4 +16,5 @@ extra-deps:
 - digestive-functors-0.8.3.0
 - digestive-functors-blaze-0.6.2.0
 - http-types-0.12.1
+- safe-exceptions-0.1.7.0
 resolver: lts-11.9
