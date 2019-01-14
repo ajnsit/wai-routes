@@ -80,6 +80,7 @@ import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, Mon
 import Control.Arrow ((***))
 import Control.Applicative (Applicative, (<$>), (<*>))
 
+import qualified Control.Exception.Safe as EX
 import Data.Maybe (fromMaybe)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
@@ -114,7 +115,7 @@ import qualified Network.Wai.Parse as P
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
 newtype HandlerMI sub master m a = H { extractH :: StateT (HandlerState sub master) m a }
-    deriving (Applicative, Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState sub master))
+    deriving (Applicative, Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState sub master), EX.MonadThrow, EX.MonadCatch, EX.MonadMask)
 
 -- | The HandlerM Monad
 type HandlerM sub master a = HandlerMI sub master IO a
