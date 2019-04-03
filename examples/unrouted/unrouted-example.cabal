@@ -11,7 +11,7 @@ author        : Anupam Jain
 data-dir      : ""
 
 executable unrouted-example
-    build-depends    : base >= 4.7  && < 4.12
+    build-depends    : base >= 4.7  && < 5
                      , wai
                      , wai-routes
                      , wai-extra
