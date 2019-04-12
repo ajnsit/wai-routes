@@ -6,7 +6,7 @@
 }:
 mkDerivation {
   pname = "wai-routes";
-  version = "0.10.3";
+  version = "0.10.4";
   src = ./.;
   libraryHaskellDepends = [
     aeson base blaze-builder bytestring case-insensitive containers
