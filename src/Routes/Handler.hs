@@ -75,6 +75,7 @@ import Routes.Class (Route, RenderRoute, ParseRoute, RouteAttrs(..))
 import Routes.ContentTypes (acceptContentType, contentType, contentTypeFromFile, typeHtml, typeJson, typePlain, typeCss, typeJavascript, typeAll)
 
 import Control.Monad (liftM, when)
+import Control.Monad.Fail (MonadFail)
 import Control.Monad.State (StateT, get, put, modify, runStateT, MonadState, MonadIO, liftIO, MonadTrans)
 
 import Control.Arrow ((***))
@@ -115,7 +116,7 @@ import qualified Network.Wai.Parse as P
 -- | The internal implementation of the HandlerM monad
 -- TODO: Should change this to StateT over ReaderT (but performance may suffer)
 newtype HandlerMI sub master m a = H { extractH :: StateT (HandlerState sub master) m a }
-    deriving (Applicative, Monad, MonadIO, Functor, MonadTrans, MonadState (HandlerState sub master), EX.MonadThrow, EX.MonadCatch, EX.MonadMask)
+    deriving (Functor, Applicative, Monad, MonadFail, MonadIO, MonadTrans, MonadState (HandlerState sub master), EX.MonadThrow, EX.MonadCatch, EX.MonadMask)
 
 -- | The HandlerM Monad
 type HandlerM sub master a = HandlerMI sub master IO a
