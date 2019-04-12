@@ -125,9 +125,9 @@ mkRouteData typName routes = do
           [ SigD rname $ ListT `AppT` (ConT ''ResourceTree `AppT` ConT ''String)
           , FunD rname [Clause [] (NormalB eres) []]
           ]
-  rinst <- mkRenderRouteInstance typ resourceTrees
-  pinst <- mkParseRouteInstance typ resourceTrees
-  ainst <- mkRouteAttrsInstance typ resourceTrees
+  rinst <- mkRenderRouteInstance [] typ resourceTrees
+  pinst <- mkParseRouteInstance [] typ resourceTrees
+  ainst <- mkRouteAttrsInstance [] typ resourceTrees
   return $ concat [ [ainst]
                   , [pinst]
                   , resourcesDec

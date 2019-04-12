@@ -1,9 +1,7 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Routes.TH.ParseRoute
     ( -- ** ParseRoute
       mkParseRouteInstance
-    , mkParseRouteInstance'
     ) where
 
 import Routes.TH.Types
@@ -12,11 +10,8 @@ import Data.Text (Text)
 import Routes.Class
 import Routes.TH.Dispatch
 
-mkParseRouteInstance :: Type -> [ResourceTree a] -> Q Dec
-mkParseRouteInstance = mkParseRouteInstance' []
-
-mkParseRouteInstance' :: Cxt -> Type -> [ResourceTree a] -> Q Dec
-mkParseRouteInstance' cxt typ ress = do
+mkParseRouteInstance :: Cxt -> Type -> [ResourceTree a] -> Q Dec
+mkParseRouteInstance cxt typ ress = do
     cls <- mkDispatchClause
         MkDispatchSettings
             { mdsRunHandler = [|\_ _ x _ -> x|]
@@ -49,8 +44,4 @@ mkParseRouteInstance' cxt typ ress = do
     fixDispatch x = x
 
 instanceD :: Cxt -> Type -> [Dec] -> Dec
-#if MIN_VERSION_template_haskell(2,11,0)
 instanceD = InstanceD Nothing
-#else
-instanceD = InstanceD
-#endif
