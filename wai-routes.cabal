@@ -77,8 +77,8 @@ test-suite test
 
   build-depends    : base           >= 4.7 && < 5
                    , wai            >= 3.0 && < 3.3
-                   , aeson          >= 0.8 && < 1.4
-                   , hspec          >= 2.1 && < 2.6
+                   , aeson          >= 0.8 && < 1.5
+                   , hspec          >= 2.1 && < 2.7
                    , hspec-wai      >= 0.6 && < 0.10
                    , hspec-wai-json >= 0.6 && < 0.10
                    , text           >= 1.2 && < 1.3
