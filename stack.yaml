@@ -17,4 +17,5 @@ extra-deps:
 - digestive-functors-blaze-0.6.2.0
 - http-types-0.12.1
 - safe-exceptions-0.1.7.0
-resolver: lts-13.16
+- semigroups-0.18.5@sha256:41ef9f5f183f66c519c5cddcb3fbfdbc9b67a2b7bfae7d81f91de9ff7367d8c6,5828
+resolver: lts-16.12
