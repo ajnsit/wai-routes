@@ -84,7 +84,12 @@ mkRenderRouteClauses =
         let cons y ys = InfixE (Just y) colon (Just ys)
         let pieces' = foldr cons (VarE a) piecesSingle
 
-        let body = LamE [TupP [VarP a, VarP b]] (TupE [pieces', VarE b]) `AppE` (rr `AppE` VarE child)
+        let body = LamE [TupP [VarP a, VarP b]] (TupE
+#if MIN_VERSION_template_haskell(2,16,0)
+                                                  $ map Just
+#endif
+                                                  [pieces', VarE b]
+                                                ) `AppE` (rr `AppE` VarE child)
 
         return $ Clause [pat] (NormalB body) [FunD childRender childClauses]
 
@@ -119,11 +124,20 @@ mkRenderRouteClauses =
                     let cons y ys = InfixE (Just y) colon (Just ys)
                     let pieces = foldr cons (VarE a) piecesSingle
 
-                    return $ LamE [TupP [VarP a, VarP b]] (TupE [pieces, VarE b]) `AppE` (rr `AppE` VarE x)
+                    return $ LamE [TupP [VarP a, VarP b]] (TupE
+#if MIN_VERSION_template_haskell(2,16,0)
+                                                            $ map Just
+#endif
+                                                            [pieces, VarE b]
+                                                          ) `AppE` (rr `AppE` VarE x)
                 _ -> do
                     colon <- [|(:)|]
                     let cons a b = InfixE (Just a) colon (Just b)
-                    return $ TupE [foldr cons piecesMulti piecesSingle, ListE []]
+                    return $ TupE
+#if MIN_VERSION_template_haskell(2,16,0)
+                      $ map Just
+#endif
+                      [foldr cons piecesMulti piecesSingle, ListE []]
 
         return $ Clause [pat] (NormalB body) []
 
@@ -141,7 +155,10 @@ mkRenderRouteInstance :: Cxt -> Type -> [ResourceTree Type] -> Q [Dec]
 mkRenderRouteInstance cxt typ ress = do
     cls <- mkRenderRouteClauses ress
     (cons, decs) <- mkRouteCons ress
-#if MIN_VERSION_template_haskell(2,12,0)
+#if MIN_VERSION_template_haskell(2,15,0)
+    did <- DataInstD [] Nothing (AppT (ConT ''Route) typ) Nothing cons <$> fmap (pure . DerivClause Nothing) (mapM conT (clazzes False))
+    let sds = fmap (\t -> StandaloneDerivD Nothing cxt $ ConT t `AppT` ( ConT ''Route `AppT` typ)) (clazzes True)
+#elif MIN_VERSION_template_haskell(2,12,0)
     did <- DataInstD [] ''Route [typ] Nothing cons <$> fmap (pure . DerivClause Nothing) (mapM conT (clazzes False))
     let sds = fmap (\t -> StandaloneDerivD Nothing cxt $ ConT t `AppT` ( ConT ''Route `AppT` typ)) (clazzes True)
 #else
