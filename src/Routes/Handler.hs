@@ -119,7 +119,7 @@ newtype HandlerMI sub master m a = H { extractH :: StateT (HandlerState sub mast
     deriving (Functor, Applicative, Monad, MonadFail, MonadIO, MonadTrans, MonadState (HandlerState sub master), EX.MonadThrow, EX.MonadCatch, EX.MonadMask)
 
 -- | The HandlerM Monad
-type HandlerM sub master a = HandlerMI sub master IO a
+type HandlerM sub master = HandlerMI sub master IO
 
 -- | Modeled after Network.Wai.Parse.FileInfo, but uses Text for names, and lazy ByteString for content
 data FileInfo = FileInfo
