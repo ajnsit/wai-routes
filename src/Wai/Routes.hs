@@ -17,7 +17,10 @@ module Wai.Routes
     , parseRoutesFileNoCheck -- | Same as parseRoutesFile, but performs no overlap checking.
 
     , mkRoute
+    , mkRouteData
+    , mkRouteDispatch
     , mkRouteSub
+    , mkRouteSubDispatch
 
     -- * Dispatch
     , routeDispatch

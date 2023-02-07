@@ -25,7 +25,10 @@ module Routes.Routes
 
     -- * Template Haskell methods
     , mkRoute
+    , mkRouteData
+    , mkRouteDispatch
     , mkRouteSub
+    , mkRouteSubDispatch
 
     -- * Dispatch
     , routeDispatch
