@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, TemplateHaskell, ViewPatterns #-}
+{-# LANGUAGE RecordWildCards, TemplateHaskell, ViewPatterns, CPP #-}
 module Routes.TH.Dispatch
     ( MkDispatchSettings (..)
     , mkDispatchClause
@@ -73,7 +73,11 @@ mkDispatchClause MkDispatchSettings {..} resources = do
     handlePiece (Static str) = return (LitP $ StringL str, Nothing)
     handlePiece (Dynamic _) = do
         x <- newName "dyn"
+#if MIN_VERSION_template_haskell(2,18,0)
+        let pat = ViewP (VarE 'fromPathPiece) (ConP 'Just [] [VarP x])
+#else
         let pat = ViewP (VarE 'fromPathPiece) (ConP 'Just [VarP x])
+#endif
         return (pat, Just $ VarE x)
 
     handlePieces :: [Piece a] -> Q ([Pat], [Exp])
@@ -86,7 +90,11 @@ mkDispatchClause MkDispatchSettings {..} resources = do
     mkPathPat final =
         foldr addPat final
       where
+#if MIN_VERSION_template_haskell(2,18,0)
+        addPat x y = ConP '(:) [] [x, y]
+#else
         addPat x y = ConP '(:) [x, y]
+#endif
 
     go :: SDC -> ResourceTree a -> Q Clause
     go sdc (ResourceParent name _check pieces children) = do
@@ -124,11 +132,19 @@ mkDispatchClause MkDispatchSettings {..} resources = do
                 Methods multi methods -> do
                     (finalPat, mfinalE) <-
                         case multi of
+#if MIN_VERSION_template_haskell(2,18,0)
+                            Nothing -> return (ConP '[] [] [], Nothing)
+#else
                             Nothing -> return (ConP '[] [], Nothing)
+#endif
                             Just _ -> do
                                 multiName <- newName "multi"
                                 let pat = ViewP (VarE 'fromPathMultiPiece)
+#if MIN_VERSION_template_haskell(2,18,0)
+                                                (ConP 'Just [] [VarP multiName])
+#else
                                                 (ConP 'Just [VarP multiName])
+#endif
                                 return (pat, Just $ VarE multiName)
 
                     let dynsMulti =

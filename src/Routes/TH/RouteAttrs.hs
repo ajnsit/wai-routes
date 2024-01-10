@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE CPP #-}
 module Routes.TH.RouteAttrs
     ( mkRouteAttrsInstance
     ) where
@@ -26,7 +27,11 @@ goTree front (ResourceParent name _check pieces trees) =
     toIgnore = length $ filter isDynamic pieces
     isDynamic Dynamic{} = True
     isDynamic Static{} = False
+#if MIN_VERSION_template_haskell(2,18,0)
+    front' = front . ConP (mkName name) [] . ignored
+#else
     front' = front . ConP (mkName name) . ignored
+#endif
 
 goRes :: (Pat -> Pat) -> Resource a -> Q Clause
 goRes front Resource {..} =
