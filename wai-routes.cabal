@@ -1,5 +1,5 @@
 name               : wai-routes
-version            : 0.10.4
+version            : 0.10.5
 cabal-version      : 1.18
 build-type         : Simple
 license            : MIT
@@ -14,14 +14,9 @@ author             : Anupam Jain
 data-dir           : ""
 extra-source-files : README.md
 
-source-repository head
-    type     : git
-    location : http://github.com/ajnsit/wai-routes
-
 source-repository this
     type     : git
-    location : http://github.com/ajnsit/wai-routes/tree/v0.10.4
-    tag      : v0.10.4
+    location : http://github.com/ajnsit/wai-routes
 
 library
     build-depends      : base
